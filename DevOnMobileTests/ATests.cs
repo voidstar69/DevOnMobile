@@ -15,7 +15,7 @@ namespace DevOnMobile.Tests
   {
    A a = new A();
    C c = a.add(new B(), new B());
-   Assert.AreEqual(-1, c.bar());
+   Assert.AreEqual(123, c.bar());
   }
  }
 }
