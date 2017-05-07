@@ -16,5 +16,27 @@ namespace UnitTests
 
    Program.Main(new String[]{"a", "b"});
   }
+
+  // Ideas
+
+  [TestMethod]
+  public void testPrimes()
+  {
+  }
+
+  [TestMethod]
+  public void testCompression()
+  {
+  }
+
+  [TestMethod]
+  public void testBinaryTree()
+  {
+  }
+
+  [TestMethod]
+  public void testRedBlackTree()
+  {
+  }
  }
 }

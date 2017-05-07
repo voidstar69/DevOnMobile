@@ -53,6 +53,7 @@
     <Compile Include="ATests.cs" />
     <Compile Include="BTests.cs" />
     <Compile Include="CTests.cs" />
+    <Compile Include="PrimeTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
