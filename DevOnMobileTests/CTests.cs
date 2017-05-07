@@ -14,7 +14,7 @@ namespace DevOnMobile.Tests
   public void barTest()
   {
    C c = new C();
-   Assert.AreEqual(-1, c.bar());
+   Assert.AreEqual(123, c.bar());
   }
  }
 }
