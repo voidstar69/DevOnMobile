@@ -10,7 +10,7 @@ namespace DevOnMobile
  {
   public int bar()
   {
-   return -1;
+   return 123;
   }
  }
 }
