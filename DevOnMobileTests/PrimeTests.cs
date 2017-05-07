@@ -13,7 +13,7 @@ namespace DevOnMobile.Tests
   [TestMethod()]
   public void TestIsPrime()
   {
-   Console.WriteLine("Testing numbers for Primality:");
+   Console.WriteLine("Testing numbers for Primality");
    var prime = new Prime();
    for (int i = 1; i < 1000000; i++)
    {
@@ -22,6 +22,16 @@ namespace DevOnMobile.Tests
 //    Console.Write(i);
 //    Console.Write(',');
     Assert.AreEqual(isPrime1, isPrime2, string.Format("Num: {0}, Slow: {1}, Fast: {2}", i, isPrime1, isPrime2));
+   }
+  }
+
+  [TestMethod()]
+  public void IsPrimeFastPerformance()
+  {
+   var prime = new Prime();
+   for (int i = 1; i < 1000000; i++)
+   {
+    prime.IsPrimeFast(i);
    }
   }
  }
