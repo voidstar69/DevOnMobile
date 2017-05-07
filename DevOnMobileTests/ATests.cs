@@ -7,13 +7,15 @@ using DevOnMobile;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace DevOnMobile.Tests
 {
-    [TestClass()]
-    public class ATests
-    {
-        [TestMethod()]
-        public void AddTest()
-        {
-            new A();
-        }
-    }
+ [TestClass()]
+ public class ATests
+ {
+  [TestMethod()]
+  public void addTest()
+  {
+   A a = new A();
+   C c = a.add(new B(), new B());
+   Assert.AreEqual(-1, c.bar());
+  }
+ }
 }

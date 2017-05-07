@@ -4,13 +4,17 @@ using DevOnMobile;
 
 namespace UnitTests
 {
-    [TestClass]
-    public class UnitTest1
-    {
-        [TestMethod]
-        public void TestMethod1()
-        {
-            new A();
-        }
-    }
+ [TestClass]
+ public class UnitTest1
+ {
+  [TestMethod]
+  public void TestMethod1()
+  {
+   new A();
+
+   Program.plop();
+
+   Program.Main(new String[]{"a", "b"});
+  }
+ }
 }

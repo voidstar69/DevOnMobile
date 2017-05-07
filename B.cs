@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace DevOnMobile
 {
-    public class B
-    {
-        public void Foo()
-        {
-        }
-    }
+ public class B
+ {
+  public void foo()
+  {
+  }
+ }
 }

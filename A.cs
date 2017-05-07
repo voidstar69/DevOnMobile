@@ -6,15 +6,15 @@ using System.Threading.Tasks;
 
 namespace DevOnMobile
 {
-    public class A
-    {
-        public A()
-        {
-        }
+ public class A
+ {
+  public A()
+  {
+  }
 
-        public C Add(B b1, B b2)
-        {
-            return new C();
-        }
-    }
+  public C add(B b1, B b2)
+  {
+   return new C();
+  }
+ }
 }

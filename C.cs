@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace DevOnMobile
 {
-    public class C
-    {
-        public int bar()
-        {
-            return -1;
-        }
-    }
+ public class C
+ {
+  public int bar()
+  {
+   return -1;
+  }
+ }
 }

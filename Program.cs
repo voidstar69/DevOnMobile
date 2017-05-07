@@ -6,11 +6,15 @@ using System.Threading.Tasks;
 
 namespace DevOnMobile
 {
-    public class Program
-    {
-        static void Main(string[] args)
-        {
-            Console.WriteLine("Hello World!");
-        }
-    }
+ public class Program
+ {
+  public static void plop()
+  {
+  }
+
+  public static void Main(string[] args)
+  {
+   Console.WriteLine("Experiments in algorithsm? Red-Black trees? Compression?");
+  }
+ }
 }
