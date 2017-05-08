@@ -34,5 +34,16 @@ namespace DevOnMobile.Tests
     prime.IsPrimeFast(i);
    }
   }
+
+ [TestMethod()]
+  public void IsPrimeSlowPerformance()
+  {
+   var prime = new Prime();
+   for (int i = 1; i < 1000000; i++)
+   {
+    prime.IsPrimeSlow(i);
+   }
+  }
+
  }
 }
