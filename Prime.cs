@@ -62,10 +62,17 @@ namespace DevOnMobile
    int maxFactor = primes[primes.Count() - 1];
    for (int i = maxFactor; i <= limit; i++)
    {
-    IsPrimeFast(i);
+    if (IsPrimeFast(i))
+    {
+     if (num % i == 0)
+     {
+      DebugFast = "Factor: " + i;
+      return false;
+     }
+    }
    }
 
-   return IsPrimeFast(num);
+   return true;
   }
 
   public string DebugSlow
