@@ -19,9 +19,10 @@ namespace DevOnMobile.Tests
    {
     bool isPrime1 = prime.IsPrimeSlow(i);
     bool isPrime2 = prime.IsPrimeFast(i);
-    Console.Write(i);
-    Console.Write(',');
-    Assert.AreEqual(isPrime1, isPrime2, string.Format("Num: {0}, Slow: {1}, Fast: {2}\nDebug slow: {3}\nDebug fast: {4}", i, isPrime1, isPrime2, prime.DebugSlow, prime.DebugFast));
+//    Console.Write(i);
+//    Console.Write(',');
+    Assert.AreEqual(isPrime1, isPrime2);
+//    Assert.AreEqual(isPrime1, isPrime2, string.Format("Num: {0}, Slow: {1}, Fast: {2}\nDebug slow: {3}\nDebug fast: {4}", i, isPrime1, isPrime2, prime.DebugSlow, prime.DebugFast));
    }
   }
 
@@ -44,6 +45,5 @@ namespace DevOnMobile.Tests
     prime.IsPrimeSlow(i);
    }
   }
-
  }
 }
