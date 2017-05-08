@@ -8,6 +8,8 @@ namespace DevOnMobile
 {
  public class Prime
  {
+  private List<int> primes = new List<int>();
+
   public bool IsPrimeSlow(int num)
   {
    int limit = (int)Math.Sqrt(num);
@@ -21,8 +23,21 @@ namespace DevOnMobile
 
   public bool IsPrimeFast(int num)
   {
-   // TODO: write an optimised algorithm
-   return IsPrimeSlow(num);
+   int limit = (int)Math.Sqrt(num);
+   foreach(int factor in primes)
+   {
+     if (factor > limit)
+      break;
+     if (num % factor == 0)
+      return false;
+     if (num == factor)
+      return true;
+     if (num < factor)
+      return false;
+   }
+
+   primes.Add(num);
+   return true;
   }
  }
 }
