@@ -27,6 +27,9 @@ namespace DevOnMobile
 
   public bool IsPrimeFast(int num)
   {
+   if (num < 2)
+    return false;
+
    int limit = (int)Math.Sqrt(num);
    foreach(int factor in primes)
    {
@@ -34,10 +37,10 @@ namespace DevOnMobile
       break;
      if (num % factor == 0)
       return false;
-     if (num == factor)
-      return true;
-     if (num < factor)
-      return false;
+//     if (num == factor)
+//      return true;
+//     if (num < factor)
+//      return false;
    }
 
    primes.Add(num);
