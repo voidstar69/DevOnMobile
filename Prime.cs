@@ -45,9 +45,10 @@ namespace DevOnMobile
   }
 
   public string Debug {
-get
+   get
 {
   return primes.ToString();
 }
+  }
  }
 }
