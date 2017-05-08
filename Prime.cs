@@ -23,7 +23,10 @@ namespace DevOnMobile
    for (int i = 2; i <= limit; i++)
    {
     if (num % i == 0)
+    {
+     DebugSlow = "Factor: " + i;
      return false;
+    }
    }
    return true;
   }
@@ -39,7 +42,11 @@ namespace DevOnMobile
      if (factor > limit)
       break;
      if (num % factor == 0)
+     {
+      DebugFast = "Factor: " + i;
       return false;
+     }
+
 //     if (num == factor)
 //      return true;
 //     if (num < factor)
@@ -50,11 +57,14 @@ namespace DevOnMobile
    return true;
   }
 
-  public string Debug {
-   get
-{
-  return primes.ToString();
-}
+  public string DebugSlow
+  {
+   get; set;
+  }
+
+  public string DebugFast
+  {
+   get; set;
   }
  }
 }
