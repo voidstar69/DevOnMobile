@@ -16,6 +16,9 @@ namespace DevOnMobile
 
   public bool IsPrimeSlow(int num)
   {
+   if (num < 2)
+    return false;
+
    int limit = (int)Math.Sqrt(num);
    for (int i = 2; i <= limit; i++)
    {
