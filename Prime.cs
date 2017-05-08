@@ -43,7 +43,7 @@ namespace DevOnMobile
       break;
      if (num % factor == 0)
      {
-      DebugFast = "Factor: " + i;
+      DebugFast = "Factor: " + factor;
       return false;
      }
 
