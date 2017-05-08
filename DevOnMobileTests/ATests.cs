@@ -10,7 +10,7 @@ namespace DevOnMobile.Tests
  [TestClass()]
  public class ATests
  {
-  [TestMethod()]
+  //[TestMethod()]
   public void addTest()
   {
    A a = new A();
