@@ -41,7 +41,12 @@ namespace DevOnMobile
    foreach(int factor in primes)
    {
      if (factor > limit)
-      break;
+     {
+      primes.Add(num);
+      DebugFast = "";
+      return true;
+     }
+
      if (num % factor == 0)
      {
       DebugFast = "Factor: " + factor;
@@ -54,9 +59,13 @@ namespace DevOnMobile
 //      return false;
    }
 
-   primes.Add(num);
-   DebugFast = "";
-   return true;
+   int maxFactor = primes[primes.Length - 1];
+   for (int i = maxFactor; i <= limit; i++)
+   {
+    IsPrimeFast(i);
+   }
+
+   return IsPrimeFast(num);
   }
 
   public string DebugSlow
