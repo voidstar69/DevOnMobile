@@ -28,6 +28,7 @@ namespace DevOnMobile
      return false;
     }
    }
+   DebugSlow = "";
    return true;
   }
 
@@ -54,6 +55,7 @@ namespace DevOnMobile
    }
 
    primes.Add(num);
+   DebugFast = "";
    return true;
   }
 
