@@ -15,7 +15,7 @@ namespace DevOnMobile.Tests
   {
    Console.WriteLine("Testing numbers for Primality");
    var prime = new Prime();
-   for (int i = 1; i < 1000000; i++)
+   for (int i = 1; i < 10000000; i++)
    {
     bool isPrime1 = prime.IsPrimeSlow(i);
     bool isPrime2 = prime.IsPrimeFast(i);
@@ -29,7 +29,7 @@ namespace DevOnMobile.Tests
   public void IsPrimeFastPerformance()
   {
    var prime = new Prime();
-   for (int i = 1; i < 1000000; i++)
+   for (int i = 1; i < 10000000; i++)
    {
     prime.IsPrimeFast(i);
    }
@@ -39,7 +39,7 @@ namespace DevOnMobile.Tests
   public void IsPrimeSlowPerformance()
   {
    var prime = new Prime();
-   for (int i = 1; i < 1000000; i++)
+   for (int i = 1; i < 10000000; i++)
    {
     prime.IsPrimeSlow(i);
    }
