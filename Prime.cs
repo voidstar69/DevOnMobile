@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -43,5 +43,11 @@ namespace DevOnMobile
    primes.Add(num);
    return true;
   }
+
+  public string Debug {
+get
+{
+  return primes.ToString();
+}
  }
 }
