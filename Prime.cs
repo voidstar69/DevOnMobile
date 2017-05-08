@@ -59,7 +59,7 @@ namespace DevOnMobile
 //      return false;
    }
 
-   int maxFactor = primes[primes.Length - 1];
+   int maxFactor = primes[primes.Count() - 1];
    for (int i = maxFactor; i <= limit; i++)
    {
     IsPrimeFast(i);
