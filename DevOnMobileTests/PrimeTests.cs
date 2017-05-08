@@ -15,12 +15,12 @@ namespace DevOnMobile.Tests
   {
    Console.WriteLine("Testing numbers for Primality");
    var prime = new Prime();
-   for (int i = 100; i > 0; i--)
+   for (int i = 1000000; i > 0; i--)
    {
     bool isPrime1 = prime.IsPrimeSlow(i);
     bool isPrime2 = prime.IsPrimeFast(i);
-//    Console.Write(i);
-//    Console.Write(',');
+    Console.Write(i);
+    Console.Write(',');
     Assert.AreEqual(isPrime1, isPrime2, string.Format("Num: {0}, Slow: {1}, Fast: {2}\nDebug: {3}", i, isPrime1, isPrime2, prime.Debug));
    }
   }
