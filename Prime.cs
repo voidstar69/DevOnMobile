@@ -8,7 +8,11 @@ namespace DevOnMobile
 {
  public class Prime
  {
-  private List<int> primes = new List<int>();
+  private List<int> primes = new List<int>(new int[]{2,3,5,7,11});
+
+  public Prime()
+  {
+  }
 
   public bool IsPrimeSlow(int num)
   {
