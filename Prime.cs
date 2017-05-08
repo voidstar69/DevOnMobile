@@ -24,11 +24,11 @@ namespace DevOnMobile
    {
     if (num % i == 0)
     {
-     DebugSlow = "Factor: " + i;
+//     DebugSlow = "Factor: " + i;
      return false;
     }
    }
-   DebugSlow = "";
+//   DebugSlow = "";
    return true;
   }
 
@@ -43,13 +43,13 @@ namespace DevOnMobile
      if (factor > limit)
      {
       primes.Add(num);
-      DebugFast = "";
+//      DebugFast = "";
       return true;
      }
 
      if (num % factor == 0)
      {
-      DebugFast = "Factor: " + factor;
+//      DebugFast = "Factor: " + factor;
       return false;
      }
 
@@ -66,7 +66,7 @@ namespace DevOnMobile
     {
      if (num % i == 0)
      {
-      DebugFast = "Factor: " + i;
+//      DebugFast = "Factor: " + i;
       return false;
      }
     }
