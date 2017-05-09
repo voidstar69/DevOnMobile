@@ -19,7 +19,7 @@ namespace DevOnMobile
 
   public string decode(string data)
   {
-   return new string(data.Reverse());
+   return new string(data.Reverse().ToArray());
   }
 
 /*
