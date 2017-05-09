@@ -10,25 +10,34 @@ namespace DevOnMobile.Tests
  [TestClass()]
  public class ATests
  {
-/*
-  //[TestMethod()]
-  public void addTest()
-  {
-   A a = new A();
-   C c = a.add(new B(), new B());
-   Assert.AreEqual(123, c.bar());
-  }
-*/
-
   [TestMethod]
-  public void testCodec()
+  public void encodeThenDecodeMustProduceOriginalData()
   {
    const string input = "Hello World";
    var codec = new A();
    var encoded = codec.encode(input);
    var output = codec.decode(encoded);
    Assert.AreEqual(input, output);
-   Assert.AreNotEqual(input, encoded, "Codec must change the data");
+  }
+
+  [TestMethod]
+  public void encodingMustChangeData()
+  {
+   const string input = "Hello World";
+   var codec = new A();
+   var encoded = codec.encode(input);
+   var output = codec.decode(encoded);
+   Assert.AreNotEqual(input, encoded);
+  }
+
+  [TestMethod]
+  public void codecMustShrinkData()
+  {
+   const string input = "Hello World";
+   var codec = new A();
+   var encoded = codec.encode(input);
+   var output = codec.decode(encoded);
+   Assert.True(encoded.Length < input.Length);
   }
  }
 }
