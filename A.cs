@@ -14,12 +14,12 @@ namespace DevOnMobile
 
   public string encode(string data)
   {
-   return data;
+   return data.Reverse();
   }
 
   public string decode(string data)
   {
-   return data;
+   return data.Reverse();
   }
 
 /*
