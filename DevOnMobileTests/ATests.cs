@@ -37,7 +37,7 @@ namespace DevOnMobile.Tests
    var codec = new A();
    var encoded = codec.encode(input);
    var output = codec.decode(encoded);
-   Assert.True(encoded.Length < input.Length);
+   Assert.IsTrue(encoded.Length < input.Length);
   }
  }
 }
