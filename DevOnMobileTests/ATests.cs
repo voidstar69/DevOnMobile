@@ -10,6 +10,7 @@ namespace DevOnMobile.Tests
  [TestClass()]
  public class ATests
  {
+/*
   //[TestMethod()]
   public void addTest()
   {
@@ -17,6 +18,7 @@ namespace DevOnMobile.Tests
    C c = a.add(new B(), new B());
    Assert.AreEqual(123, c.bar());
   }
+*/
 
   [TestMethod]
   public void testCodec()
