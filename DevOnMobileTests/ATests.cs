@@ -28,6 +28,7 @@ namespace DevOnMobile.Tests
    var encoded = codec.encode(input);
    var output = codec.decode(encoded);
    Assert.AreEqual(input, output);
+   Assert.AreNotEqual(input, encoded, "Codec must change the data");
   }
  }
 }
