@@ -12,9 +12,21 @@ namespace DevOnMobile
   {
   }
 
+  public string encode(string data)
+  {
+   return data;
+  }
+
+  public string decode(string data)
+  {
+   return data;
+  }
+
+/*
   public C add(B b1, B b2)
   {
    return new C();
   }
+*/
  }
 }
