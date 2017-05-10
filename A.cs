@@ -17,6 +17,9 @@ namespace DevOnMobile
  {
   public string encode(string data)
   {
+   if(string.IsNullOrEmpty(data))
+    return data;
+
    string output = "";
    int runLen = 1;
    char prevCh = data[0];
@@ -46,6 +49,9 @@ namespace DevOnMobile
 
   public string decode(string data)
   {
+   if(string.IsNullOrEmpty(data))
+    return data;
+
    string output = "";
    char prevCh = data[0];
 
