@@ -16,16 +16,16 @@ namespace DevOnMobile.Tests
    var output = codec.decode(encoded);
    Assert.AreEqual(input, output, "encodeThenDecodeMustProduceOriginalData");
    Assert.AreNotEqual(input, encoded, "encodingMustChangeData");
-   Assert.AreEqual(expectedEncoded, encoded);
+   Assert.AreEqual(expectedEncoded, encoded, "Unexpected encoded data");
   }
 
   [TestMethod]
   public void testMultipleCodecs()
   {
-   const string input1 = "Hello World";
-   const string output1 = "Hel2o Wo3rld";
-   const string input2 = "";
-   const string output2 = "";
+   var input1 = "Hello Wooorld";
+   var output1 = "Hel2o Wo3rld";
+   var input2 = "";
+   var output2 = "";
    var codec1 = new RunLengthCodec();
 
    checkCodec(codec1, input1, output1);
