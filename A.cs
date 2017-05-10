@@ -19,10 +19,12 @@ namespace DevOnMobile
   {
    string output = "";
    int runLen = 1;
-   char prevCh = '\0';
+   char prevCh = data[0];
 
-   foreach(char ch in data)
+   for(int i = 1; i <= data.Length; i++)
    {
+    char ch = (i == data.Length ? '\0' : data[i]);
+
     if (ch == prevCh)
     {
      runLen++;
