@@ -7,7 +7,7 @@ using DevOnMobile;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace DevOnMobile.Tests
 {
- [TestClass()]
+// [TestClass()]
  public class PrimeTests
  {
   [TestMethod()]
