@@ -14,7 +14,7 @@ namespace DevOnMobile.Tests
   public void encodeThenDecodeMustProduceOriginalData()
   {
    const string input = "Hello World";
-   var codec = new A();
+   var codec = new RunLengthCodec();
    var encoded = codec.encode(input);
    var output = codec.decode(encoded);
    Assert.AreEqual(input, output);
@@ -24,7 +24,7 @@ namespace DevOnMobile.Tests
   public void encodingMustChangeData()
   {
    const string input = "Hello World";
-   var codec = new A();
+   var codec = new RunLengthCodec();
    var encoded = codec.encode(input);
    var output = codec.decode(encoded);
    Assert.AreNotEqual(input, encoded);
@@ -34,7 +34,7 @@ namespace DevOnMobile.Tests
   public void codecMustShrinkData()
   {
    const string input = "Hello World";
-   var codec = new A();
+   var codec = new RunLengthCodec();
    var encoded = codec.encode(input);
    var output = codec.decode(encoded);
    Assert.IsTrue(encoded.Length < input.Length);
