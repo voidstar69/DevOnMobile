@@ -53,28 +53,34 @@ namespace DevOnMobile
     return data;
 
    string output = "";
-   char prevCh = data[0];
+   char ch = data[0];
 
-   for(int i = 1; i <= data.Length; i++)
+   for(int i = 1; i < data.Length; i++)
    {
-    char ch = (i == data.Length ? '\0' : data[i]);
+    char prevCh = ch;
+    ch = data[i];
 
-    if (char.IsDigit(ch))
-    {
-     int runLen = ch - '0';
-     for(int j=0; j<runLen; j++)
-     {
-      output += prevCh;
-     }
-     i++;
-     ch = data[i];
-    }
-    else
+    if (!char.IsDigit(ch))
     {
      output += prevCh;
     }
-    prevCh = ch;
+    else
+    {
+     int runLen = ch - '0';
+     for(int j = 0; j < runLen; j++)
+     {
+      output += prevCh;
+     }
+     
+     i++;
+//     if (i == data.Length)
+//      break;
+     ch = (i == data.Length ? '\0' : data[i]);
+    }
    }
+
+   if(ch != '\0')
+    output += ch;
 
    return output;
   }

@@ -46,11 +46,12 @@ namespace DevOnMobile.Tests
   public void encodeThenDecodeMustProduceOriginalData()
   {
    //const string input = "Hello World";
-var input = "hhheelooo   woorrrlllld!!";
-   //var output2 = "h3e2lo3 3wo2r3l4d!2";
+   var input = "hhheelooo   woorrrlllld!!";
+   var expectedEncoded = "h3e2lo3 3wo2r3l4d!2";
 
    var codec = new RunLengthCodec();
    var encoded = codec.encode(input);
+   Assert.AreEqual(expectedEncoded, encoded, "Unexpected encoded data");
    var output = codec.decode(encoded);
    Assert.AreEqual(input, output);
   }
