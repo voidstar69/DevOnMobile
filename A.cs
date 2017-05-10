@@ -6,27 +6,44 @@ using System.Threading.Tasks;
 
 namespace DevOnMobile
 {
- public class A
+ interface Codec
  {
-  public A()
-  {
-  }
+  string encode(string data);
+  string decode(string data);
+ }
 
+ // run length encoding where run length is stored in next character
+ public class RunLengthCodec : Codec
+ {
   public string encode(string data)
   {
-   return new string(data.Reverse().ToArray());
+   string output = "";
+   int runLen = 1;
+   char prevCh = '\0';
+
+   foreach(char ch in data)
+   {
+    if (ch == prevCh)
+    {
+     runLen++;
+    }
+    else
+    {
+     output += prevCh;
+     if(runLen > 1)
+     {
+      output += runLen;
+     }
+     runLen = 1;
+    }
+   }
+
+   return output;
   }
 
   public string decode(string data)
   {
    return new string(data.Reverse().ToArray());
   }
-
-/*
-  public C add(B b1, B b2)
-  {
-   return new C();
-  }
-*/
  }
 }
