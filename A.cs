@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DevOnMobile
 {
- interface Codec
+ public interface Codec
  {
   string encode(string data);
   string decode(string data);
