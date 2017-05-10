@@ -10,6 +10,28 @@ namespace DevOnMobile.Tests
  [TestClass()]
  public class ATests
  {
+  private void checkCodec(Codec codec, string input, string expectedEncoded)
+  {
+   var encoded = codec.encode(input);
+   var output = codec.decode(encoded);
+   Assert.AreEqual(input, output, "encodeThenDecodeMustProduceOriginalData");
+   Assert.AreNotEqual(input, encoded, "encodingMustChangeData");
+   Assert.AreEqual(expectedEncoded, encoded);
+  }
+
+  [TestMethod]
+  public void testMultipleCodecs()
+  {
+   const string input1 = "Hello World";
+   const string output1 = "Hel2o Wo3rld";
+   const string input2 = "";
+   const string output2 = "";
+   var codec1 = new RunLengthCodec();
+
+   checkCodec(codec1, input1, output1);
+   checkCodec(codec1, input2, output2);
+  }
+
   [TestMethod]
   public void encodeThenDecodeMustProduceOriginalData()
   {
