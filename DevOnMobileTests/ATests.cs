@@ -33,10 +33,10 @@ namespace DevOnMobile.Tests
   [TestMethod]
   public void verifyRunLengthEncodedData()
   {
-   const string input = "Hello World";
+   const string input = "Hello Wooorld";
    var codec = new RunLengthCodec();
    var encoded = codec.encode(input);
-   Assert.AreEqual("Hel2o World", encoded);
+   Assert.AreEqual("Hel2o Wo3rld", encoded);
   }
 
   //[TestMethod]
