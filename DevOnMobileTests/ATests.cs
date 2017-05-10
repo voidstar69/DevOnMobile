@@ -16,7 +16,7 @@ namespace DevOnMobile.Tests
    var output = codec.decode(encoded);
    Assert.AreEqual(expectedEncoded, encoded, "Unexpected encoded data");
    Assert.AreEqual(input, output, "encodeThenDecodeMustProduceOriginalData");
-   Assert.AreNotEqual(input, encoded, "encodingMustChangeData");
+//   Assert.AreNotEqual(input, encoded, "encodingMustChangeData");
   }
 
   [TestMethod]
@@ -26,10 +26,20 @@ namespace DevOnMobile.Tests
    var output1 = "Hel2o Wo3rld";
    var input2 = "hhheelooo   woorrrlllld!!";
    var output2 = "h3e2lo3 3wo2r3l4d!2";
+   var input3 = "a";
+   var output3 = "a";
+   var input4 = "aa";
+   var output4 = "a2";
+   var input5 = "aab";
+   var output5 = "a2b";
+   
    var codec1 = new RunLengthCodec();
 
    checkCodec(codec1, input1, output1);
    checkCodec(codec1, input2, output2);
+   checkCodec(codec1, input3, output3);
+   checkCodec(codec1, input4, output4);
+   checkCodec(codec1, input5, output5);
   }
 
   [TestMethod]
