@@ -24,12 +24,22 @@ namespace DevOnMobile.Tests
   {
    var input1 = "Hello Wooorld";
    var output1 = "Hel2o Wo3rld";
-   var input2 = "";
-   var output2 = "";
+   var input2 = "hhheelooo   woorrrlllld!!";
+   var output2 = "h3e2lo3 3wo2r3l4d!2";
    var codec1 = new RunLengthCodec();
 
    checkCodec(codec1, input1, output1);
    checkCodec(codec1, input2, output2);
+  }
+
+  [TestMethod]
+  public void encodeThenDecodeEmptyDataMustProduceOriginalData()
+  {
+   const string input = "";
+   var codec = new RunLengthCodec();
+   var encoded = codec.encode(input);
+   var output = codec.decode(encoded);
+   Assert.AreEqual(input, output);
   }
 
   [TestMethod]
