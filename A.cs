@@ -60,6 +60,8 @@ namespace DevOnMobile
      {
       output += prevCh;
      }
+     i++;
+     ch = data[i];
     }
     else
     {
