@@ -18,6 +18,7 @@ namespace DevOnMobile.Tests
    var encoded = codec.encode(input);
    var output = codec.decode(encoded);
    Assert.AreEqual(input, output);
+   Assert.AreEqual("Hel2o World", encoded);
   }
 
   [TestMethod]
@@ -30,7 +31,7 @@ namespace DevOnMobile.Tests
    Assert.AreNotEqual(input, encoded);
   }
 
-  [TestMethod]
+  //[TestMethod]
   public void codecMustShrinkData()
   {
    const string input = "Hello World";
