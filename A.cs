@@ -36,6 +36,7 @@ namespace DevOnMobile
      }
      runLen = 1;
     }
+    prevCh = ch;
    }
 
    return output;
