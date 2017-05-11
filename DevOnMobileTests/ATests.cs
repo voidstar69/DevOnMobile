@@ -18,7 +18,7 @@ namespace DevOnMobile.Tests
    var input = "";
    for(int i=0; i<10; i++)
    {
-    input += random.Next(26) + 'a';
+    input += 'a' + random.Next(26);
    }
 
    var codec1 = new RunLengthCodec();
