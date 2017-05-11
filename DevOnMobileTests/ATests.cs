@@ -20,7 +20,7 @@ namespace DevOnMobile.Tests
    {
     input = input + (char)('a' + random.Next(26));
    }
-   Console.Writeline("Random data: " + input);
+   Console.WriteLine("Random data: " + input);
 
    var codec1 = new RunLengthCodec();
    checkCodec(codec1, input, null);
