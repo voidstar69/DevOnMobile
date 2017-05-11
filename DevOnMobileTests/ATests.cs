@@ -5,16 +5,34 @@ using System.Text;
 using System.Threading.Tasks;
 using DevOnMobile;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 namespace DevOnMobile.Tests
 {
  [TestClass()]
  public class ATests
  {
+[TestMethod]
+  public void testRandomData()
+  {
+   var random = new Random();
+   var input = "";
+   for(int i=0; i<10; i++)
+   {
+    input += random.NextInt(26) + 'a';
+   }
+
+   var codec1 = new RunLengthCodec();
+   checkCodec(codec1, input, null);
+  }
+
   private void checkCodec(Codec codec, string input, string expectedEncoded)
   {
    var encoded = codec.encode(input);
    var output = codec.decode(encoded);
-   Assert.AreEqual(expectedEncoded, encoded, "Unexpected encoded data");
+
+   if(expectedEncoded != null)
+    Assert.AreEqual(expectedEncoded, encoded, "Unexpected encoded data");
+
    Assert.AreEqual(input, output, "encodeThenDecodeMustProduceOriginalData");
 //   Assert.AreNotEqual(input, encoded, "encodingMustChangeData");
   }
