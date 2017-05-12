@@ -28,7 +28,7 @@ namespace DevOnMobile
    {
     char ch = (i == data.Length ? '\0' : data[i]);
 
-    if (ch == prevCh)
+    if (ch == prevCh && runLen < 9)
     {
      runLen++;
     }
