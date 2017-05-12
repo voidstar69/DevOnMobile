@@ -20,9 +20,14 @@ namespace DevOnMobile.Tests
    for(int i=0; i<100; i++)
    {
     var input = "";
+    char ch = ' ';
+
     for(int j=0; j<20; j++)
     {
-     input = input + (char)('a' + random.Next(26));
+     if(random.NextDouble()<0.5)
+      ch=(char)('a'+random.Next(26));
+
+     input += ch;
     }
 
     Console.Write(input + " -> ");
