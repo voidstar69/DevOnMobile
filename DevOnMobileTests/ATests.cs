@@ -24,13 +24,14 @@ namespace DevOnMobile.Tests
     {
      input = input + (char)('a' + random.Next(26));
     }
-    Console.WriteLine("Random data: " + input);
 
-    checkCodec(codec1, input, null);
+    Console.Write(input + " -> ");
+    var encoded = checkCodec(codec1, input, null);
+    Console.WriteLine(encoded);
    }
   }
 
-  private void checkCodec(Codec codec, string input, string expectedEncoded)
+  private string checkCodec(Codec codec, string input, string expectedEncoded)
   {
    var encoded = codec.encode(input);
    var output = codec.decode(encoded);
@@ -40,6 +41,8 @@ namespace DevOnMobile.Tests
 
    Assert.AreEqual(input, output, "encodeThenDecodeMustProduceOriginalData");
 //   Assert.AreNotEqual(input, encoded, "encodingMustChangeData");
+
+   return encoded;
   }
 
   [TestMethod]
