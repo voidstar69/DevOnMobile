@@ -84,6 +84,16 @@ namespace DevOnMobile.Tests
   }
 
   [TestMethod]
+  public void encodeThenDecodeManyRepeatedCharsMustProduceOriginalData()
+  {
+   const string input = "qdttpmmmmmmmmmmhmm";
+   var codec = new RunLengthCodec();
+   var encoded = codec.encode(input);
+   var output = codec.decode(encoded);
+   Assert.AreEqual(input, output);
+  }
+
+  [TestMethod]
   public void encodeThenDecodeMustProduceOriginalData()
   {
    //const string input = "Hello World";
