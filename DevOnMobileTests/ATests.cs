@@ -15,15 +15,19 @@ namespace DevOnMobile.Tests
   public void testRandomData()
   {
    var random = new Random();
-   var input = "";
-   for(int i=0; i<10; i++)
-   {
-    input = input + (char)('a' + random.Next(26));
-   }
-   Console.WriteLine("Random data: " + input);
-
    var codec1 = new RunLengthCodec();
-   checkCodec(codec1, input, null);
+
+   for(int i=0; i<100; i++)
+   {
+    var input = "";
+    for(int j=0; j<20; j++)
+    {
+     input = input + (char)('a' + random.Next(26));
+    }
+    Console.WriteLine("Random data: " + input);
+
+    checkCodec(codec1, input, null);
+   }
   }
 
   private void checkCodec(Codec codec, string input, string expectedEncoded)
