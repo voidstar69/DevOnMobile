@@ -73,8 +73,6 @@ namespace DevOnMobile
      }
      
      i++;
-//     if (i == data.Length)
-//      break;
      ch = (i == data.Length ? '\0' : data[i]);
     }
    }
