@@ -12,7 +12,7 @@ namespace DevOnMobile
   {
   }
 
-  public Enumerator GetEnumerator()
+  public IEnumerator GetEnumerator()
   {
    return null;
   }
