@@ -12,7 +12,7 @@ namespace DevOnMobile
   {
   }
 
-  public IEnumerator<T> GetEnumerator()
+  public IEnumerator<T> GetEnumerator<T>()
   {
    return new Enumerator<T>();
   }
