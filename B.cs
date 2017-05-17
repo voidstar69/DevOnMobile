@@ -14,7 +14,7 @@ namespace DevOnMobile
 
   public IEnumerator<T> GetEnumerator()
   {
-   return null;
+   return new Enumerator<T>();
   }
  }
 }
