@@ -6,15 +6,15 @@ using System.Threading.Tasks;
 
 namespace DevOnMobile
 {
- public class BinaryTree<T> : IEnumerable<T>
+ public class BinaryTree : IEnumerable<int>
  {
   public void Add(int item)
   {
   }
 
-  public IEnumerator<T> GetEnumerator()
+  public IEnumerator<int> GetEnumerator()
   {
-   return new Enumerator<T>();
+   return new Enumerator<int>();
   }
  }
 }
