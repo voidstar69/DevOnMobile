@@ -16,5 +16,10 @@ namespace DevOnMobile
   {
    return new Enumerator<int>();
   }
+
+  private IEnumerator GetEnumerator()
+  {
+   return null;
+  }
  }
 }
