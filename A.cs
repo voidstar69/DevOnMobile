@@ -12,6 +12,52 @@ namespace DevOnMobile
   string decode(string data);
  }
 
+ public class BinaryStream
+ {
+  private string data;
+
+  BinaryStream()
+  {
+   data = string.Empty;
+  }
+
+  BinaryStream(string data)
+  {
+   this.data = data;
+  }
+
+  int? ReadBit()
+  {
+   if(data.Length == 0)
+    return null;
+
+   char ch = data[0];
+   data = data.Substr(1);
+   return int.Parse(ch);
+  }
+
+  void WriteBit(int bit)
+  {
+   data += bit.ToString();
+  }
+ }
+
+ public class BinaryCodec
+ {
+  public string encode(string data)
+  {
+   var in = new BinaryStream(data);
+   var out = new BinaryStream();
+   
+   return out;
+  }
+
+  public string decode(string data)
+  {
+  }
+ }
+
+
  // run length encoding where run length is stored in next character
  public class RunLengthCodec : Codec
  {
