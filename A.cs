@@ -16,17 +16,17 @@ namespace DevOnMobile
  {
   private string data;
 
-  BinaryStream()
+  public BinaryStream()
   {
    data = string.Empty;
   }
 
-  BinaryStream(string data)
+  public BinaryStream(string data)
   {
    this.data = data;
   }
 
-  int? ReadBit()
+  public int? ReadBit()
   {
    if(data.Length == 0)
     return null;
@@ -36,12 +36,12 @@ namespace DevOnMobile
    return int.Parse(ch.ToString());
   }
 
-  void WriteBit(int bit)
+  public void WriteBit(int bit)
   {
    data += bit.ToString();
   }
 
-  string GetData()
+  public string GetData()
   {
    return data;
   }
