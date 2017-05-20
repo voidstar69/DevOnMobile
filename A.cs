@@ -47,7 +47,7 @@ namespace DevOnMobile
   }
  }
 
- public class BinaryCodec
+ public class BinaryCodec : Codec
  {
   public string encode(string data)
   {
