@@ -19,7 +19,7 @@ namespace DevOnMobile
   }
 */
 
-  private IEnumerator GetEnumerator()
+  public IEnumerator GetEnumerator()
   {
    return null;
   }
