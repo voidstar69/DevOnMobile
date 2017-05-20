@@ -65,12 +65,19 @@ namespace DevOnMobile.Tests
    var output5 = "a2b";
    
    var codec1 = new RunLengthCodec();
+   var codec2 = new BinaryCodec();
 
    checkCodec(codec1, input1, output1);
    checkCodec(codec1, input2, output2);
    checkCodec(codec1, input3, output3);
    checkCodec(codec1, input4, output4);
    checkCodec(codec1, input5, output5);
+
+   checkCodec(codec2, input1, output1);
+   checkCodec(codec2, input2, output2);
+   checkCodec(codec2, input3, output3);
+   checkCodec(codec2, input4, output4);
+   checkCodec(codec2, input5, output5);
   }
 
   [TestMethod]
