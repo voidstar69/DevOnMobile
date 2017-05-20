@@ -40,6 +40,11 @@ namespace DevOnMobile
   {
    data += bit.ToString();
   }
+
+  string GetData()
+  {
+   return data;
+  }
  }
 
  public class BinaryCodec
@@ -54,6 +59,7 @@ namespace DevOnMobile
 
   public string decode(string data)
   {
+   return data;
   }
  }
 
