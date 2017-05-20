@@ -51,10 +51,10 @@ namespace DevOnMobile
  {
   public string encode(string data)
   {
-   var in = new BinaryStream(data);
-   var out = new BinaryStream();
+   var input = new BinaryStream(data);
+   var output = new BinaryStream();
    
-   return out;
+   return output.GetData();
   }
 
   public string decode(string data)
