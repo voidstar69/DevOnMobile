@@ -19,12 +19,14 @@ namespace DevOnMobile.Tests
    t.Add(8);
    t.Add(2);
    
+/*
    Console.WriteLine("Binary tree contents in order:");
 
    foreach(int item in t)
    {
     Console.WriteLine(item);
    }
+*/
   }
  }
 }
