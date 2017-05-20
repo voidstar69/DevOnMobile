@@ -54,7 +54,7 @@ namespace DevOnMobile
    var input = new BinaryStream(data);
    var output = new BinaryStream();
    
-   return output.GetData();
+   return input.GetData();
   }
 
   public string decode(string data)
