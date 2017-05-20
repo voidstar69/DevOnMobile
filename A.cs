@@ -32,8 +32,8 @@ namespace DevOnMobile
     return null;
 
    char ch = data[0];
-   data = data.Substr(1);
-   return int.Parse(ch);
+   data = data.Substring(1);
+   return int.Parse(ch.ToString());
   }
 
   void WriteBit(int bit)
