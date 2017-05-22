@@ -18,7 +18,7 @@ namespace DevOnMobile.Tests
    tree.Add(5);
    tree.Add(8);
    tree.Add(2);
-   
+
    Console.WriteLine("Binary tree contents in order:");
    foreach (int item in tree)
    {
@@ -28,7 +28,7 @@ namespace DevOnMobile.Tests
    // TODO: tree should put numbers into order
    int[] expectedItemOrder = { 2, 8, 5 };
    var enu = tree.GetEnumerator();
-   foreach(var expItem in expectedItemOrder)
+   foreach (var expItem in expectedItemOrder)
    {
     Assert.IsTrue(enu.MoveNext());
     Assert.AreEqual(expItem, enu.Current);

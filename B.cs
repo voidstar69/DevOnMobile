@@ -45,73 +45,73 @@ namespace DevOnMobile
  {
   private Node<T> beforeRoot;
 
-    public BinaryTreeEnumerator(Node<T> root)
-    {
-     beforeRoot = new Node<T>();
-     beforeRoot.next = root;
-     _current = beforeRoot;
-    }
+  public BinaryTreeEnumerator(Node<T> root)
+  {
+   beforeRoot = new Node<T>();
+   beforeRoot.next = root;
+   _current = beforeRoot;
+  }
 
-    private Node<T> _current;
-    // Implement the IEnumerator(T).Current publicly, but implement 
-    // IEnumerator.Current, which is also required, privately.
-    public T Current
-    {
-        get
-        {
-            return _current.data;
-        }
-    }
+  private Node<T> _current;
+  // Implement the IEnumerator(T).Current publicly, but implement 
+  // IEnumerator.Current, which is also required, privately.
+  public T Current
+  {
+   get
+   {
+    return _current.data;
+   }
+  }
 
-    private object Current1
-    {
-        get { return this.Current; }
-    }
+  private object Current1
+  {
+   get { return this.Current; }
+  }
 
-    object IEnumerator.Current
-    {
-        get { return Current1; }
-    }
+  object IEnumerator.Current
+  {
+   get { return Current1; }
+  }
 
-    // Implement MoveNext and Reset, which are required by IEnumerator.
-    public bool MoveNext()
-    {
-        _current = _current.next;
-        if (_current == null)
-            return false;
-        return true;
-    }
+  // Implement MoveNext and Reset, which are required by IEnumerator.
+  public bool MoveNext()
+  {
+   _current = _current.next;
+   if (_current == null)
+    return false;
+   return true;
+  }
 
-    public void Reset()
-    {
-        _current = beforeRoot;
-    }
+  public void Reset()
+  {
+   _current = beforeRoot;
+  }
 
-    // Implement IDisposable, which is also implemented by IEnumerator(T).
-    private bool disposedValue = false;
-    public void Dispose()
-    {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
+  // Implement IDisposable, which is also implemented by IEnumerator(T).
+  private bool disposedValue = false;
+  public void Dispose()
+  {
+   Dispose(true);
+   GC.SuppressFinalize(this);
+  }
 
-    protected virtual void Dispose(bool disposing)
+  protected virtual void Dispose(bool disposing)
+  {
+   if (!this.disposedValue)
+   {
+    if (disposing)
     {
-        if (!this.disposedValue)
-        {
-            if (disposing)
-            {
-                // Dispose of managed resources.
-            }
-            _current = null;
-        }
-
-        this.disposedValue = true;
+     // Dispose of managed resources.
     }
+    _current = null;
+   }
 
-    ~BinaryTreeEnumerator()
-    {
-        Dispose(false);
-    }
+   this.disposedValue = true;
+  }
+
+  ~BinaryTreeEnumerator()
+  {
+   Dispose(false);
+  }
  }
 }
