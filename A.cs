@@ -1,4 +1,4 @@
-﻿using System;
+p﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -61,8 +61,8 @@ namespace DevOnMobile
    var input = new BinaryStream(text);
    var output = new BinaryStream();
 
-   if(string.IsNullOrEmpty(data))
-    return data;
+ //  if(string.IsNullOrEmpty(data))
+ //   return data;
 
    string output = "";
    int runLen = 1;
