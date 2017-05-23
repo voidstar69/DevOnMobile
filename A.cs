@@ -46,9 +46,11 @@ namespace DevOnMobile
    return data;
   }
 
-  public int Length()
+  public int Length
   {
-   return data.Length();
+   get {
+    return data.Length;
+   }
   }
  }
 
