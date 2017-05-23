@@ -63,6 +63,8 @@ namespace DevOnMobile.Tests
    var output4 = "a2";
    var input5 = "aab";
    var output5 = "a2b";
+   var binInput1 = "10001";
+   var binOutput1 = "10001";
    
    var codec1 = new RunLengthCodec();
    var codec2 = new BinaryCodec();
@@ -73,11 +75,7 @@ namespace DevOnMobile.Tests
    checkCodec(codec1, input4, output4);
    checkCodec(codec1, input5, output5);
 
-   checkCodec(codec2, input1, output1);
-   checkCodec(codec2, input2, output2);
-   checkCodec(codec2, input3, output3);
-   checkCodec(codec2, input4, output4);
-   checkCodec(codec2, input5, output5);
+   checkCodec(codec2, binInput1, binOutput1);
   }
 
   [TestMethod]
