@@ -45,14 +45,49 @@ namespace DevOnMobile
   {
    return data;
   }
+
+  public int Length()
+  {
+   return data.Length();
+  }
  }
 
  public class BinaryCodec : Codec
  {
-  public string encode(string data)
+  public string encode(string text)
   {
-   var input = new BinaryStream(data);
+   var input = new BinaryStream(text);
    var output = new BinaryStream();
+
+   if(string.IsNullOrEmpty(data))
+    return data;
+
+   string output = "";
+   int runLen = 1;
+   int? prevBit = input.ReadBit();
+
+   for(int i = 1; i <= input.Length; i++)
+   {
+    int? bit = (i == input.Length ? '\0' : input.ReadBit());
+
+    if (bit == prevBit && runLen < 5)
+    {
+     runLen++;
+    }
+    else
+    {
+     output.WriteBit(prevBit);
+     if(runLen > 1)
+     {
+      output.WriteBit(prevBit);
+      runLen -= 2;
+      output.WriteBit(runLen >> 1);
+      output.WriteBit(runLen & 1);
+     }
+     runLen = 1;
+    }
+    prevBit = bit;
+   }
    
    return input.GetData();
   }
