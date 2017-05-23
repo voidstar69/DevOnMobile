@@ -75,6 +75,10 @@ namespace DevOnMobile.Tests
    checkCodec(codec1, input4, output4);
    checkCodec(codec1, input5, output5);
 
+   checkCodec(codec2, "0", "0");
+   checkCodec(codec2, "1", "1");
+   checkCodec(codec2, "00", "00");
+   checkCodec(codec2, "11", "11");
    checkCodec(codec2, binInput1, binOutput1);
   }
 
