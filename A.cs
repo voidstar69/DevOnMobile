@@ -65,11 +65,11 @@ namespace DevOnMobile
    var output = new BinaryStream();
 
    int runLen = 1;
-   int? prevBit = input.ReadBit();
+   int prevBit = input.ReadBit().Value;
 
    for(int i = 1; i <= input.Length; i++)
    {
-    int? bit = (i == input.Length ? '\0' : input.ReadBit());
+    int bit = (i == input.Length ? 0 : input.ReadBit().Value);
 
     if (bit == prevBit && runLen < 5)
     {
