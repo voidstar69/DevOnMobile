@@ -58,13 +58,12 @@ namespace DevOnMobile
  {
   public string encode(string text)
   {
+   if(string.IsNullOrEmpty(text))
+    return text;
+
    var input = new BinaryStream(text);
    var output = new BinaryStream();
 
- //  if(string.IsNullOrEmpty(data))
- //   return data;
-
-   string output = "";
    int runLen = 1;
    int? prevBit = input.ReadBit();
 
@@ -91,7 +90,7 @@ namespace DevOnMobile
     prevBit = bit;
    }
    
-   return input.GetData();
+   return output.GetData();
   }
 
   public string decode(string data)
