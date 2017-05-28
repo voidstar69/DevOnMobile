@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -54,7 +54,7 @@ namespace DevOnMobile
   }
  }
 
- public class BinaryCodec : Codec
+ public class BinaryRunLengthCodec : Codec
  {
   public string encode(string text)
   {
@@ -66,10 +66,14 @@ namespace DevOnMobile
 
    int runLen = 1;
    int prevBit = input.ReadBit().Value;
+   bool outOfBits = false;
 
-   for(int i = 1; i <= input.Length; i++)
+   while (!outOfBits)
+   //   for(int i = 1; i <= input.Length; i++)
    {
-    int bit = (i == input.Length ? 0 : input.ReadBit().Value);
+    int? bitOrNull = input.ReadBit();
+    int bit = bitOrNull.HasValue ? bitOrNull.Value : -1;
+    outOfBits = !bitOrNull.HasValue;
 
     if (bit == prevBit && runLen < 5)
     {
@@ -78,7 +82,7 @@ namespace DevOnMobile
     else
     {
      output.WriteBit(prevBit);
-     if(runLen > 1)
+     if (runLen > 1)
      {
       output.WriteBit(prevBit);
       runLen -= 2;
@@ -101,7 +105,7 @@ namespace DevOnMobile
 
 
  // run length encoding where run length is stored in next character
- public class RunLengthCodec : Codec
+ public class CharacterRunLengthCodec : Codec
  {
   public string encode(string data)
   {

@@ -9,13 +9,13 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace DevOnMobile.Tests
 {
  [TestClass()]
- public class ATests
+ public class CodecTests
  {
 [TestMethod]
   public void testRandomData()
   {
    var random = new Random();
-   var codec1 = new RunLengthCodec();
+   var codec1 = new CharacterRunLengthCodec();
 
    for(int i=0; i<100; i++)
    {
@@ -44,13 +44,13 @@ namespace DevOnMobile.Tests
    if(expectedEncoded != null)
     Assert.AreEqual(expectedEncoded, encoded, "Unexpected encoded data");
 
-   Assert.AreEqual(input, output, "encodeThenDecodeMustProduceOriginalData");
+   Assert.AreEqual(input, output, "Encode then decode must produce original data");
 //   Assert.AreNotEqual(input, encoded, "encodingMustChangeData");
 
    return encoded;
   }
 
-  [TestMethod]
+  [TestMethod, Timeout(1000)]
   public void testMultipleCodecs()
   {
    var input1 = "Hello Wooorld";
@@ -65,9 +65,9 @@ namespace DevOnMobile.Tests
    var output5 = "a2b";
    var binInput1 = "10001";
    var binOutput1 = "10001";
-   
-   var codec1 = new RunLengthCodec();
-   var codec2 = new BinaryCodec();
+
+   var codec1 = new CharacterRunLengthCodec();
+   var codec2 = new BinaryRunLengthCodec();
 
    checkCodec(codec1, input1, output1);
    checkCodec(codec1, input2, output2);
@@ -77,8 +77,8 @@ namespace DevOnMobile.Tests
 
    checkCodec(codec2, "0", "0");
    checkCodec(codec2, "1", "1");
-   checkCodec(codec2, "00", "00");
-   checkCodec(codec2, "11", "11");
+   checkCodec(codec2, "00", "0000");
+   checkCodec(codec2, "11", "1100");
    checkCodec(codec2, binInput1, binOutput1);
   }
 
@@ -86,7 +86,7 @@ namespace DevOnMobile.Tests
   public void encodeThenDecodeEmptyDataMustProduceOriginalData()
   {
    const string input = "";
-   var codec = new RunLengthCodec();
+   var codec = new CharacterRunLengthCodec();
    var encoded = codec.encode(input);
    var output = codec.decode(encoded);
    Assert.AreEqual(input, output);
@@ -96,7 +96,7 @@ namespace DevOnMobile.Tests
   public void encodeThenDecodeManyRepeatedCharsMustProduceOriginalData()
   {
    const string input = "qdttpmmmmmmmmmmhmm";
-   var codec = new RunLengthCodec();
+   var codec = new CharacterRunLengthCodec();
    var encoded = codec.encode(input);
    var output = codec.decode(encoded);
    Assert.AreEqual(input, output);
@@ -109,7 +109,7 @@ namespace DevOnMobile.Tests
    var input = "hhheelooo   woorrrlllld!!";
    var expectedEncoded = "h3e2lo3 3wo2r3l4d!2";
 
-   var codec = new RunLengthCodec();
+   var codec = new CharacterRunLengthCodec();
    var encoded = codec.encode(input);
    Assert.AreEqual(expectedEncoded, encoded, "Unexpected encoded data");
    var output = codec.decode(encoded);
@@ -120,7 +120,7 @@ namespace DevOnMobile.Tests
   public void encodingMustChangeData()
   {
    const string input = "Hello World";
-   var codec = new RunLengthCodec();
+   var codec = new CharacterRunLengthCodec();
    var encoded = codec.encode(input);
    var output = codec.decode(encoded);
    Assert.AreNotEqual(input, encoded);
@@ -130,19 +130,19 @@ namespace DevOnMobile.Tests
   public void verifyRunLengthEncodedData()
   {
    const string input = "Hello Wooorld";
-   var codec = new RunLengthCodec();
+   var codec = new CharacterRunLengthCodec();
    var encoded = codec.encode(input);
    Assert.AreEqual("Hel2o Wo3rld", encoded);
   }
 
-  //[TestMethod]
-  public void codecMustShrinkData()
+  [TestMethod]
+  public void codecMustNotExpandData()
   {
    const string input = "Hello World";
-   var codec = new RunLengthCodec();
+   var codec = new CharacterRunLengthCodec();
    var encoded = codec.encode(input);
    var output = codec.decode(encoded);
-   Assert.IsTrue(encoded.Length < input.Length);
+   Assert.IsTrue(encoded.Length <= input.Length);
   }
  }
 }
