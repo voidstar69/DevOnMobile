@@ -33,11 +33,17 @@ namespace DevOnMobile
 
    char ch = data[0];
    data = data.Substring(1);
-   return int.Parse(ch.ToString());
+   var bit = int.Parse(ch.ToString());
+
+   if (bit != 0 && bit != 1)
+    throw new ArgumentOutOfRangeException("bit", bit, "bit must be 0 or 1");
+   return bit;
   }
 
   public void WriteBit(int bit)
   {
+   if (bit != 0 && bit != 1)
+    throw new ArgumentOutOfRangeException("bit", bit, "bit must be 0 or 1");
    data += bit.ToString();
   }
 
@@ -73,7 +79,7 @@ namespace DevOnMobile
     int? bitOrNull = input.ReadBit();
     int bit = bitOrNull.HasValue ? bitOrNull.Value : -1;
     outOfBits = !bitOrNull.HasValue;
-
+    
     if (bit == prevBit && runLen < 5)
     {
      runLen++;
