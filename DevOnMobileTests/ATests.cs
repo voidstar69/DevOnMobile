@@ -38,7 +38,7 @@ namespace DevOnMobile.Tests
    var totalDecodedSize = 0;
    var totalEncodedSize = 0;
 
-   for(int i=0; i<100; i++)
+   for(int i=0; i<50; i++)
    {
     var input = "";
     char ch = ' ';
@@ -68,7 +68,7 @@ namespace DevOnMobile.Tests
    var totalDecodedSize = 0;
    var totalEncodedSize = 0;
 
-   for (int i = 0; i < 100; i++)
+   for (int i = 0; i < 50; i++)
    {
     var input = "";
     char ch = '0';
