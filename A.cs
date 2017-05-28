@@ -69,7 +69,6 @@ namespace DevOnMobile
    bool outOfBits = false;
 
    while (!outOfBits)
-   //   for(int i = 1; i <= input.Length; i++)
    {
     int? bitOrNull = input.ReadBit();
     int bit = bitOrNull.HasValue ? bitOrNull.Value : -1;
@@ -97,9 +96,50 @@ namespace DevOnMobile
    return output.GetData();
   }
 
-  public string decode(string data)
+  public string decode(string text)
   {
-   return data;
+   if (string.IsNullOrEmpty(text))
+    return text;
+
+   var input = new BinaryStream(text);
+   var output = new BinaryStream();
+
+   int bit = input.ReadBit().Value;
+   bool outOfBits = false;
+
+   while (!outOfBits)
+   {
+    int prevBit = bit;
+
+    int? bitOrNull = input.ReadBit();
+    bit = bitOrNull ?? -1;
+    outOfBits = !bitOrNull.HasValue;
+
+    if (bit != prevBit)
+    {
+     output.WriteBit(prevBit);
+    }
+    else
+    {
+     int runLen = (input.ReadBit().Value << 1) + input.ReadBit().Value + 2;
+
+     for (int j = 0; j < runLen; j++)
+     {
+      output.WriteBit(bit);
+     }
+
+     bit = input.ReadBit() ?? -1;
+     if (bit == -1)
+      outOfBits = true;
+    }
+
+//     bit = (i == data.Length ? '\0' : data[i]);
+   }
+
+//   if (bit != '\0')
+//    output += bit;
+
+   return output.GetData();
   }
  }
 
