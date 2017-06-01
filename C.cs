@@ -6,11 +6,15 @@ using System.Threading.Tasks;
 
 namespace DevOnMobile
 {
- public class C
+ public class Interpreter
  {
-  public int bar()
+  public void Execute(string program, Stream output)
   {
-   return 123;
+   var lines = program.Split(program, '\n');
+   foreach(var line in lines)
+   {
+    output.WriteLine(line);
+   }
   }
  }
 }
