@@ -20,7 +20,7 @@ namespace DevOnMobile
     var tokens = line.Split(' ');
     var cmd = tokens[0];
     var data = tokens[1];
-    switch(data)
+    switch(cmd)
     {
      case "print":
       output.Write(data);
