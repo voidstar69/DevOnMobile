@@ -23,7 +23,7 @@ namespace DevOnMobile
     switch(cmd)
     {
      case "print":
-      output.Write(data.Trim('\''));
+      output.WriteLine(data.Trim('\''));
       break;
     }
    }
