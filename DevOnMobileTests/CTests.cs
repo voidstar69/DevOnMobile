@@ -14,7 +14,7 @@ namespace DevOnMobile.Tests
   public void barTest()
   {
    var app = new Interpreter();
-   app.Execute("10 print 'a'", System.Console);
+   app.Execute("10 print 'a'", System.Console.Out);
    //Assert.AreEqual(123, c.bar());
   }
  }
