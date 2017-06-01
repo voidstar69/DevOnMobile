@@ -7,14 +7,15 @@ using DevOnMobile;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace DevOnMobile.Tests
 {
- //[TestClass()]
+ [TestClass()]
  public class CTests
  {
   [TestMethod()]
   public void barTest()
   {
+   var code = "print 'a'";
    var app = new Interpreter();
-   app.Execute("10 print 'a'", System.Console.Out);
+   app.Execute(code, System.Console.Out);
    //Assert.AreEqual(123, c.bar());
   }
  }
