@@ -8,12 +8,15 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace DevOnMobile.Tests
 {
  [TestClass()]
- public class CTests
+ public class InterpreterTests
  {
   [TestMethod()]
-  public void barTest()
+  public void simpleProgramTest()
   {
-   var code = "print 'a'";
+   var code =
+@"print 'a'
+print 'b'";
+
    var app = new Interpreter();
    app.Execute(code, System.Console.Out);
    //Assert.AreEqual(123, c.bar());
