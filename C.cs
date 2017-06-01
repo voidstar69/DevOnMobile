@@ -17,7 +17,7 @@ namespace DevOnMobile
     output.Write(">> ");
     output.WriteLine(line);
 
-    var tokens = line.Split(' ', 2);
+    var tokens = line.Split(' ');
     var cmd = tokens[0];
     var data = tokens[1];
     switch(data)
