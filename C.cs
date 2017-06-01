@@ -22,7 +22,7 @@ namespace DevOnMobile
     var data = tokens[1];
     switch(data)
     {
-     "print":
+     case "print":
       output.Write(data);
       break;
     }
