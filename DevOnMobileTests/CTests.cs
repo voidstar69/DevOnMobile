@@ -13,8 +13,9 @@ namespace DevOnMobile.Tests
   [TestMethod()]
   public void barTest()
   {
-   C c = new C();
-   Assert.AreEqual(123, c.bar());
+   var app = new Interpreter();
+   app.Execute("10 print 'a'", System.Console);
+   //Assert.AreEqual(123, c.bar());
   }
  }
 }
