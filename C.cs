@@ -11,7 +11,7 @@ namespace DevOnMobile
  {
   public void Execute(string program, TextWriter output)
   {
-   var lines = program.Split(program, '\n');
+   var lines = program.Split('\n');
    foreach(var line in lines)
    {
     output.WriteLine(line);
