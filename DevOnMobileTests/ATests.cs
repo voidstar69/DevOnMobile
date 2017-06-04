@@ -30,8 +30,8 @@ namespace DevOnMobile.Tests
    return encoded;
   }
 
-  [TestMethod, Timeout(100)]
-  public void testRandomCharacterData()
+  [TestMethod, Timeout(150)]
+  public void testCharacterRunLengthCodecWithRandomData()
   {
    var random = new Random();
    var codec1 = new CharacterRunLengthCodec();
@@ -61,7 +61,7 @@ namespace DevOnMobile.Tests
   }
 
   [TestMethod, Timeout(100)]
-  public void testRandomBinaryData()
+  public void testBinaryRunLengthCodecWithRandomData()
   {
    var random = new Random();
    var codec1 = new BinaryRunLengthCodec();
@@ -91,12 +91,38 @@ namespace DevOnMobile.Tests
   }
 
   [TestMethod, Timeout(100)]
+  public void testHuffmanCodecWithRandomData()
+  {
+   var random = new Random();
+   var codec1 = new HuffmanCodec();
+   var totalDecodedSize = 0;
+   var totalEncodedSize = 0;
+
+   for (int i = 0; i < 50; i++)
+   {
+    var input = "";
+    char ch = ' ';
+
+    for (int j = 0; j < 20; j++)
+    {
+     if (random.NextDouble() < 0.5)
+      ch = (char)('a' + random.Next(26));
+
+     input += ch;
+    }
+
+    var encoded = checkCodec(codec1, input, null);
+    totalDecodedSize += input.Length;
+    totalEncodedSize += encoded.Length;
+   }
+
+   Console.WriteLine();
+   Console.WriteLine("*** Compression ratio: {0}% (encoded size vs original size) ***", (double)totalEncodedSize / totalDecodedSize * 100);
+  }
+
+  [TestMethod, Timeout(100)]
   public void testMultipleCodecs()
   {
-   var input1 = "Hello Wooorld";
-   var output1 = "Hel2o Wo3rld";
-   var input2 = "hhheelooo   woorrrlllld!!";
-   var output2 = "h3e2lo3 3wo2r3l4d!2";
    var input3 = "a";
    var output3 = "a";
    var input4 = "aa";
@@ -106,16 +132,12 @@ namespace DevOnMobile.Tests
    var input6 = "";
    var output6 = "";
 
-   const string binInput1 = "";
-   const string binOutput1 = "";
-   const string binInput2 = "10001";
-   const string binOutput2 = "100011";
-
    var codec1 = new CharacterRunLengthCodec();
    var codec2 = new BinaryRunLengthCodec();
+   var codec3 = new HuffmanCodec();
 
-   checkCodec(codec1, input1, output1);
-   checkCodec(codec1, input2, output2);
+   checkCodec(codec1, "Hello Wooorld", "Hel2o Wo3rld");
+   checkCodec(codec1, "hhheelooo   woorrrlllld!!", "h3e2lo3 3wo2r3l4d!2");
    checkCodec(codec1, input3, output3);
    checkCodec(codec1, input4, output4);
    checkCodec(codec1, input5, output5);
@@ -125,8 +147,11 @@ namespace DevOnMobile.Tests
    checkCodec(codec2, "1", "1");
    checkCodec(codec2, "00", "0000");
    checkCodec(codec2, "11", "1100");
-   checkCodec(codec2, binInput1, binOutput1);
-   checkCodec(codec2, binInput2, binOutput2);
+   checkCodec(codec2, "", "");
+   checkCodec(codec2, "10001", "100011");
+
+   checkCodec(codec3, "Hello Wooorld", "110100001011011001110101010001011111");
+   checkCodec(codec3, "hhheelooo   woorrrlllld!!", "1001001001101110111100000001101101101010000101101101111111111111010011001100");
   }
 
 /*
