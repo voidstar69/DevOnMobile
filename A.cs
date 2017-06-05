@@ -67,7 +67,6 @@ namespace DevOnMobile
   {
    public byte byteValue;
    public int frequency; // number of occurences of this byte value. TODO: we may be able to get rid of this
-//   public byte newByteValue; // TODO: only for testing
 
    public Node parent;
 
@@ -84,7 +83,7 @@ namespace DevOnMobile
    if (string.IsNullOrEmpty(text))
     return text;
 
-   Console.WriteLine("Huffman encoding:");
+//   Console.WriteLine("Huffman encoding:");
    var encoding = new ASCIIEncoding();
    byte[] rawBytes = encoding.GetBytes(text);
    var freqtoTreeDict = new SortedList<int, IList<Node>>(rawBytes.Length); // TODO: guess number of internal 'tree' nodes?
@@ -155,26 +154,25 @@ namespace DevOnMobile
     while (-1 != (byteOrFlag = inputStream.ReadByte()))
     {
      byte num = (byte)byteOrFlag;
-     //     outputStream.WriteByte(byteToNodeDict[num].newByteValue);
 
      // use a stack to write the bits in reverse order
      var stack = new Stack<int>(8); // TODO: reverse bits more efficiently?
 
-     Console.Write("{0}=", num);
+//     Console.Write("{0}=", num);
      for (var node = byteToNodeDict[num]; node.parent != null; node = node.parent)
      {
       int bit = (node == node.parent.leftChild ? 0 : 1);
       stack.Push(bit);
-      Console.Write(bit);
+//      Console.Write(bit);
      }
-     Console.Write('/');
+//     Console.Write('/');
 
      foreach (int bit in stack)
      {
       outputStream.WriteBit(bit);
-      Console.Write(bit);
+//      Console.Write(bit);
      }
-     Console.WriteLine();
+//     Console.WriteLine();
     }
 
     // TODO: need to transmit the Huffman coding tree to the decoder!
@@ -182,7 +180,6 @@ namespace DevOnMobile
     lastTree = freqtoTreeDict.First().Value.Single();
 
     return outputStream.GetData();
-    //return encoding.GetString(outputStream.GetBuffer());
    }
   }
 
@@ -191,7 +188,7 @@ namespace DevOnMobile
    if (string.IsNullOrEmpty(text))
     return text;
 
-   Console.WriteLine("Huffman decoding:");
+//   Console.WriteLine("Huffman decoding:");
    var input = new BinaryStream(text);
    using (MemoryStream outputStream = new MemoryStream())
    {
@@ -201,12 +198,12 @@ namespace DevOnMobile
     {
      int bit = bitOrNull.Value;
      node = (bit == 0 ? node.leftChild : node.rightChild);
-     Console.Write(bit);
+//     Console.Write(bit);
 
      if (node.leftChild == null && node.rightChild == null)
      {
       outputStream.WriteByte(node.byteValue);
-      Console.WriteLine("={0}", node.byteValue);
+//      Console.WriteLine("={0}", node.byteValue);
       node = lastTree; // reset to root of tree
      }
     }
