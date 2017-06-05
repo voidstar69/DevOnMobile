@@ -98,7 +98,7 @@ namespace DevOnMobile.Tests
    var totalDecodedSize = 0;
    var totalEncodedSize = 0;
 
-   for (int i = 0; i < 50; i++)
+   for (int i = 0; i < 30; i++)
    {
     var input = "";
     char ch = ' ';
@@ -112,12 +112,12 @@ namespace DevOnMobile.Tests
     }
 
     var encoded = checkCodec(codec1, input, null);
-    totalDecodedSize += input.Length;
+    totalDecodedSize += input.Length * 8;
     totalEncodedSize += encoded.Length;
    }
 
    Console.WriteLine();
-   Console.WriteLine("*** Compression ratio: {0}% (encoded size vs original size) ***", (double)totalEncodedSize / totalDecodedSize * 100);
+   Console.WriteLine("*** Compression ratio: {0}% (encoded size vs original size, in bits) ***", (double)totalEncodedSize / totalDecodedSize * 100);
   }
 
   [TestMethod, Timeout(100)]
