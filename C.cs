@@ -25,8 +25,16 @@ namespace DevOnMobile
      case "print":
       output.WriteLine(data.Trim('\''));
       break;
+
+     case "if":
+      if(Eval(tokens[1]))
+       Eval(tokens[2];
     }
    }
+  }
+
+  private bool Eval(string expr)
+  {
   }
  }
 }
