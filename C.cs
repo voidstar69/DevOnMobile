@@ -28,13 +28,15 @@ namespace DevOnMobile
 
      case "if":
       if(Eval(tokens[1]))
-       Eval(tokens[2];
+       Eval(tokens[2]);
+      break;
     }
    }
   }
 
   private bool Eval(string expr)
   {
+   return false;
   }
  }
 }
