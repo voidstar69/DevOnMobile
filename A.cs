@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace DevOnMobile
 {
@@ -13,16 +12,16 @@ namespace DevOnMobile
   string decode(string data);
  }
 
- public class BinaryStream
+ public class BitStream
  {
   private string data;
 
-  public BinaryStream()
+  public BitStream()
   {
    data = string.Empty;
   }
 
-  public BinaryStream(string data)
+  public BitStream(string data)
   {
    this.data = data;
   }
@@ -48,6 +47,26 @@ namespace DevOnMobile
    data += bit.ToString();
   }
 
+  public byte ReadByte()
+  {
+   byte value = 0;
+   for (int bitPos = 1; bitPos <= 8; bitPos++)
+   {
+    value >>= 1;
+    value |= (byte)(ReadBit() * 0x80);
+   }
+   return value;
+  }
+
+  public void WriteByte(byte value)
+  {
+   for(int bitPos = 1; bitPos <= 8; bitPos++)
+   {
+    WriteBit(value & 1);
+    value >>= 1;
+   }
+  }
+
   public string GetData()
   {
    return data;
@@ -63,6 +82,19 @@ namespace DevOnMobile
 
  public class HuffmanCodec : Codec
  {
+  public static TextWriter log;
+
+  static HuffmanCodec()
+  {
+#if DEBUG
+   log = Console.Out;
+#else
+   log = TextWriter.Null;
+#endif
+
+  }
+
+  // TODO: use [Serializable] ?
   private class Node // TODO: this represents leaf nodes. Adapt it to also represent internal nodes.
   {
    public byte byteValue;
@@ -70,20 +102,61 @@ namespace DevOnMobile
 
    public Node parent;
 
-   // TODO: left nodes do not need children pointers
+   // TODO: leaf nodes do not need children pointers
    public Node leftChild;
    public Node rightChild;
-  }
 
-  // TODO: horrible hack!
-  private Node lastTree;
+   public bool IsLeaf()
+   {
+    return leftChild == null && rightChild == null;
+   }
+
+   // Serialise the tree (rooted at this node) into the bit stream.
+   // This only serialises data required by the decoder.
+   public void Serialise(BitStream stream)
+   {
+    // TODO: serialise byteValue, leftChild and rightChild
+    if (IsLeaf())
+    {
+     log.WriteLine("Leaf node {0} (0x{0:X})", byteValue);
+     stream.WriteBit(1);
+     stream.WriteByte(byteValue);
+    }
+    else
+    {
+     log.WriteLine("Internal node");
+     stream.WriteBit(0);
+     leftChild.Serialise(stream);
+     rightChild.Serialise(stream);
+    }
+   }
+
+   // Deserialise the tree (rooted at this node) from the bit stream.
+   // This only deserialises data required by the decoder.
+   public void Deserialise(BitStream stream)
+   {
+    bool isLeaf = (stream.ReadBit() == 1);
+    if (isLeaf)
+    {
+     byteValue = stream.ReadByte();
+     log.WriteLine("Leaf node {0} (0x{0:X})", byteValue);
+    }
+    else
+    {
+     log.WriteLine("Internal node");
+     leftChild = new Node();
+     leftChild.Deserialise(stream);
+     rightChild = new Node();
+     rightChild.Deserialise(stream);
+    }
+   }
+  }
 
   public string encode(string text)
   {
    if (string.IsNullOrEmpty(text))
     return text;
 
-//   Console.WriteLine("Huffman encoding:");
    var encoding = new ASCIIEncoding();
    byte[] rawBytes = encoding.GetBytes(text);
    var freqtoTreeDict = new SortedList<int, IList<Node>>(rawBytes.Length); // TODO: guess number of internal 'tree' nodes?
@@ -133,7 +206,7 @@ namespace DevOnMobile
       freqtoTreeDict.RemoveAt(0);
 
      // combine these two nodes/trees
-     // TODO: internal node should not have byteValue or newByteValue!
+     // TODO: internal node should not have byteValue!
      var parent = new Node { leftChild = lowFreqNode1, rightChild = lowFreqNode2,
       frequency = lowFreqNode1.frequency + lowFreqNode2.frequency };
      lowFreqNode1.parent = parent;
@@ -143,14 +216,22 @@ namespace DevOnMobile
       freqtoTreeDict[parent.frequency] = new List<Node>();
      freqtoTreeDict[parent.frequency].Add(parent);
     }
-    
+
+    // Huffman coding tree has now been built. Get tree root node.
+    Node treeRoot = freqtoTreeDict.First().Value.Single();
+
     // seek to the start of the input data
     long newPos = inputStream.Seek(0, SeekOrigin.Begin);
     if (newPos != 0)
      throw new ArgumentOutOfRangeException("Seek position", newPos, "Seeked a MemoryStream to the start but it returned a different position!");
 
+    // store the Huffman coding tree in the bitstream, so the decoder can reconstruct the tree
+    log.WriteLine("Serialising Huffman tree:");
+    var outputStream = new BitStream();
+    treeRoot.Serialise(outputStream);
+
     // translate each input byte value into a variable number of bits
-    var outputStream = new BinaryStream();
+    log.WriteLine("Huffman encoding each byte to a variable number of bits:");
     while (-1 != (byteOrFlag = inputStream.ReadByte()))
     {
      byte num = (byte)byteOrFlag;
@@ -158,26 +239,22 @@ namespace DevOnMobile
      // use a stack to write the bits in reverse order
      var stack = new Stack<int>(8); // TODO: reverse bits more efficiently?
 
-//     Console.Write("{0}=", num);
+     log.Write("{0}=", num);
      for (var node = byteToNodeDict[num]; node.parent != null; node = node.parent)
      {
       int bit = (node == node.parent.leftChild ? 0 : 1);
       stack.Push(bit);
-//      Console.Write(bit);
+      log.Write(bit);
      }
-//     Console.Write('/');
+     log.Write('/');
 
      foreach (int bit in stack)
      {
       outputStream.WriteBit(bit);
-//      Console.Write(bit);
+      log.Write(bit);
      }
-//     Console.WriteLine();
+     log.WriteLine();
     }
-
-    // TODO: need to transmit the Huffman coding tree to the decoder!
-    // TODO: horrible hack!
-    lastTree = freqtoTreeDict.First().Value.Single();
 
     return outputStream.GetData();
    }
@@ -188,23 +265,28 @@ namespace DevOnMobile
    if (string.IsNullOrEmpty(text))
     return text;
 
-//   Console.WriteLine("Huffman decoding:");
-   var input = new BinaryStream(text);
+   // reconstruct the Huffman coding tree from the bitstream
+   var input = new BitStream(text);
+   var treeRoot = new Node();
+   log.WriteLine("Deserialising Huffman tree:");
+   treeRoot.Deserialise(input);
+
+   log.WriteLine("Huffman decoding groups of bits into bytes:");
    using (MemoryStream outputStream = new MemoryStream())
    {
-    var node = lastTree;
+    var node = treeRoot;
     int? bitOrNull;
     while (null != (bitOrNull = input.ReadBit()))
     {
      int bit = bitOrNull.Value;
      node = (bit == 0 ? node.leftChild : node.rightChild);
-//     Console.Write(bit);
+     log.Write(bit);
 
-     if (node.leftChild == null && node.rightChild == null)
+     if (node.IsLeaf())
      {
       outputStream.WriteByte(node.byteValue);
-//      Console.WriteLine("={0}", node.byteValue);
-      node = lastTree; // reset to root of tree
+      log.WriteLine("={0}", node.byteValue);
+      node = treeRoot; // reset to root of tree
      }
     }
 
@@ -220,8 +302,8 @@ namespace DevOnMobile
    if(string.IsNullOrEmpty(text))
     return text;
 
-   var input = new BinaryStream(text);
-   var output = new BinaryStream();
+   var input = new BitStream(text);
+   var output = new BitStream();
 
    int runLen = 1;
    int prevBit = input.ReadBit().Value;
@@ -260,8 +342,8 @@ namespace DevOnMobile
    if (string.IsNullOrEmpty(text))
     return text;
 
-   var input = new BinaryStream(text);
-   var output = new BinaryStream();
+   var input = new BitStream(text);
+   var output = new BitStream();
 
    int bit = input.ReadBit().Value;
    bool outOfBits = false;

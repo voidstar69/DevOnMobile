@@ -98,7 +98,7 @@ namespace DevOnMobile.Tests
    var totalDecodedSize = 0;
    var totalEncodedSize = 0;
 
-   for (int i = 0; i < 30; i++)
+   for (int i = 0; i < 20; i++)
    {
     var input = "";
     char ch = ' ';
@@ -120,7 +120,7 @@ namespace DevOnMobile.Tests
    Console.WriteLine("*** Compression ratio: {0}% (encoded size vs original size, in bits) ***", (double)totalEncodedSize / totalDecodedSize * 100);
   }
 
-  [TestMethod, Timeout(100)]
+  [TestMethod, Timeout(400)]
   public void testMultipleCodecs()
   {
    var input3 = "a";
@@ -150,8 +150,8 @@ namespace DevOnMobile.Tests
    checkCodec(codec2, "", "");
    checkCodec(codec2, "10001", "100011");
 
-   checkCodec(codec3, "Hello Wooorld", "110100001011011001110101010001011111");
-   checkCodec(codec3, "hhheelooo   woorrrlllld!!", "1001001001101110111100000001101101101010000101101101111111111111010011001100");
+   checkCodec(codec3, "Hello Wooorld", "0001101001101010011101001101100111110110001000001001000100100111101010100100110110100001011011001110101010001011111");
+   checkCodec(codec3, "hhheelooo   woorrrlllld!!", "001111101100010010011011110111010000010000100010110101001110001100001001101001101001101101001001001101110111100000001101101101010000101101101111111111111010011001100");
   }
 
 /*
