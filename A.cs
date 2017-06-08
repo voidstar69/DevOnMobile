@@ -87,7 +87,8 @@ namespace DevOnMobile
   static HuffmanCodec()
   {
 #if DEBUG
-   log = Console.Out;
+   //log = Console.Out;
+   log = TextWriter.Null;
 #else
    log = TextWriter.Null;
 #endif
