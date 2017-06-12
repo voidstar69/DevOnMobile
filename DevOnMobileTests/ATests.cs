@@ -15,7 +15,7 @@ namespace DevOnMobile.Tests
   {
    var text = string.Empty;
    var random = new Random();
-   char ch;
+   char ch = ' ';
 
    for(int j=0; j<len; j++)
    {
