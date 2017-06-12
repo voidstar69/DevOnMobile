@@ -11,6 +11,20 @@ namespace DevOnMobile.Tests
  [TestClass()]
  public class CodecTests
  {
+  private string genText(int len, double charChangeProb)
+  {
+   var text = string.Empty;
+   var random = new Random();
+   for(int j=0; j<len; j++)
+   {
+    if(random.NextDouble() < charChangeProb)
+     ch=(char)('a'+random.Next(26));
+
+    text += ch;
+   }
+   return text;
+  }
+
   private string checkCodec(Codec codec, string input, string expectedEncoded)
   {
    var encoded = codec.encode(input);
@@ -152,6 +166,10 @@ namespace DevOnMobile.Tests
 
    checkCodec(codec3, "Hello Wooorld", "0001101001101010011101001101100111110110001000001001000100100111101010100100110110100001011011001110101010001011111");
    checkCodec(codec3, "hhheelooo   woorrrlllld!!", "001111101100010010011011110111010000010000100010110101001110001100001001101001101001101101001001001101110111100000001101101101010000101101101111111111111010011001100");
+
+   var input7 = genText(100, 1.0);
+   checkCodec(codec1, input7, null);
+   checkCodec(codec3, input7, null);
   }
 
 /*
