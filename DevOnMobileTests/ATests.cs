@@ -15,6 +15,8 @@ namespace DevOnMobile.Tests
   {
    var text = string.Empty;
    var random = new Random();
+   char ch;
+
    for(int j=0; j<len; j++)
    {
     if(random.NextDouble() < charChangeProb)
@@ -22,6 +24,7 @@ namespace DevOnMobile.Tests
 
     text += ch;
    }
+
    return text;
   }
 
