@@ -171,8 +171,11 @@ namespace DevOnMobile.Tests
    checkCodec(codec3, "hhheelooo   woorrrlllld!!", "001111101100010010011011110111010000010000100010110101001110001100001001101001101001101101001001001101110111100000001101101101010000101101101111111111111010011001100");
 
    var input7 = genText(100, 1.0);
-   checkCodec(codec1, input7, null);
-   checkCodec(codec3, input7, null);
+   var encoded = checkCodec(codec1, input7, null);
+   Console.WriteLine("*** Compression ratio: {0}% (encoded size vs original size, in bits) ***", (double)encoded.Length / input7.Length * 100);
+
+   encoded = checkCodec(codec3, input7, null);
+   Console.WriteLine("*** Compression ratio: {0}% (encoded size vs original size, in bits) ***", (double)encoded.Length / 8.0 / input7.Length * 100);
   }
 
 /*
