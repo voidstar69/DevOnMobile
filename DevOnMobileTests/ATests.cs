@@ -176,7 +176,7 @@ namespace DevOnMobile.Tests
    //var encoded = checkCodec(codec1, input7, null);
    Console.WriteLine("*** Compression ratio: {0}% (encoded size vs original size, in bits) ***", (double)encoded.Length / input7.Length * 100);
 
-   //encoded = codec3.encode(input7);
+   encoded = codec3.encode(input7);
    //encoded = checkCodec(codec3, input7, null);
    Console.WriteLine("*** Compression ratio: {0}% (encoded size vs original size, in bits) ***", (double)encoded.Length / 8.0 / input7.Length * 100);
   }
