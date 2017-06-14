@@ -171,14 +171,13 @@ namespace DevOnMobile.Tests
    checkCodec(codec3, "hhheelooo   woorrrlllld!!", "001111101100010010011011110111010000010000100010110101001110001100001001101001101001101101001001001101110111100000001101101101010000101101101111111111111010011001100");
 
    var input7 = genText(1000, 1.0);
-   var encoded = codec1.encode(input7);
+   Console.WriteLine("Compression ratio on {0} random letters (encoded size vs original size):", input7.Length);
 
-   //var encoded = checkCodec(codec1, input7, null);
-   Console.WriteLine("*** Compression ratio: {0}% (encoded size vs original size, in bits) ***", (double)encoded.Length / input7.Length * 100);
+   var encoded = codec1.encode(input7);
+   Console.WriteLine("Char RLE: {0}%", (double)encoded.Length / input7.Length * 100);
 
    encoded = codec3.encode(input7);
-   //encoded = checkCodec(codec3, input7, null);
-   Console.WriteLine("*** Compression ratio: {0}% (encoded size vs original size, in bits) ***", (double)encoded.Length / 8.0 / input7.Length * 100);
+   Console.WriteLine("Huffman: {0}%", (double)encoded.Length / 8.0 / input7.Length * 100);
   }
 
 /*
