@@ -47,7 +47,7 @@ namespace DevOnMobile.Tests
    }
   }
 
-  private string genRandomBytes(int len)
+  private byte[] genRandomBytes(int len)
   {
    var data = new byte[len];
    var random = new Random();
