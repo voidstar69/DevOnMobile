@@ -21,7 +21,7 @@ namespace DevOnMobile.Tests
    using(var memStream = new MemoryStream(input))
    using(var zipStream = new GZipStream(memStream, CompressionMode.Compress))
    {
-    zipStream.ReadByte();
+    zipStream.WriteByte(72);
    }
   }
 
