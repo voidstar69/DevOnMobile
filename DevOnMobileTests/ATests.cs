@@ -17,7 +17,7 @@ namespace DevOnMobile.Tests
    var input = new byte[10];
 
    using(var memStream = new MemoryStream(input))
-   using(var zipStream = new GZipStream(memStream, ConpressionMode.Compress))
+   using(var zipStream = new GZipStream(memStream, CompressionMode.Compress))
    {
     zipStream.readByte();
    }
