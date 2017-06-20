@@ -11,6 +11,18 @@ namespace DevOnMobile.Tests
  [TestClass()]
  public class CodecTests
  {
+  [TestMethod, Timeout(100)]
+  public void testGZip()
+  {
+   var input = new byte[10];
+
+   using(var memStream = new MemoryStream(input))
+   using(var zipStream = new GZipStream(memStream, ConpressionMode.Compress))
+   {
+    zipStream.readByte();
+   }
+  }
+
   private string genText(int len, double charChangeProb)
   {
    var text = string.Empty;
