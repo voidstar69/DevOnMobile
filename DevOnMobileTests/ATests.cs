@@ -17,11 +17,13 @@ namespace DevOnMobile.Tests
   public void testGZip()
   {
    var input = new byte[10];
+   var output = new byte[10];
 
-   using(var memStream = new MemoryStream(input))
-   using(var zipStream = new GZipStream(memStream, CompressionMode.Compress))
+   using(var inMemStream = new MemoryStream(input))
+   using(var outMemStream = new MemoryStream(input))
+   using(var zipStream = new GZipStream(outMemStream, CompressionMode.Compress))
    {
-    zipStream.WriteByte(72);
+    inMemStream.CopyTo(zipStream);
    }
   }
 
