@@ -17,10 +17,9 @@ namespace DevOnMobile.Tests
   public void testGZip()
   {
    var input = new byte[10];
-   var output = new byte[10];
 
    using(var inMemStream = new MemoryStream(input))
-   using(var outMemStream = new MemoryStream(input))
+   using(var outMemStream = new MemoryStream())
    using(var zipStream = new GZipStream(outMemStream, CompressionMode.Compress))
    {
     inMemStream.CopyTo(zipStream);
