@@ -16,8 +16,9 @@ namespace DevOnMobile.Tests
   [TestMethod, Timeout(100)]
   public void testGZip()
   {
-   var input = new byte[1000];
-
+   //var input = new byte[1000];
+   var input = genRandomBytes(1000);
+   
    using(var inMemStream = new MemoryStream(input))
    using(var outMemStream = new MemoryStream())
    using(var zipStream = new GZipStream(outMemStream, CompressionMode.Compress))
@@ -32,7 +33,8 @@ namespace DevOnMobile.Tests
   [TestMethod, Timeout(100)]
   public void testDeflate()
   {
-   var input = new byte[1000];
+   //var input = new byte[1000];
+   var input = genRandomBytes(1000);
 
    using(var inMemStream = new MemoryStream(input))
    using(var outMemStream = new MemoryStream())
@@ -43,6 +45,28 @@ namespace DevOnMobile.Tests
 
     Console.WriteLine("Deflate: {0}%", (double)output.Length / input.Length * 100);
    }
+  }
+
+  private string genRandomBytes(int len)
+  {
+   var data = new byte[len];
+   var random = new Random();
+   random.NextBytes(data);
+   return data;
+
+/*
+   byte currByte = 0;
+
+   for(int j=0; j<len; j++)
+   {
+    if(random.NextDouble() < byteChangeProb)
+     currByte=random.NextByte();
+
+    data[j] = currByte;
+   }
+
+   return data;
+*/
   }
 
   private string genText(int len, double charChangeProb)
