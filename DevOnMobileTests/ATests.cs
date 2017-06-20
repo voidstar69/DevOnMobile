@@ -16,7 +16,7 @@ namespace DevOnMobile.Tests
   [TestMethod, Timeout(100)]
   public void testGZip()
   {
-   var input = new byte[10];
+   var input = new byte[1000];
 
    using(var inMemStream = new MemoryStream(input))
    using(var outMemStream = new MemoryStream())
