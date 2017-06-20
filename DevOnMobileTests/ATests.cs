@@ -23,6 +23,9 @@ namespace DevOnMobile.Tests
    using(var zipStream = new GZipStream(outMemStream, CompressionMode.Compress))
    {
     inMemStream.CopyTo(zipStream);
+    var output = outMemStream.GetBuffer();
+
+    Console.WriteLine("GZip: {0}%", (double)output.Length / input.Length * 100);
    }
   }
 
