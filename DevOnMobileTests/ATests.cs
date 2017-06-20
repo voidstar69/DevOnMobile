@@ -29,6 +29,22 @@ namespace DevOnMobile.Tests
    }
   }
 
+  [TestMethod, Timeout(100)]
+  public void testDeflate()
+  {
+   var input = new byte[1000];
+
+   using(var inMemStream = new MemoryStream(input))
+   using(var outMemStream = new MemoryStream())
+   using(var zipStream = new DeflateStream(outMemStream, CompressionMode.Compress))
+   {
+    inMemStream.CopyTo(zipStream);
+    var output = outMemStream.GetBuffer();
+
+    Console.WriteLine("Deflate: {0}%", (double)output.Length / input.Length * 100);
+   }
+  }
+
   private string genText(int len, double charChangeProb)
   {
    var text = string.Empty;
