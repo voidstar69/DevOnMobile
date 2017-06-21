@@ -11,14 +11,26 @@ namespace DevOnMobile.Tests
  public class InterpreterTests
  {
   [TestMethod()]
-  public void simpleProgramTest()
+  public void CProgramTest()
   {
    var code =
 @"print 'a'
 print 'b'";
 
    var app = new Interpreter();
-   app.Execute(code, System.Console.Out);
+   app.CStyleExecute(code, System.Console.Out);
+   //Assert.AreEqual(123, c.bar());
+  }
+
+  [TestMethod()]
+  public void LispProgramTest()
+  {
+   var code =
+@"(print 'a' (
+  add 1 2))";
+
+   var app = new Interpreter();
+   app.LispStyleExecute(code, System.Console.Out);
    //Assert.AreEqual(123, c.bar());
   }
  }
