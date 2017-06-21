@@ -26,10 +26,10 @@ namespace DevOnMobile
       output.WriteLine(data.Trim('\''));
       break;
 
-     case "if":
-      if(Eval(tokens[1], output))
-       Eval(tokens[2], output);
-      break;
+//     case "if":
+//      if(Eval(tokens[1], output))
+//       Eval(tokens[2], output);
+//      break;
     }
    }
   }
