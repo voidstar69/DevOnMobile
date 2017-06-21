@@ -9,7 +9,7 @@ namespace DevOnMobile
 {
  public class Interpreter
  {
-  public void Execute(string program, TextWriter output)
+  public void CStyleExecute(string program, TextWriter output)
   {
    var lines = program.Split('\n');
    foreach(var line in lines)
@@ -34,9 +34,29 @@ namespace DevOnMobile
    }
   }
 
-  private bool Eval(string expr)
+  public void LispStyleExecute(string program, TextWriter output)
   {
-   return false;
+   var text = program.Replace('\n',' ');
+   Eval(text, output);
+  }
+
+  private string Eval(string expr, TextWriter output)
+  {
+   var tokens = expr.Trim("()").Split(' ', 1);
+   var cmd = tokens[0];
+   var data = Eval(tokens[1], output);
+   switch(cmd)
+   {
+    case "print":
+      output.WriteLine(data.Trim('\''));
+      break;
+
+    // TODO
+    case "add":
+     return data;
+   }
+
+   return string.Empty;
   }
  }
 }
