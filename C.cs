@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DevOnMobile
 {
@@ -37,28 +34,76 @@ namespace DevOnMobile
   public void LispStyleExecute(string program, TextWriter output)
   {
    var text = program.Replace('\n',' ');
-   Eval(text, output);
+   var dataList = Eval(text, output);
+
+   if (dataList == null)
+    return;
+
+   Console.Write('=');
+   foreach (var item in dataList)
+   {
+    output.Write(item);
+    output.Write(' ');
+   }
+   output.WriteLine();
   }
 
-  private string Eval(string expr, TextWriter output)
+  private ArrayList Eval(string expr, TextWriter output)
   {
+   Console.WriteLine("Eval " + expr);
+
    var trimChars = new char[]{'(',')'};
    var splitChars = new char[]{' '};
    var tokens = expr.Trim(trimChars).Split(splitChars, 2);
    var cmd = tokens[0];
-   var data = Eval(tokens[1], output);
+
+   ArrayList dataList;
+   if (tokens.Length == 1)
+   {
+    dataList = new ArrayList();
+   }
+   else
+   {
+    dataList = Eval(tokens[1], output);
+   }
+
+   double num;
+   if(double.TryParse(cmd, out num))
+   {
+    dataList.Insert(0, num);
+    return dataList;
+   }
+
    switch(cmd)
    {
     case "print":
-      output.WriteLine(data.Trim('\''));
-      break;
+     foreach(var item in dataList)
+     {
+      output.Write(item);
+      output.Write(' ');
+     }
+     //     dataList.ForEach(x => output.Write(x));
+     //      output.WriteLine(dataList.ToString());
+     break;
 
     // TODO
-    case "add":
-     return data;
+    case "reverse":
+     return Reverse(dataList);
    }
 
-   return string.Empty;
+   return null;
+  }
+
+  private ArrayList Reverse(ArrayList list)
+  {
+   if (list.Count <= 1)
+    return list;
+
+   var head = list[0];
+   list.RemoveAt(0);
+   var result = Reverse(list);
+   result.Add(head);
+   return result;
   }
  }
 }
