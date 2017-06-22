@@ -42,7 +42,8 @@ namespace DevOnMobile
 
   private string Eval(string expr, TextWriter output)
   {
-   var tokens = expr.Trim('(', ')').Split(' ', 1);
+   var trimChars = new char[]{'(',')'};
+   var tokens = expr.Trim(trimChars).Split(new char[]{' '}, 1);
    var cmd = tokens[0];
    var data = Eval(tokens[1], output);
    switch(cmd)
