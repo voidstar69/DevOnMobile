@@ -16,34 +16,40 @@ namespace DevOnMobile.Tests
   [TestMethod, Timeout(100)]
   public void testGZip()
   {
-   //var input = new byte[1000];
    var input = genRandomBytes(1000);
-   
-   using(var inMemStream = new MemoryStream(input))
-   using(var outMemStream = new MemoryStream())
-   using(var zipStream = new GZipStream(outMemStream, CompressionMode.Compress))
-   {
-    inMemStream.CopyTo(zipStream);
-    var output = outMemStream.GetBuffer();
 
-    Console.WriteLine("GZip: {0}%", (double)output.Length / input.Length * 100);
+   using (var outMemStream = new MemoryStream())
+   {
+    using (var inMemStream = new MemoryStream(input))
+    using (var zipStream = new GZipStream(outMemStream, CompressionMode.Compress))
+    {
+     inMemStream.CopyTo(zipStream);
+    }
+
+    var output = outMemStream.GetBuffer();
+    Console.WriteLine("GZip: {0}% ({1} bytes)", (double)output.Length / input.Length * 100, output.Length);
    }
   }
 
   [TestMethod, Timeout(100)]
   public void testDeflate()
   {
-   //var input = new byte[1000];
    var input = genRandomBytes(1000);
 
-   using(var inMemStream = new MemoryStream(input))
-   using(var outMemStream = new MemoryStream())
-   using(var zipStream = new DeflateStream(outMemStream, CompressionMode.Compress))
+   using (var outMemStream = new MemoryStream())
    {
-    inMemStream.CopyTo(zipStream);
-    var output = outMemStream.GetBuffer();
+    using (var inMemStream = new MemoryStream(input))
+    using (var zipStream = new DeflateStream(outMemStream, CompressionMode.Compress))
+    {
 
-    Console.WriteLine("Deflate: {0}%", (double)output.Length / input.Length * 100);
+     // TODO
+//     checkStreamEncode(zipStream, outMemStream, input);
+
+     inMemStream.CopyTo(zipStream);
+    }
+
+    var output = outMemStream.GetBuffer();
+    Console.WriteLine("Deflate: {0}% ({1} bytes)", (double)output.Length / input.Length * 100, output.Length);
    }
   }
 
@@ -69,6 +75,23 @@ namespace DevOnMobile.Tests
 */
   }
 
+  private byte[] genRandomBytes(int len, double byteChangeProb)
+  {
+   var data = new byte[len];
+   var random = new Random();
+   byte currByte = 0;
+
+   for(int j=0; j<len; j++)
+   {
+    if(random.NextDouble() < byteChangeProb)
+     currByte = (byte)random.Next(256);
+
+    data[j] = currByte;
+   }
+
+   return data;
+  }
+
   private string genText(int len, double charChangeProb)
   {
    var text = string.Empty;
@@ -84,6 +107,20 @@ namespace DevOnMobile.Tests
    }
 
    return text;
+  }
+
+  private byte[] checkStreamEncode(Stream encodeStream, MemoryStream outStream, byte[] input)
+  {
+   using (var inMemStream = new MemoryStream(input))
+   using (encodeStream)
+   {
+    inMemStream.CopyTo(encodeStream);
+   }
+
+   byte[] output = outStream.GetBuffer();
+   Console.WriteLine("Stream Encode: {0} bytes -> {1} bytes = {2}% compression",
+    input.Length, output.Length, (double)output.Length / input.Length * 100);
+   return output;
   }
 
   private string checkCodec(Codec codec, string input, string expectedEncoded)
