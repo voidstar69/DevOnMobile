@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using DevOnMobile;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 namespace DevOnMobile.Tests
 {
  [TestClass()]
@@ -39,13 +40,26 @@ print 'b'";
 
    var app = new Interpreter();
 
-   using(var writer=TextWriter())
+   //using(var writer=TextWriter())
    {
-    app.LispStyleExecute(code,writer);
-//Console.Error);
+    app.LispStyleExecute(code,
+//writer);
+Console.Error);
    }
 
 //   Assert.AreEqual("6", app.Output);
+  }
+
+  [TestMethod()]
+  public void testLispReverseAndAdd()
+  {
+   var code = @"print (reverse (add 1 2 3) (add 2 3 4))";
+
+   var app = new Interpreter();
+
+   app.LispStyleExecute(code, Console.Error);
+
+//   Assert.AreEqual("9 6", app.Output);
   }
  }
 }
