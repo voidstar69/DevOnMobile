@@ -99,6 +99,9 @@ namespace DevOnMobile
    }
 
    Console.Write('=');
+   if(result == null)
+    Console.Write("null");
+   else
    foreach (var item in result)
    {
     Console.Write(item);
