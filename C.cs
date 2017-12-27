@@ -50,8 +50,6 @@ namespace DevOnMobile
 
   private ArrayList Eval(string expr, TextWriter output)
   {
-   Console.Write("Eval " + expr);
-
    var trimChars = new char[]{'(',')'};
    var splitChars = new char[]{' '};
    var tokens = expr.Trim(trimChars).Split(splitChars, 2);
@@ -66,6 +64,8 @@ namespace DevOnMobile
    {
     dataList = Eval(tokens[1], output);
    }
+
+   Console.Write("Eval " + expr);
 
    double num;
    if(double.TryParse(cmd, out num))
