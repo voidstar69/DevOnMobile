@@ -110,8 +110,10 @@ namespace DevOnMobile
 
   private double Add(ArrayList list)
   {
-   if (list.Count <= 1)
-    return list;
+   if (list.Count == 0)
+    return 0.0;
+   if (list.Count == 1)
+    return (double)list[0];
 
    var head = list[0];
    list.RemoveAt(0);
