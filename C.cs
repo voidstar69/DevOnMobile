@@ -50,6 +50,7 @@ namespace DevOnMobile
 
   private ArrayList Eval(string expr, TextWriter output, int indent)
   {
+   Console.Write(new string(" ", indent));
    Console.WriteLine("Eval " + expr);
 
    var trimChars = new char[]{'(',')'};
@@ -67,7 +68,8 @@ namespace DevOnMobile
     dataList = Eval(tokens[1], output, indent+1);
    }
 
-   Console.Write("Eval "+expr+"=>");
+   Console.Write(new string(" ", indent));
+   Console.Write("Eval "+expr+" => ");
    ArrayList result = null;
 
    double num;
