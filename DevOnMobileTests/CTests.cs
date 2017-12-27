@@ -51,9 +51,21 @@ Console.Error);
   }
 
   [TestMethod()]
+  public void testLispAddWithParentheses()
+  {
+   var code = @"print (add (1) (2) (3))";
+
+   var app = new Interpreter();
+
+   app.LispStyleExecute(code, Console.Error);
+
+//   Assert.AreEqual("6", app.Output);
+  }
+
+  [TestMethod()]
   public void testLispReverseAndAdd()
   {
-   var code = @"print (reverse (add 1 2 3) (add 2 3 4))";
+   var code = @"print (reverse (add 1 2 3) (add 4 5))";
 
    var app = new Interpreter();
 
