@@ -38,7 +38,13 @@ print 'b'";
    var code = @"print (add 1 2 3)";
 
    var app = new Interpreter();
-   app.LispStyleExecute(code, Console.Error);
+
+   using(var writer=TextWriter())
+   {
+    app.LispStyleExecute(code,writer);
+//Console.Error);
+   }
+
 //   Assert.AreEqual("6", app.Output);
   }
  }
