@@ -39,18 +39,18 @@ namespace DevOnMobile
    if (dataList == null)
     return;
 
-   Console.Write('=');
+   //Console.Write('=');
    foreach (var item in dataList)
    {
     output.Write(item);
     output.Write(' ');
    }
-   output.WriteLine();
+   //output.WriteLine();
   }
 
   private ArrayList Eval(string expr, TextWriter output)
   {
-   Console.WriteLine("Eval " + expr);
+   Console.Write("Eval " + expr);
 
    var trimChars = new char[]{'(',')'};
    var splitChars = new char[]{' '};
@@ -74,6 +74,7 @@ namespace DevOnMobile
     return dataList;
    }
 
+   ArrayList result;
    switch(cmd)
    {
     case "print":
@@ -83,17 +84,27 @@ namespace DevOnMobile
       output.Write(' ');
      }
      //     dataList.ForEach(x => output.Write(x));
-     //      output.WriteLine(dataList.ToString());
+     //output.WriteLine(dataList.ToString());
      break;
 
     case "reverse":
-     return Reverse(dataList);
+     result = Reverse(dataList);
+     break;
 
     case "add":
-     return new ArrayList{ Add(dataList) };
+     result = new ArrayList{ Add(dataList) };
+     break;
    }
 
-   return null;
+   Console.Write('=');
+   foreach (var item in dataList)
+   {
+    Console.Write(item);
+    Console.Write(' ');
+   }
+   Console.WriteLine();
+
+   return result;
   }
 
   private ArrayList Reverse(ArrayList list)
