@@ -74,7 +74,7 @@ namespace DevOnMobile
     return dataList;
    }
 
-   ArrayList result;
+   ArrayList result = null;
    switch(cmd)
    {
     case "print":
