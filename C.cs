@@ -90,7 +90,7 @@ namespace DevOnMobile
      return Reverse(dataList);
 
     case "add":
-     return new[]{ Add(dataList) };
+     return new ArrayList{ Add(dataList) };
    }
 
    return null;
