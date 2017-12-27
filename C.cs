@@ -66,15 +66,17 @@ namespace DevOnMobile
    }
 
    Console.Write("Eval " + expr);
+   ArrayList result = null;
 
    double num;
    if(double.TryParse(cmd, out num))
    {
     dataList.Insert(0, num);
-    return dataList;
+    result = dataList;
+    //return dataList;
    }
 
-   ArrayList result = null;
+   if(result == null)
    switch(cmd)
    {
     case "print":
@@ -97,7 +99,7 @@ namespace DevOnMobile
    }
 
    Console.Write('=');
-   foreach (var item in dataList)
+   foreach (var item in result)
    {
     Console.Write(item);
     Console.Write(' ');
