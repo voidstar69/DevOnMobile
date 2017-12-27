@@ -18,7 +18,7 @@ namespace DevOnMobile.Tests
 print 'b'";
 
    var app = new Interpreter();
-   app.CStyleExecute(code, System.Console.Out);
+   app.CStyleExecute(code, System.Console.Err);
    //Assert.AreEqual(123, c.bar());
   }
 
@@ -28,7 +28,7 @@ print 'b'";
    var code = @"print (reverse 1 2 3)";
 
    var app = new Interpreter();
-   app.LispStyleExecute(code, Console.Out);
+   app.LispStyleExecute(code, Console.Err);
 //   Assert.AreEqual("3 2 1", app.Output);
   }
 
