@@ -86,9 +86,11 @@ namespace DevOnMobile
      //      output.WriteLine(dataList.ToString());
      break;
 
-    // TODO
     case "reverse":
      return Reverse(dataList);
+
+    case "add":
+     return new[]{ Add(dataList) };
    }
 
    return null;
@@ -103,6 +105,18 @@ namespace DevOnMobile
    list.RemoveAt(0);
    var result = Reverse(list);
    result.Add(head);
+   return result;
+  }
+
+  private double Add(ArrayList list)
+  {
+   if (list.Count <= 1)
+    return list;
+
+   var head = list[0];
+   list.RemoveAt(0);
+   var result = Add(list);
+   result += (double)head;
    return result;
   }
  }
