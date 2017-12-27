@@ -34,7 +34,7 @@ namespace DevOnMobile
   public void LispStyleExecute(string program, TextWriter output)
   {
    var text = program.Replace('\n',' ');
-   var dataList = Eval(text, output);
+   var dataList = Eval(text,output,0);
 
    if (dataList == null)
     return;
@@ -48,9 +48,9 @@ namespace DevOnMobile
    //output.WriteLine();
   }
 
-  private ArrayList Eval(string expr, TextWriter output)
+  private ArrayList Eval(string expr, TextWriter output, int indent)
   {
-   Console.Write("=> Eval " + expr);
+   Console.WriteLine("Eval " + expr);
 
    var trimChars = new char[]{'(',')'};
    var splitChars = new char[]{' '};
@@ -64,10 +64,10 @@ namespace DevOnMobile
    }
    else
    {
-    dataList = Eval(tokens[1], output);
+    dataList = Eval(tokens[1], output, indent+1);
    }
 
-   Console.Write("Eval " + expr);
+   Console.Write("Eval "+expr+"=>");
    ArrayList result = null;
 
    double num;
@@ -100,7 +100,6 @@ namespace DevOnMobile
      break;
    }
 
-   Console.Write('=');
    if(result == null)
     Console.Write("null");
    else
