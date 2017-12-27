@@ -23,13 +23,23 @@ print 'b'";
   }
 
   [TestMethod()]
-  public void LispProgramTest()
+  public void testLispReverse()
   {
    var code = @"print (reverse 1 2 3)";
 
    var app = new Interpreter();
    app.LispStyleExecute(code, Console.Out);
 //   Assert.AreEqual("3 2 1", app.Output);
+  }
+
+  [TestMethod()]
+  public void testLispAdd()
+  {
+   var code = @"print (add 1 2 3)";
+
+   var app = new Interpreter();
+   app.LispStyleExecute(code, Console.Out);
+//   Assert.AreEqual("6", app.Output);
   }
  }
 }
