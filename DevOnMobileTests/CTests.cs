@@ -1,65 +1,78 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DevOnMobile;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.IO;
 
 namespace DevOnMobile.Tests
 {
  [TestClass()]
  public class LispInterpreterTests
  {
-/*
-  [TestMethod()]
-  public void CProgramTest()
-  {
-   var code =
-@"print 'a'
-print 'b'";
+  /*
+    [TestMethod()]
+    public void CProgramTest()
+    {
+     var code =
+  @"print 'a'
+  print 'b'";
 
-   var app = new Interpreter();
-   app.CStyleExecute(code, System.Console.Error);
-   //Assert.AreEqual(123, c.bar());
-  }
-*/
-
-  [TestMethod()]
-  public void testLispReverse()
-  {
-   var code = @"print (reverse 1 2 3)";
-
-   var app = new LispInterpreter();
-   app.Exec(code, Console.Error);
-//   Assert.AreEqual("3 2 1", app.Output);
-  }
+     var app = new Interpreter();
+     app.CStyleExecute(code, System.Console.Error);
+     //Assert.AreEqual(123, c.bar());
+    }
+  */
 
   [TestMethod()]
   public void testLispAdd()
   {
-   var code = @"print (add 1 2 3)";
-
+   var code = @"add 1 2 3";
    var app = new LispInterpreter();
-
-   //using(var writer=TextWriter())
+   using (var writer = new StringWriter())
    {
-    app.Exec(code,
-//writer);
-Console.Error);
+    app.Exec(code, writer);
+    Console.Error.Write(writer.ToString());
+    Assert.AreEqual("6\r\n", writer.ToString());
    }
+  }
 
-//   Assert.AreEqual("6", app.Output);
+  [TestMethod()]
+  public void testLispAddThenPrint()
+  {
+   var code = @"print (add 1 2 3)";
+   var app = new LispInterpreter();
+   using (var writer = new StringWriter())
+   {
+    app.Exec(code, writer);
+    Console.Error.Write(writer.ToString());
+    Assert.AreEqual("6 \r\n", writer.ToString());
+   }
+  }
+
+  [TestMethod()]
+  public void testLispReverse()
+  {
+   var code = @"(reverse 1 2 3)";
+   var app = new LispInterpreter();
+   using (var writer = new StringWriter())
+   {
+    app.Exec(code, writer);
+    Console.Error.Write(writer.ToString());
+    Assert.AreEqual("3 2 1\r\n", writer.ToString());
+   }
   }
 
   [TestMethod()]
   public void testLispOps()
   {
-var app = new LispInterpreter();
-var output = Console.Error;
-app.Exec("reverse 4 2 3 1", output);
-app.Exec("add 4 2 3", output);
-app.Exec("mul 4 2 3", output);
+   var app = new LispInterpreter();
+   var output = Console.Error;
+   using (var writer = new StringWriter())
+   {
+    app.Exec("reverse 4 2 3 1", writer);
+    app.Exec("add 4 2 3", writer);
+    app.Exec("mul 4 2 3", writer);
+    Console.Error.Write(writer.ToString());
+    Assert.AreEqual("1 3 2 4\r\n9\r\n24\r\n", writer.ToString());
+   }
   }
 
 // todo: parsing of nested parentheses is broken!

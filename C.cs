@@ -42,10 +42,15 @@ namespace DevOnMobile
     return;
 
    //Console.Write('=');
+   bool first = true;
    foreach (var item in dataList)
    {
+    if (first)
+     first = false;
+    else
+     output.Write(' ');
+
     output.Write(item);
-    output.Write(' ');
    }
    output.WriteLine();
   }
@@ -55,6 +60,7 @@ namespace DevOnMobile
    Console.Write(new string(' ', indent));
    Console.WriteLine("Eval " + expr);
 
+   // TODO: parentheses handling is broken!
    var trimChars = new char[]{'(',')'};
    var splitChars = new char[]{' '};
    var tokens = expr.Trim(trimChars).Split(splitChars, 2);
@@ -91,7 +97,8 @@ namespace DevOnMobile
       output.Write(item);
       output.Write(' ');
      }
-     //     dataList.ForEach(x => output.Write(x));
+     output.WriteLine();
+     //dataList.ForEach(x => output.Write(x));
      //output.WriteLine(dataList.ToString());
      break;
 
