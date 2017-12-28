@@ -9,8 +9,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace DevOnMobile.Tests
 {
  [TestClass()]
- public class InterpreterTests
+ public class LispInterpreterTests
  {
+/*
   [TestMethod()]
   public void CProgramTest()
   {
@@ -22,14 +23,15 @@ print 'b'";
    app.CStyleExecute(code, System.Console.Error);
    //Assert.AreEqual(123, c.bar());
   }
+*/
 
   [TestMethod()]
   public void testLispReverse()
   {
    var code = @"print (reverse 1 2 3)";
 
-   var app = new Interpreter();
-   app.LispStyleExecute(code, Console.Error);
+   var app = new LispInterpreter();
+   app.Exec(code, Console.Error);
 //   Assert.AreEqual("3 2 1", app.Output);
   }
 
@@ -38,11 +40,11 @@ print 'b'";
   {
    var code = @"print (add 1 2 3)";
 
-   var app = new Interpreter();
+   var app = new LispInterpreter();
 
    //using(var writer=TextWriter())
    {
-    app.LispStyleExecute(code,
+    app.Exec(code,
 //writer);
 Console.Error);
    }
@@ -53,11 +55,11 @@ Console.Error);
   [TestMethod()]
   public void testLispOps()
   {
-var app = new Interpreter();
+var app = new LispInterpreter();
 var output = Console.Error;
-app.LispStyleExecute("reverse 4 2 3 1", output);
-app.LispStyleExecute("add 4 2 3", output);
-app.LispStyleExecute("mul 4 2 3", output);
+app.Exec("reverse 4 2 3 1", output);
+app.Exec("add 4 2 3", output);
+app.Exec("mul 4 2 3", output);
   }
 
 // todo: parsing of nested parentheses is broken!
@@ -67,7 +69,7 @@ app.LispStyleExecute("mul 4 2 3", output);
   {
    var code = @"print (add (1) (2) (3))";
 
-   var app = new Interpreter();
+   var app = new LispInterpreter();
 
    app.LispStyleExecute(code, Console.Error);
 
@@ -79,7 +81,7 @@ app.LispStyleExecute("mul 4 2 3", output);
   {
    var code = @"print (reverse (add 1 2 3) (add 4 5))";
 
-   var app = new Interpreter();
+   var app = new LispInterpreter();
 
    app.LispStyleExecute(code, Console.Error);
 
