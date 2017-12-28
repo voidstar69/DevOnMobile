@@ -50,6 +50,16 @@ Console.Error);
 //   Assert.AreEqual("6", app.Output);
   }
 
+  [TestMethod()]
+  public void testLispOps()
+  {
+var app = new Interpreter();
+var out = Console.Error.
+app.LispStyleExecute("reverse 4 2 3 1", out);
+app.LispStyleExecute("add 4 2 3", out);
+app.LispStyleExecute("mul 4 2 3", out);
+  }
+
 // todo: parsing of nested parentheses is broken!
 /*
   [TestMethod()]
