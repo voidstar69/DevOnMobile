@@ -54,10 +54,10 @@ Console.Error);
   public void testLispOps()
   {
 var app = new Interpreter();
-var out = Console.Error.
-app.LispStyleExecute("reverse 4 2 3 1", out);
-app.LispStyleExecute("add 4 2 3", out);
-app.LispStyleExecute("mul 4 2 3", out);
+var output = Console.Error;
+app.LispStyleExecute("reverse 4 2 3 1", output);
+app.LispStyleExecute("add 4 2 3", output);
+app.LispStyleExecute("mul 4 2 3", output);
   }
 
 // todo: parsing of nested parentheses is broken!
