@@ -4,8 +4,9 @@ using System.IO;
 
 namespace DevOnMobile
 {
- public class Interpreter
+ public class LispInterpreter
  {
+/*
   public void CStyleExecute(string program, TextWriter output)
   {
    var lines = program.Split('\n');
@@ -30,8 +31,9 @@ namespace DevOnMobile
     }
    }
   }
+*/
 
-  public void LispStyleExecute(string program, TextWriter output)
+  public void Exec(string program, TextWriter output)
   {
    var text = program.Replace('\n',' ');
    var dataList = Eval(text,output,0);
@@ -45,7 +47,7 @@ namespace DevOnMobile
     output.Write(item);
     output.Write(' ');
    }
-   //output.WriteLine();
+   output.WriteLine();
   }
 
   private ArrayList Eval(string expr, TextWriter output, int indent)
