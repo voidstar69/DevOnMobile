@@ -100,6 +100,10 @@ namespace DevOnMobile
     case "add":
      result = new ArrayList{ Add(dataList) };
      break;
+
+    case "mul":
+     result = new ArrayList{ Reduce(dataList, x=>x*2) };
+     break;
    }
 
    if(result == null)
@@ -139,6 +143,19 @@ namespace DevOnMobile
    var result = Add(list);
    result += (double)head;
    return result;
+  }
+
+  private double Reduce(ArrayList list, Func<double,double,double> Op)
+  {
+   if (list.Count == 0)
+    return 0.0;
+   if (list.Count == 1)
+    return (double)list[0];
+
+   var head = list[0];
+   list.RemoveAt(0);
+   var result = Reduce(list,Op);
+   return Op(result,(double)head);
   }
  }
 }
