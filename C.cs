@@ -102,7 +102,7 @@ namespace DevOnMobile
      break;
 
     case "mul":
-     result = new ArrayList{ Reduce(dataList, x=>x*2) };
+     result = new ArrayList{ Reduce(dataList, (x,y)=>x*y) };
      break;
    }
 
