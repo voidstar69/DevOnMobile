@@ -107,12 +107,12 @@ Eval(null,input,output,indent+1));
     dataList = Eval(tokens[1], input, output, indent+1);
    }
 */
-   var cmd=dataList[0];
 
    Console.Write(new string(' ', indent));
    Console.Write("Eval "+expr+" => ");
    ArrayList result = null;
 
+/*
    double num;
    if(double.TryParse(cmd, out num))
    {
@@ -120,8 +120,11 @@ Eval(null,input,output,indent+1));
     result = dataList;
     //return dataList;
    }
+*/
 
-   if(result == null)
+   var cmd=dataList[0] as string;
+
+   //if(result == null)
    switch(cmd)
    {
     case "print":
