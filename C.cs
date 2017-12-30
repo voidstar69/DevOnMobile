@@ -60,7 +60,7 @@ namespace DevOnMobile
    output.WriteLine();
   }
 
-private AddToken(string token, ArrayList dataList)
+private void AddToken(string token, ArrayList dataList)
 {
  if(token.Length>0)
  {
