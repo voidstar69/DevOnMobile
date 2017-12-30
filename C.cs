@@ -140,7 +140,8 @@ private void AddToken(string token, ArrayList dataList)
    switch(cmd)
    {
     case "print":
-     foreach(var item in dataList[0])
+     //todo:datalist may be a tree!
+     foreach(var item in dataList)
      {
       output.Write(item);
       output.Write(' ');
