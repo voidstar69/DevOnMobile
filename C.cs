@@ -66,7 +66,8 @@ namespace DevOnMobile
    Console.WriteLine("Eval " + expr);
 
    string prefix="";
-   while('(' != (var ch=input.Read()))
+   char ch;
+   while('(' != (ch=input.Read()))
    {
     prefix+=ch;
    }
