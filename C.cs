@@ -140,14 +140,13 @@ private void AddToken(string token, ArrayList dataList)
    switch(cmd)
    {
     case "print":
-     foreach(var item in dataList)
+     foreach(var item in dataList[0])
      {
       output.Write(item);
       output.Write(' ');
      }
      output.WriteLine();
      //dataList.ForEach(x => output.Write(x));
-     //output.WriteLine(dataList.ToString());
      break;
 
     case "reverse":
@@ -155,15 +154,12 @@ private void AddToken(string token, ArrayList dataList)
      break;
 
     case "add":
-     result = new ArrayList{ Add(dataList) };
+     result = new ArrayList{ Reduce(dataList,(x,y)=>x+y) };
      break;
 
     case "mul":
      result = new ArrayList{ Reduce(dataList, (x,y)=>x*y) };
      break;
-
-    //default:
-     //result = dataList;
    }
    }
 
@@ -192,6 +188,7 @@ private void AddToken(string token, ArrayList dataList)
    return result;
   }
 
+/*
   private double Add(ArrayList list)
   {
    if (list.Count == 0)
@@ -205,6 +202,7 @@ private void AddToken(string token, ArrayList dataList)
    result += (double)head;
    return result;
   }
+*/
 
   private double Reduce(ArrayList list, Func<double,double,double> Op)
   {
