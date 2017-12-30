@@ -68,7 +68,7 @@ namespace DevOnMobile
    var dataList = new ArrayList();
    string prefix="";
    int ch;
-   while(ch=input.Read()&&ch!=')')
+   while(0!=(ch=input.Read())&&ch!=')')
    {
     //if(ch==' '
 
@@ -84,7 +84,7 @@ namespace DevOnMobile
    var tokens = expr.Trim(trimChars).Split(splitChars, 2);
    var cmd = tokens[0];
 
-   ArrayList dataList;
+   //ArrayList dataList;
    if (tokens.Length == 1)
    {
     dataList = new ArrayList();
