@@ -70,21 +70,23 @@ namespace DevOnMobile
    int ch;
    while(-1!=(ch=input.Read()) && ch!=')')
    {
-    if('(' == ch)
+    if((ch==' '||ch=='(') && prefix.Length>0)
     {
-     dataList.Add(prefix);
-     prefix="";
+     //double num;
+     if(double.TryParse(prefix, var out num))
+      dataList.Add(num);
+     else
+      dataList.Add(prefix);
 
-     dataList.Add(
-Eval(null,input,output,indent+1));
-    }
-    else if(' '==ch)
-    {
-     dataList.Add(prefix);
      prefix="";
     }
     else
      prefix+=(char)ch;
+
+    if('(' == ch)
+    {
+     dataList.Add(Eval(null, input, output, indent+1));
+    }
    }
 
 //   return dataList;
