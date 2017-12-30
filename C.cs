@@ -36,7 +36,12 @@ namespace DevOnMobile
   public void Exec(string program, TextWriter output)
   {
    var text = program.Replace('\n',' ');
-   var dataList = Eval(text,output,0);
+
+   ArrayList dataList;
+   using(var input=new StringReader(program))
+   {
+    dataList = Eval(text,input,output,0);
+   }
 
    if (dataList == null)
     return;
@@ -55,7 +60,7 @@ namespace DevOnMobile
    output.WriteLine();
   }
 
-  private ArrayList Eval(string expr, TextWriter output, int indent)
+  private ArrayList Eval(string expr,TextReader input,TextWriter output,int indent)
   {
    Console.Write(new string(' ', indent));
    Console.WriteLine("Eval " + expr);
