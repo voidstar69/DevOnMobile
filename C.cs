@@ -72,8 +72,8 @@ namespace DevOnMobile
    {
     if((ch==' '||ch=='(') && prefix.Length>0)
     {
-     //double num;
-     if(double.TryParse(prefix, var out num))
+     double num;
+     if(double.TryParse(prefix,out num))
       dataList.Add(num);
      else
       dataList.Add(prefix);
