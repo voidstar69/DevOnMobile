@@ -110,7 +110,6 @@ Eval(null,input,output,indent+1));
 
    Console.Write(new string(' ', indent));
    Console.Write("Eval "+expr+" => ");
-   ArrayList result = null;
 
 /*
    double num;
@@ -122,9 +121,12 @@ Eval(null,input,output,indent+1));
    }
 */
 
+   ArrayList result = dataList;
    var cmd=dataList[0] as string;
+   if(cmd != null)
+   {
+   dataList.RemoveAt(0);
 
-   //if(result == null)
    switch(cmd)
    {
     case "print":
@@ -149,6 +151,10 @@ Eval(null,input,output,indent+1));
     case "mul":
      result = new ArrayList{ Reduce(dataList, (x,y)=>x*y) };
      break;
+
+    //default:
+     //result = dataList;
+   }
    }
 
    if(result == null)
