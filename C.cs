@@ -68,10 +68,8 @@ namespace DevOnMobile
    var dataList = new ArrayList();
    string prefix="";
    int ch;
-   while(0!=(ch=input.Read())&&ch!=')')
+   while(-1!=(ch=input.Read()) && ch!=')')
    {
-    //if(ch==' '
-
     if('(' == ch)
     {
      dataList.Add(prefix);
