@@ -60,6 +60,18 @@ namespace DevOnMobile
    output.WriteLine();
   }
 
+private AddToken(string token, ArrayList dataList)
+{
+ if(token.Length>0)
+ {
+     double num;
+     if(double.TryParse(token,out num))
+      dataList.Add(num);
+     else
+      dataList.Add(token);
+ }
+}
+
   private ArrayList Eval(string expr,TextReader input,TextWriter output,int indent)
   {
    Console.Write(new string(' ', indent));
@@ -70,14 +82,9 @@ namespace DevOnMobile
    int ch;
    while(-1!=(ch=input.Read()) && ch!=')')
    {
-    if((ch==' '||ch=='(') && prefix.Length>0)
+    if(ch==' '||ch=='(')
     {
-     double num;
-     if(double.TryParse(prefix,out num))
-      dataList.Add(num);
-     else
-      dataList.Add(prefix);
-
+     AddToken(prefix, dataList);
      prefix="";
     }
     else
@@ -89,8 +96,9 @@ namespace DevOnMobile
     }
    }
 
-//   return dataList;
+   AddToken(prefix, dataList);
 
+//   return dataList;
 
 /*
    // TODO: parentheses handling is broken!
