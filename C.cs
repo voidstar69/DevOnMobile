@@ -78,7 +78,7 @@ namespace DevOnMobile
    }
    else
    {
-    dataList = Eval(tokens[1], output, indent+1);
+    dataList = Eval(tokens[1], input, output, indent+1);
    }
 
    Console.Write(new string(' ', indent));
