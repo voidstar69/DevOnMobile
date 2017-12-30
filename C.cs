@@ -84,13 +84,13 @@ Eval(null,input,output,indent+1));
      prefix="";
     }
     else
-     prefix+=ch;
+     prefix+=(char)ch;
    }
 
-   return dataList;
+//   return dataList;
 
 
-
+/*
    // TODO: parentheses handling is broken!
    var trimChars = new char[]{'(',')'};
    var splitChars = new char[]{' '};
@@ -106,6 +106,8 @@ Eval(null,input,output,indent+1));
    {
     dataList = Eval(tokens[1], input, output, indent+1);
    }
+*/
+   var cmd=dataList[0];
 
    Console.Write(new string(' ', indent));
    Console.Write("Eval "+expr+" => ");
