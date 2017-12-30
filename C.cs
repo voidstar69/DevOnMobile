@@ -65,10 +65,16 @@ namespace DevOnMobile
    Console.Write(new string(' ', indent));
    Console.WriteLine("Eval " + expr);
 
+   var dataList = new ArrayList();
    string prefix="";
-   char ch;
-   while('(' != (ch=input.Read()))
+   int ch;
+   while(ch=input.Read()&&ch!=')')
    {
+    //if(ch==' '
+
+    if('(' == ch)
+     Eval(null,input,output,indent+1);
+
     prefix+=ch;
    }
 
