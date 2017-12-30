@@ -73,10 +73,25 @@ namespace DevOnMobile
     //if(ch==' '
 
     if('(' == ch)
-     Eval(null,input,output,indent+1);
+    {
+     dataList.Add(prefix);
+     prefix="";
 
-    prefix+=ch;
+     dataList.Add(
+Eval(null,input,output,indent+1));
+    }
+    else if(' '==ch)
+    {
+     dataList.Add(prefix);
+     prefix="";
+    }
+    else
+     prefix+=ch;
    }
+
+   return dataList;
+
+
 
    // TODO: parentheses handling is broken!
    var trimChars = new char[]{'(',')'};
