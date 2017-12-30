@@ -65,6 +65,12 @@ namespace DevOnMobile
    Console.Write(new string(' ', indent));
    Console.WriteLine("Eval " + expr);
 
+   string prefix="";
+   while('(' != (var ch=input.Read()))
+   {
+    prefix+=ch;
+   }
+
    // TODO: parentheses handling is broken!
    var trimChars = new char[]{'(',')'};
    var splitChars = new char[]{' '};
