@@ -22,7 +22,7 @@ namespace DevOnMobile.Tests
   */
 
   [TestMethod()]
-  public void testLispAdd()
+  public void Add()
   {
    var code = @"add 1 2 3";
    var app = new LispInterpreter();
@@ -35,7 +35,7 @@ namespace DevOnMobile.Tests
   }
 
   [TestMethod()]
-  public void testLispAddThenPrint()
+  public void AddThenPrint()
   {
    var code = @"print (add 1 2 3)";
    var app = new LispInterpreter();
@@ -48,7 +48,7 @@ namespace DevOnMobile.Tests
   }
 
   [TestMethod()]
-  public void testLispReverse()
+  public void Reverse()
   {
    var code = @"(reverse 1 2 3)";
    var app = new LispInterpreter();
@@ -61,10 +61,9 @@ namespace DevOnMobile.Tests
   }
 
   [TestMethod()]
-  public void testLispOps()
+  public void Operations()
   {
    var app = new LispInterpreter();
-   var output = Console.Error;
    using (var writer = new StringWriter())
    {
     app.Exec("reverse 4 2 3 1", writer);
@@ -75,31 +74,30 @@ namespace DevOnMobile.Tests
    }
   }
 
-// todo: parsing of nested parentheses is broken!
-/*
   [TestMethod()]
-  public void testLispAddWithParentheses()
+  public void ReverseAndAdd()
   {
-   var code = @"print (add (1) (2) (3))";
-
    var app = new LispInterpreter();
-
-   app.LispStyleExecute(code, Console.Error);
-
-//   Assert.AreEqual("6", app.Output);
+   using (var writer = new StringWriter())
+   {
+    app.Exec("reverse (add 1 2 3) (add 4 5)", writer);
+    Assert.AreEqual("9 6\r\n", writer.ToString());
+   }
   }
 
-  [TestMethod()]
-  public void testLispReverseAndAdd()
-  {
-   var code = @"print (reverse (add 1 2 3) (add 4 5))";
+  // todo: parsing of nested parentheses is broken!
+  /*
+    [TestMethod()]
+    public void testLispAddWithParentheses()
+    {
+     var code = @"print (add (1) (2) (3))";
 
-   var app = new LispInterpreter();
+     var app = new LispInterpreter();
 
-   app.LispStyleExecute(code, Console.Error);
+     app.LispStyleExecute(code, Console.Error);
 
-//   Assert.AreEqual("9 6", app.Output);
-  }
-*/
+  //   Assert.AreEqual("6", app.Output);
+    }
+  */
  }
 }
