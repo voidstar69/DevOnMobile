@@ -92,7 +92,14 @@ private void AddToken(string token, ArrayList dataList)
 
     if('(' == ch)
     {
-     dataList.Add(Eval(null, input, output, indent+1));
+     // evaluate sub-expression
+     var subResult = Eval(null, input, output, indent + 1);
+
+     // decay sub-expression list to single value or missing value
+     if(subResult.Count==1)
+      dataList.Add(subResult[0]);
+     else if (subResult.Count > 0)
+      dataList.Add(subResult);
     }
    }
 
@@ -148,6 +155,7 @@ private void AddToken(string token, ArrayList dataList)
      }
      output.WriteLine();
      //dataList.ForEach(x => output.Write(x));
+     result = null;
      break;
 
     case "reverse":
