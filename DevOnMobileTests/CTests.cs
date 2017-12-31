@@ -50,7 +50,7 @@ namespace DevOnMobile.Tests
   [TestMethod()]
   public void Reverse()
   {
-   var code = @"(reverse 1 2 3)";
+   var code = @"reverse 1 2 3";
    var app = new LispInterpreter();
    using (var writer = new StringWriter())
    {
