@@ -202,7 +202,7 @@ private void Print(ArrayList data,TextWriter output)
    }
    }
 
-   Print(result,output);
+   Print(result,Console);
 /*
    if(result == null)
     Console.Write("null");
