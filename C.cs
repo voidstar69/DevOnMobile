@@ -210,6 +210,7 @@ private void Print(ArrayList data,TextWriter output)
     default:
      output.WriteLine("Error: unknown command '{0}',cmd");
      result = null;
+     break;
    }
    }
 
