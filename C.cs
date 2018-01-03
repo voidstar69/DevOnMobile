@@ -87,7 +87,7 @@ private void Print(ArrayList data,TextWriter output)
    if(item is ArrayList)
    {
     output.Write('(');
-    Print(item);
+    Print(item,output);
     output.Write(')');
    }
    else
@@ -152,8 +152,8 @@ private void Print(ArrayList data,TextWriter output)
    }
 */
 
-   Console.Write(new string(' ', indent));
-   Console.Write("Eval "+expr+" => ");
+   //Console.Write(new string(' ', indent));
+   //Console.Write("Eval "+expr+" => ");
 
 /*
    double num;
