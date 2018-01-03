@@ -199,6 +199,10 @@ private void Print(ArrayList data,TextWriter output)
     case "mul":
      result = new ArrayList{ Reduce(dataList, (x,y)=>x*y) };
      break;
+
+    default:
+     output.WriteLine("Error: unknown command '{0}',cmd");
+     return null;
    }
    }
 
