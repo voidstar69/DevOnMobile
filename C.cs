@@ -207,7 +207,11 @@ private void Print(ArrayList data,TextWriter output)
      result = new ArrayList{ Reduce(dataList, (x,y)=>x*y) };
      break;
 
-    default:
+    case "range":
+      result = Range(dataList);
+      break;
+
+     default:
      output.WriteLine("Error: unknown command '{0}'",cmd);
      result = null;
      break;
@@ -269,6 +273,20 @@ private void Print(ArrayList data,TextWriter output)
    list.RemoveAt(0);
    var result = Reduce(list,Op);
    return Op(result,(double)head);
+  }
+
+  private ArrayList Range(ArrayList list)
+  {
+   var start = (double)list[0];
+   var end = (double)list[1];
+   var step = (list.Count < 3 ? 1.0 : (double)list[2]);
+
+   var result = new ArrayList();
+   for (var i = start; i <= end; i += step)
+   {
+    result.Add(i);
+   }
+   return result;
   }
  }
 }

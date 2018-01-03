@@ -95,19 +95,6 @@ namespace DevOnMobile.Tests
   }
 
   [TestMethod()]
-  public void Range()
-  {
-   var app = new LispInterpreter();
-   using (var writer = new StringWriter())
-   {
-    app.Exec("(range 1 9)", writer);
-    app.Exec("(range 1 9 3)", writer);
-    Assert.AreEqual("1 2 3 4 5 6 7 8 9\r\n1 4 7\r\n", writer.ToString());
-   }
-  }
-
-  // todo: parsing of nested parentheses is broken!
-  [TestMethod()]
   public void AddPrintWithParentheses()
   {
    var app = new LispInterpreter();
@@ -117,5 +104,32 @@ namespace DevOnMobile.Tests
     Assert.AreEqual("6\r\n", writer.ToString());
    }
   }
+
+  [TestMethod()]
+  public void Range()
+  {
+   var app = new LispInterpreter();
+   using (var writer = new StringWriter())
+   {
+    app.Exec("range 1 9", writer);
+    app.Exec("range 1 9 3", writer);
+    Assert.AreEqual("1 2 3 4 5 6 7 8 9\r\n1 4 7\r\n", writer.ToString());
+   }
+  }
+
+  // TODO: range returns a list, which is embedded in another list. Add/mul cannot unwrap the outer list!
+/*
+  [TestMethod()]
+  public void RangeWithOtherOps()
+  {
+   var app = new LispInterpreter();
+   using (var writer = new StringWriter())
+   {
+    app.Exec("add (range 1 100)", writer);
+    app.Exec("mul (range 1 100)", writer);
+    Assert.AreEqual("1 2 3 4 5 6 7 8 9\r\n1 4 7\r\n", writer.ToString());
+   }
+  }
+*/
  }
 }
