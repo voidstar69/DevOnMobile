@@ -82,8 +82,14 @@ private void Print(ArrayList data,TextWriter output)
   output.Write("null");
  }
 
+  bool first = true;
   foreach(var item in data)
   {
+   if (first)
+     first = false;
+    else
+     output.Write(' ');
+
    if(item is ArrayList)
    {
     output.Write('(');
@@ -92,8 +98,8 @@ private void Print(ArrayList data,TextWriter output)
    }
    else
    {
+
     output.Write(item);
-    output.Write(' ');
    }
   }
  output.WriteLine();
