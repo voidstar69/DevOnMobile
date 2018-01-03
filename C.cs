@@ -80,6 +80,7 @@ private void Print(ArrayList data,TextWriter output)
  if(data == null)
  {
   output.Write("null");
+  return;
  }
 
   bool first = true;
@@ -172,9 +173,9 @@ private void Print(ArrayList data,TextWriter output)
 */
 
    ArrayList result = dataList;
-   var cmd=dataList[0] as string;
-   if(cmd != null)
+   if(dataList != null && dataList[0] is string)
    {
+   var cmd=dataList[0] as string;
    dataList.RemoveAt(0);
 
    switch(cmd)
@@ -208,7 +209,7 @@ private void Print(ArrayList data,TextWriter output)
 
     default:
      output.WriteLine("Error: unknown command '{0}',cmd");
-     return null;
+     result = null;
    }
    }
 
