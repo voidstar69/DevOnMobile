@@ -38,14 +38,16 @@ namespace DevOnMobile
    var text = program.Replace('\n',' ');
 
    ArrayList dataList;
-   using(var input=new StringReader(program))
+   using(var input=new StringReader(text))
    {
-    dataList = Eval(text,input,output,0);
+    dataList = Eval(input,output,0);
    }
 
    if (dataList == null)
     return;
 
+   Print(dataList,output);
+/*
    //Console.Write('=');
    bool first = true;
    foreach (var item in dataList)
@@ -58,6 +60,7 @@ namespace DevOnMobile
     output.Write(item);
    }
    output.WriteLine();
+*/
   }
 
 private void AddToken(string token, ArrayList dataList)
@@ -72,10 +75,34 @@ private void AddToken(string token, ArrayList dataList)
  }
 }
 
-  private ArrayList Eval(string expr,TextReader input,TextWriter output,int indent)
+private void Print(ArrayList data,TextWriter output)
+{
+ if(result == null)
+ {
+  Console.Write("null");
+ }
+
+  foreach(var item in data)
   {
-   Console.Write(new string(' ', indent));
-   Console.WriteLine("Eval " + expr);
+   if(item is ArrayList)
+   {
+    output.Write('(');
+    Print(item);
+    output.Write(')');
+   }
+   else
+   {
+    output.Write(item);
+    output.Write(' ');
+   }
+  }
+ output.WriteLine();
+}
+
+  private ArrayList Eval(TextReader input,TextWriter output,int indent)
+  {
+   //Console.Write(new string(' ', indent));
+   //Console.WriteLine("Eval " + expr);
 
    var dataList = new ArrayList();
    string prefix="";
@@ -93,7 +120,7 @@ private void AddToken(string token, ArrayList dataList)
     if('(' == ch)
     {
      // evaluate sub-expression
-     var subResult = Eval(null, input, output, indent + 1);
+     var subResult = Eval(input, output, indent + 1);
 
      // decay sub-expression list to single value or missing value
      if(subResult.Count==1)
@@ -148,6 +175,8 @@ private void AddToken(string token, ArrayList dataList)
    {
     case "print":
      //todo:datalist may be a tree!
+     Print(dataList,output);
+/*
      foreach(var item in dataList)
      {
       output.Write(item);
@@ -155,6 +184,7 @@ private void AddToken(string token, ArrayList dataList)
      }
      output.WriteLine();
      //dataList.ForEach(x => output.Write(x));
+*/
      result = null;
      break;
 
@@ -172,6 +202,8 @@ private void AddToken(string token, ArrayList dataList)
    }
    }
 
+   Print(dataList,output);
+/*
    if(result == null)
     Console.Write("null");
    else
@@ -181,6 +213,7 @@ private void AddToken(string token, ArrayList dataList)
     Console.Write(' ');
    }
    Console.WriteLine();
+*/
 
    return result;
   }
