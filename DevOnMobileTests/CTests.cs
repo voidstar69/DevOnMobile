@@ -94,19 +94,28 @@ namespace DevOnMobile.Tests
    }
   }
 
+  [TestMethod()]
+  public void Range()
+  {
+   var app = new LispInterpreter();
+   using (var writer = new StringWriter())
+   {
+    app.Exec("(range 1 9)", writer);
+    app.Exec("(range 1 9 3)", writer);
+    Assert.AreEqual("1 2 3 4 5 6 7 8 9\r\n1 4 7\r\n", writer.ToString());
+   }
+  }
+
   // todo: parsing of nested parentheses is broken!
-  /*
-    [TestMethod()]
-    public void testLispAddWithParentheses()
-    {
-     var code = @"print (add (1) (2) (3))";
-
-     var app = new LispInterpreter();
-
-     app.LispStyleExecute(code, Console.Error);
-
-  //   Assert.AreEqual("6", app.Output);
-    }
-  */
+  [TestMethod()]
+  public void AddPrintWithParentheses()
+  {
+   var app = new LispInterpreter();
+   using (var writer = new StringWriter())
+   {
+    app.Exec("print (add (1) (2) (3))", writer);
+    Assert.AreEqual("6\r\n", writer.ToString());
+   }
+  }
  }
 }
