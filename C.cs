@@ -130,9 +130,9 @@ private void Print(ArrayList data,TextWriter output)
      var subResult = Eval(input, output, indent + 1);
 
      // decay sub-expression list to single value or missing value
-     if(subResult==null || subResult.Count>0)
+     if(subResult==null || subResult.Count>1)
       dataList.Add(subResult);
-     else if (subResult.Count==1)
+     else
       dataList.Add(subResult[0]);
     }
    }
@@ -208,7 +208,7 @@ private void Print(ArrayList data,TextWriter output)
      break;
 
     default:
-     output.WriteLine("Error: unknown command '{0}',cmd");
+     output.WriteLine("Error: unknown command '{0}'",cmd);
      result = null;
      break;
    }
