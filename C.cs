@@ -77,7 +77,7 @@ private void AddToken(string token, ArrayList dataList)
 
 private void Print(ArrayList data,TextWriter output)
 {
- if(result == null)
+ if(data == null)
  {
   Console.Write("null");
  }
@@ -202,7 +202,7 @@ private void Print(ArrayList data,TextWriter output)
    }
    }
 
-   Print(dataList,output);
+   Print(result,output);
 /*
    if(result == null)
     Console.Write("null");
