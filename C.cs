@@ -79,7 +79,7 @@ private void Print(ArrayList data,TextWriter output)
 {
  if(data == null)
  {
-  output.Write("null");
+  //output.Write("null");
   return;
  }
 
