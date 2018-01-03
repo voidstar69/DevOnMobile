@@ -79,7 +79,7 @@ private void Print(ArrayList data,TextWriter output)
 {
  if(data == null)
  {
-  Console.Write("null");
+  output.Write("null");
  }
 
   foreach(var item in data)
@@ -202,7 +202,7 @@ private void Print(ArrayList data,TextWriter output)
    }
    }
 
-   Print(result,Console);
+   Print(result,Console.Out);
 /*
    if(result == null)
     Console.Write("null");
