@@ -87,7 +87,7 @@ private void Print(ArrayList data,TextWriter output)
    if(item is ArrayList)
    {
     output.Write('(');
-    Print(item,output);
+    Print(item as ArrayList,output);
     output.Write(')');
    }
    else
