@@ -53,7 +53,7 @@ namespace DevOnMobile.Tests
    {
     app.Exec("print (add 1 2 3)", writer);
     Console.Error.Write(writer.ToString());
-    Assert.AreEqual("6 \r\n", writer.ToString());
+    Assert.AreEqual("6\r\n", writer.ToString());
    }
   }
 
