@@ -129,11 +129,8 @@ private void Print(ArrayList data,TextWriter output)
      // evaluate sub-expression
      var subResult = Eval(input, output, indent + 1);
 
-     // decay sub-expression list to single value or missing value
-     if(subResult==null || subResult.Count>1)
-      dataList.Add(subResult);
-     else
-      dataList.Add(subResult[0]);
+     // add sub-expression elements directly to parent list
+     dataList.AddRange(subResult);
     }
    }
 

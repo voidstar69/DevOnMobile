@@ -117,8 +117,6 @@ namespace DevOnMobile.Tests
    }
   }
 
-  // TODO: range returns a list, which is embedded in another list. Add/mul cannot unwrap the outer list!
-/*
   [TestMethod()]
   public void RangeWithOtherOps()
   {
@@ -126,10 +124,9 @@ namespace DevOnMobile.Tests
    using (var writer = new StringWriter())
    {
     app.Exec("add (range 1 100)", writer);
-    app.Exec("mul (range 1 100)", writer);
-    Assert.AreEqual("1 2 3 4 5 6 7 8 9\r\n1 4 7\r\n", writer.ToString());
+    app.Exec("mul (range 1 10)", writer);
+    Assert.AreEqual("5050\r\n3628800\r\n", writer.ToString());
    }
   }
-*/
  }
 }
