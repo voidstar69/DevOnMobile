@@ -21,7 +21,7 @@ namespace DevOnMobile.Tests
    }
   }
 
-  [Fact]
+//  [Fact]
   public void IsPrimeFastPerformance()
   {
    var prime = new Prime();
@@ -31,7 +31,7 @@ namespace DevOnMobile.Tests
    }
   }
 
- [Fact]
+//  [Fact]
   public void IsPrimeSlowPerformance()
   {
    var prime = new Prime();
