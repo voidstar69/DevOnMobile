@@ -1,6 +1,8 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
+using Xunit;
+using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 namespace DevOnMobile.Tests
 {
@@ -21,7 +23,8 @@ namespace DevOnMobile.Tests
     }
   */
 
-  [TestMethod()]
+  //[TestMethod()]
+  [Fact]
   public void Add()
   {
    var app = new LispInterpreter();
