@@ -1,19 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
+//using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DevOnMobile;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+//using System.Linq;
+//using System.Text;
+//using System.Threading.Tasks;
+//using DevOnMobile;
+using Xunit;
 
 namespace DevOnMobile.Tests
 {
- [TestClass()]
  public class CodecTests
  {
-  [TestMethod, Timeout(100)]
+  [Fact] // Timeout(100)
   public void testGZip()
   {
    var input = genRandomBytes(1000);
@@ -31,7 +30,7 @@ namespace DevOnMobile.Tests
    }
   }
 
-  [TestMethod, Timeout(100)]
+  [Fact] // Timeout(100)]
   public void testDeflate()
   {
    var input = genRandomBytes(1000);
@@ -130,19 +129,19 @@ namespace DevOnMobile.Tests
    Console.WriteLine("{0} -> {1}", input, encoded);
 
    if (expectedEncoded != null)
-    Assert.AreEqual(expectedEncoded, encoded, "Unexpected encoded data");
+    Assert.Equal(expectedEncoded, encoded); //, "Unexpected encoded data");
 
-   Assert.AreEqual(input, output, "Encode then decode must produce original data");
+   Assert.Equal(input, output); //, "Encode then decode must produce original data");
 
    // TODO: this fails for the binary RLE codec
-   //Assert.IsTrue(encoded.Length <= input.Length, "Codec must not expand data");
+   //Assert.True(encoded.Length <= input.Length, "Codec must not expand data");
 
    //Assert.AreNotEqual(input, encoded, "Encoding must change data");
 
    return encoded;
   }
 
-  [TestMethod, Timeout(150)]
+  [Fact] // Timeout(150)]
   public void testCharacterRunLengthCodecWithRandomData()
   {
    var random = new Random();
@@ -172,7 +171,7 @@ namespace DevOnMobile.Tests
    Console.WriteLine("*** Compression ratio: {0}% (encoded size vs original size) ***", (double)totalEncodedSize / totalDecodedSize * 100);
   }
 
-  [TestMethod, Timeout(100)]
+  [Fact] // Timeout(100)]
   public void testBinaryRunLengthCodecWithRandomData()
   {
    var random = new Random();
@@ -202,7 +201,7 @@ namespace DevOnMobile.Tests
    Console.WriteLine("*** Compression ratio: {0}% (encoded size vs original size) ***", (double)totalEncodedSize / totalDecodedSize * 100);
   }
 
-  [TestMethod, Timeout(100)]
+  [Fact] // Timeout(100)]
   public void testHuffmanCodecWithRandomData()
   {
    var random = new Random();
@@ -232,7 +231,7 @@ namespace DevOnMobile.Tests
    Console.WriteLine("*** Compression ratio: {0}% (encoded size vs original size, in bits) ***", (double)totalEncodedSize / totalDecodedSize * 100);
   }
 
-  [TestMethod, Timeout(400)]
+  [Fact] // Timeout(400)]
   public void testMultipleCodecs()
   {
    var input3 = "a";
@@ -276,27 +275,27 @@ namespace DevOnMobile.Tests
   }
 
 /*
-  [TestMethod]
+  [Fact]
   public void encodeThenDecodeEmptyDataMustProduceOriginalData()
   {
    const string input = "";
    var codec = new CharacterRunLengthCodec();
    var encoded = codec.encode(input);
    var output = codec.decode(encoded);
-   Assert.AreEqual(input, output);
+   Assert.Equal(input, output);
   }
 
-  [TestMethod]
+  [Fact]
   public void encodeThenDecodeManyRepeatedCharsMustProduceOriginalData()
   {
    const string input = "qdttpmmmmmmmmmmhmm";
    var codec = new CharacterRunLengthCodec();
    var encoded = codec.encode(input);
    var output = codec.decode(encoded);
-   Assert.AreEqual(input, output);
+   Assert.Equal(input, output);
   }
 
-  [TestMethod]
+  [Fact]
   public void encodeThenDecodeMustProduceOriginalData()
   {
    //const string input = "Hello World";
@@ -305,29 +304,29 @@ namespace DevOnMobile.Tests
 
    var codec = new CharacterRunLengthCodec();
    var encoded = codec.encode(input);
-   Assert.AreEqual(expectedEncoded, encoded, "Unexpected encoded data");
+   Assert.Equal(expectedEncoded, encoded, "Unexpected encoded data");
    var output = codec.decode(encoded);
-   Assert.AreEqual(input, output);
+   Assert.Equal(input, output);
   }
 
-  [TestMethod]
+  [Fact]
   public void verifyRunLengthEncodedData()
   {
    const string input = "Hello Wooorld";
    var codec = new CharacterRunLengthCodec();
    var encoded = codec.encode(input);
-   Assert.AreEqual("Hel2o Wo3rld", encoded);
+   Assert.Equal("Hel2o Wo3rld", encoded);
   }
 */
 
-  [TestMethod]
+  [Fact]
   public void codecMustNotExpandData()
   {
    const string input = "Hello World";
    var codec = new CharacterRunLengthCodec();
    var encoded = codec.encode(input);
    var output = codec.decode(encoded);
-   Assert.IsTrue(encoded.Length <= input.Length);
+   Assert.True(encoded.Length <= input.Length);
   }
  }
 }

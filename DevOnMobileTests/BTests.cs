@@ -1,17 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DevOnMobile;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 
 namespace DevOnMobile.Tests
 {
- [TestClass()]
  public class BinaryTreeTests
  {
-  [TestMethod]
+  [Fact]
   public void testBinaryTree()
   {
    var tree = new BinaryTree<int>();
@@ -20,7 +14,7 @@ namespace DevOnMobile.Tests
    tree.Add(2);
 
    Console.WriteLine("Binary tree contents in order:");
-   foreach (int item in tree)
+   foreach (var item in tree)
    {
     Console.WriteLine(item);
    }
@@ -30,8 +24,8 @@ namespace DevOnMobile.Tests
    var enu = tree.GetEnumerator();
    foreach (var expItem in expectedItemOrder)
    {
-    Assert.IsTrue(enu.MoveNext());
-    Assert.AreEqual(expItem, enu.Current);
+    Assert.True(enu.MoveNext());
+    Assert.Equal(expItem, enu.Current);
    }
   }
  }

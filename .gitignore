@@ -3,3 +3,4 @@ bin
 obj
 TestResults
 /.vs/DevOnMobile/v15/Server/sqlite3
+/packages

@@ -1,16 +1,13 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 using Xunit;
-using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 namespace DevOnMobile.Tests
 {
- [TestClass()]
  public class LispInterpreterTests
  {
   /*
-    [TestMethod()]
+    [Fact]
     public void CProgramTest()
     {
      var code =
@@ -19,11 +16,10 @@ namespace DevOnMobile.Tests
 
      var app = new Interpreter();
      app.CStyleExecute(code, System.Console.Error);
-     //Assert.AreEqual(123, c.bar());
+     //Assert.Equal(123, c.bar());
     }
   */
 
-  //[TestMethod()]
   [Fact]
   public void Add()
   {
@@ -32,11 +28,11 @@ namespace DevOnMobile.Tests
    {
     app.Exec("add 1 2 3", writer);
     Console.Error.Write(writer.ToString());
-    Assert.AreEqual("6\r\n", writer.ToString());
+    Assert.Equal("6\r\n", writer.ToString());
    }
   }
 
-  [TestMethod()]
+  [Fact]
   public void Mul()
   {
    var app = new LispInterpreter();
@@ -44,11 +40,11 @@ namespace DevOnMobile.Tests
    {
     app.Exec("mul 2 3 4", writer);
     Console.Error.Write(writer.ToString());
-    Assert.AreEqual("24\r\n", writer.ToString());
+    Assert.Equal("24\r\n", writer.ToString());
    }
   }
 
-  [TestMethod()]
+  [Fact]
   public void AddThenPrint()
   {
    var app = new LispInterpreter();
@@ -56,11 +52,11 @@ namespace DevOnMobile.Tests
    {
     app.Exec("print (add 1 2 3)", writer);
     Console.Error.Write(writer.ToString());
-    Assert.AreEqual("6\r\n", writer.ToString());
+    Assert.Equal("6\r\n", writer.ToString());
    }
   }
 
-  [TestMethod()]
+  [Fact]
   public void Reverse()
   {
    var app = new LispInterpreter();
@@ -68,11 +64,11 @@ namespace DevOnMobile.Tests
    {
     app.Exec("reverse 1 2 3", writer);
     Console.Error.Write(writer.ToString());
-    Assert.AreEqual("3 2 1\r\n", writer.ToString());
+    Assert.Equal("3 2 1\r\n", writer.ToString());
    }
   }
 
-  [TestMethod()]
+  [Fact]
   public void Operations()
   {
    var app = new LispInterpreter();
@@ -82,33 +78,33 @@ namespace DevOnMobile.Tests
     app.Exec("add 4 2 3", writer);
     app.Exec("mul 4 2 3", writer);
     Console.Error.Write(writer.ToString());
-    Assert.AreEqual("1 3 2 4\r\n9\r\n24\r\n", writer.ToString());
+    Assert.Equal("1 3 2 4\r\n9\r\n24\r\n", writer.ToString());
    }
   }
 
-  [TestMethod()]
+  [Fact]
   public void ReverseAndAdd()
   {
    var app = new LispInterpreter();
    using (var writer = new StringWriter())
    {
     app.Exec("reverse (add 1 2 3) (add 4 5)", writer);
-    Assert.AreEqual("9 6\r\n", writer.ToString());
+    Assert.Equal("9 6\r\n", writer.ToString());
    }
   }
 
-  [TestMethod()]
+  [Fact]
   public void AddPrintWithParentheses()
   {
    var app = new LispInterpreter();
    using (var writer = new StringWriter())
    {
     app.Exec("print (add (1) (2) (3))", writer);
-    Assert.AreEqual("6\r\n", writer.ToString());
+    Assert.Equal("6\r\n", writer.ToString());
    }
   }
 
-  [TestMethod()]
+  [Fact]
   public void Range()
   {
    var app = new LispInterpreter();
@@ -116,11 +112,11 @@ namespace DevOnMobile.Tests
    {
     app.Exec("range 1 9", writer);
     app.Exec("range 1 9 3", writer);
-    Assert.AreEqual("1 2 3 4 5 6 7 8 9\r\n1 4 7\r\n", writer.ToString());
+    Assert.Equal("1 2 3 4 5 6 7 8 9\r\n1 4 7\r\n", writer.ToString());
    }
   }
 
-  [TestMethod()]
+  [Fact]
   public void RangeWithOtherOps()
   {
    var app = new LispInterpreter();
@@ -128,7 +124,7 @@ namespace DevOnMobile.Tests
    {
     app.Exec("add (range 1 100)", writer);
     app.Exec("mul (range 1 10)", writer);
-    Assert.AreEqual("5050\r\n3628800\r\n", writer.ToString());
+    Assert.Equal("5050\r\n3628800\r\n", writer.ToString());
    }
   }
  }
