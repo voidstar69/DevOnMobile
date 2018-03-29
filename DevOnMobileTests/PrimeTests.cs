@@ -5,7 +5,7 @@ namespace DevOnMobile.Tests
 {
  public class PrimeTests
  {
-  [Fact]
+//  [Fact]
   public void TestIsPrime()
   {
    Console.WriteLine("Testing numbers for Primality");
