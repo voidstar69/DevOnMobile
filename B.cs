@@ -31,17 +31,22 @@ namespace DevOnMobile
   
   public IEnumerator<T> GetEnumerator()
   {
+   return EnumeratorImpl();
+  }
+  
+  IEnumerator IEnumerable.GetEnumerator()
+  {
+   return EnumeratorImpl();
+  }
+  
+  private IEnumerator<T> EnumeratorImpl()
+  {
    var curr = root;
    while (curr != null)
    {
     yield return curr.Data;
     curr = curr.Next;
    }
-  }
-  
-  IEnumerator IEnumerable.GetEnumerator()
-  {
-   throw new NotImplementedException();
   }
  }
 }
