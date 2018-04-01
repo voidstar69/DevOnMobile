@@ -1,0 +1,1 @@
+packages\OpenCover.4.6.519\tools\OpenCover.Console.exe -register:user -target:"packages\xunit.runner.console.2.3.1\tools\net452\xunit.console.x86.exe" -targetargs:"DevOnMobileTests\bin\Debug\DevOnMobileTests.dll -noshadow" -output:".\coverage.xml" -filter:"+[DevOnMobile*]* -[DevOnMobile.Tests*]*"
