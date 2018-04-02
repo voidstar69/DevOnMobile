@@ -1,11 +1,12 @@
 ﻿using System;
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace DevOnMobile.Tests
 {
+ [TestClass]
  public class PrimeTests
  {
-  [Fact]
+  [TestMethod, Timeout(100)]
   public void TestIsPrime()
   {
    Console.WriteLine("TestIsPrime: starting");
@@ -14,15 +15,12 @@ namespace DevOnMobile.Tests
    {
     bool isPrime1 = Prime.IsPrimeSlow(i);
     bool isPrime2 = prime.IsPrimeFast(i);
-//    Console.Write(i);
-//    Console.Write(',');
-    Assert.Equal(isPrime1, isPrime2);
-//    Assert.AreEqual(isPrime1, isPrime2, string.Format("Num: {0}, Slow: {1}, Fast: {2}\nDebug slow: {3}\nDebug fast: {4}", i, isPrime1, isPrime2, prime.DebugSlow, prime.DebugFast));
+    Assert.AreEqual(isPrime1, isPrime2, $"Num: {i}, Slow: {isPrime1}, Fast: {isPrime2}\nDebug slow: {prime.DebugSlow}\nDebug fast: {prime.DebugFast}");
    }
    Console.WriteLine("TestIsPrime: finished");
   }
 
-  [Fact]
+  [TestMethod, Timeout(100)]
   public void IsPrimeFastPerformance()
   {
    Console.WriteLine("IsPrimeFastPerformance: starting");
@@ -34,7 +32,7 @@ namespace DevOnMobile.Tests
    Console.WriteLine("IsPrimeFastPerformance: finished");
   }
 
-  [Fact]
+  [TestMethod, Timeout(100)]
   public void IsPrimeSlowPerformance()
   {
    Console.WriteLine("IsPrimeSlowPerformance: starting");
