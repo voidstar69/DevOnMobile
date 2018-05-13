@@ -4,4 +4,6 @@ obj
 TestResults
 /.vs/DevOnMobile/v15/Server/sqlite3
 /packages
+/coverage.xml
+/DevOnMobile.sln.DotSettings.user
 *.user

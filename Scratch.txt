@@ -1,0 +1,18 @@
+CodeCov.io upload token:
+98b8ae43-041d-4813-ab48-28659fa0e168
+
+
+packages\OpenCover.4.6.519\tools\OpenCover.Console.exe
+
+C:\Src\GitHub\C#\DevOnMobile
+
+Running all xUnit tests:
+C:\Src\GitHub\C#\DevOnMobile>"packages\xunit.runner.console.2.3.1\tools\net452\xunit.console.x86.exe" DevOnMobileTests\bin\Debug\DevOnMobileTests.dll -noshadow
+
+Running all xUnit tests with coverage:
+packages\OpenCover.4.6.519\tools\OpenCover.Console.exe -register:user -target:"packages\xunit.runner.console.2.3.1\tools\net452\xunit.console.x86.exe" -targetargs:"DevOnMobileTests\bin\Debug\DevOnMobileTests.dll -noshadow" -output:".\coverage.xml" -filter:"+[DevOnMobile*]* -[DevOnMobile.Tests*]*"
+
+./codecov.sh -f "coverage.xml" -t 98b8ae43-041d-4813-ab48-28659fa0e168
+
+
+https://codecov.io/github/voidstar69/DevOnMobile/commit/518b48cbd59f7c1c8e4c8f44cd90abf179eb9311
