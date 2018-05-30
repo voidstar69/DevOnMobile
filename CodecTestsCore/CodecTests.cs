@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 using System.IO.Compression;
-using Codec;
+using Compression.Codec;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CodecTestsCore
@@ -119,7 +119,7 @@ namespace CodecTestsCore
             return output;
         }
 
-        private string checkCodec(Codec.ICodec codec, string input, string expectedEncoded)
+        private string checkCodec(ICodec codec, string input, string expectedEncoded)
         {
             var encoded = codec.encode(input);
             var output = codec.decode(encoded);

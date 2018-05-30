@@ -3,10 +3,18 @@
   <PropertyGroup>
     <TargetFramework>netstandard1.4</TargetFramework>
     <Authors>Gavin Murrison</Authors>
-    <PackageId>Codec_Gavin_Murrison</PackageId>
+    <PackageId>Compression.Codec</PackageId>
     <Version>0.0.1</Version>
     <Company></Company>
     <NeutralLanguage></NeutralLanguage>
+    <Description>Compression codecs written in C#</Description>
+    <PackageReleaseNotes>Compression codecs written in C#</PackageReleaseNotes>
+    <PackageProjectUrl>https://github.com/voidstar69/DevOnMobile</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/voidstar69/DevOnMobile</RepositoryUrl>
+    <RepositoryType>GitHub</RepositoryType>
+    <PackageTags>compress, compression, codec, simple, small</PackageTags>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Product>Compression.Codec</Product>
   </PropertyGroup>
 
 </Project>
