@@ -131,7 +131,7 @@ namespace DevOnMobile.Tests
    // TODO: this fails for the binary RLE codec
    Assert.True(encoded.Length <= input.Length, "Codec must not expand data");
 
-   Assert.AreNotEqual(input, encoded, "Encoding must change data");
+   Assert.NotEqual(input, encoded, "Encoding must change data");
 
    return encoded;
   }
