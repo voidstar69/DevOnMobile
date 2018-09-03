@@ -37,7 +37,7 @@ namespace DevOnMobile.Tests
     {
 
      // TODO
-//     checkStreamEncode(zipStream, outMemStream, input);
+     checkStreamEncode(zipStream, outMemStream, input);
 
      inMemStream.CopyTo(zipStream);
     }
@@ -129,9 +129,9 @@ namespace DevOnMobile.Tests
    Assert.Equal(input, output); //, "Encode then decode must produce original data");
 
    // TODO: this fails for the binary RLE codec
-   //Assert.True(encoded.Length <= input.Length, "Codec must not expand data");
+   Assert.True(encoded.Length <= input.Length, "Codec must not expand data");
 
-   //Assert.AreNotEqual(input, encoded, "Encoding must change data");
+   Assert.AreNotEqual(input, encoded, "Encoding must change data");
 
    return encoded;
   }
