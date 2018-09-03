@@ -106,9 +106,9 @@ namespace DevOnMobile.Tests
   private byte[] checkStreamEncode(Stream encodeStream, MemoryStream outStream, byte[] input)
   {
    using (var inMemStream = new MemoryStream(input))
-   using (encodeStream)
+   //using (encodeStream)
    {
-    inMemStream.CopyTo(encodeStream);
+    inMemStream.CopyTo(outStream);
    }
 
    byte[] output = outStream.GetBuffer();
