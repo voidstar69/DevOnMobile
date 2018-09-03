@@ -229,8 +229,8 @@ namespace DevOnMobile.Tests
   [Fact] // Timeout(400)]
   public void testMultipleCodecs()
   {
-   var input3 = "a";
-   var output3 = "a";
+   var input3 = "aaaaaaaaabbbbbbbb";
+   var output3 = "a9b8";
    var input4 = "aa";
    var output4 = "a2";
    var input5 = "aab";
