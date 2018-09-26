@@ -3,7 +3,7 @@ before_build:
 build_script:
  - msbuild /verbosity:quiet "DevOnMobile.sln"
 test_script:
- - .\packages\OpenCover.4.6.519\tools\OpenCover.Console.exe -register:user -target:"C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\MSTest.exe" -targetargs:"/testcontainer:"".\DevOnMobileTests\bin\Debug\DevOnMobileTests.dll" -filter:"+[DevOnMobile*]* -[DevOnMobile.Tests*]*" -output:".\coverage.xml"
+ - .\packages\OpenCover.4.6.519\tools\OpenCover.Console.exe -register:user -target:"%xunit20%\xunit.console.x86.exe" -targetargs:"DevOnMobileTests\bin\Debug\DevOnMobileTests.dll -noshadow" -output:"coverage.xml" -filter:"+[DevOnMobile*]* -[DevOnMobile.Tests*]*"
 after_test:
   - ps: |
       $env:PATH = 'C:\msys64\usr\bin;' + $env:PATH
