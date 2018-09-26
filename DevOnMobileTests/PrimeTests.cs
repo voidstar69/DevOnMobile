@@ -6,7 +6,7 @@ namespace DevOnMobile.Tests
  [TestClass]
  public class PrimeTests
  {
-  [TestMethod] //, Timeout(10000)]
+  [TestMethod, Timeout(10000)]
   public void TestIsPrime()
   {
    Console.WriteLine("TestIsPrime: starting");
@@ -20,7 +20,7 @@ namespace DevOnMobile.Tests
    Console.WriteLine("TestIsPrime: finished");
   }
 
-  [TestMethod] //, Timeout(10000)]
+  [TestMethod, Timeout(10000)]
   public void IsPrimeFastPerformance()
   {
    Console.WriteLine("IsPrimeFastPerformance: starting");
@@ -32,7 +32,7 @@ namespace DevOnMobile.Tests
    Console.WriteLine("IsPrimeFastPerformance: finished");
   }
 
-  [TestMethod] //, Timeout(10000)]
+  [TestMethod, Timeout(10000)]
   public void IsPrimeSlowPerformance()
   {
    Console.WriteLine("IsPrimeSlowPerformance: starting");

@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections;
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace DevOnMobile.Tests
 {
+ [TestClass]
  public class BinaryTreeTests
  {
-  [Fact]
+  [TestMethod]
   public void TestBinaryTree()
   {
    var tree = new BinaryTree<int> {5, 8, 2};
@@ -23,13 +24,13 @@ namespace DevOnMobile.Tests
    {
     foreach (int expItem in expectedItemOrder)
     {
-     Assert.True(enu.MoveNext());
-     Assert.Equal(expItem, enu.Current);
+     Assert.IsTrue(enu.MoveNext());
+     Assert.AreEqual(expItem, enu.Current);
     }
    }
   }
   
-  [Fact]
+  [TestMethod]
   public void TestBinaryTreeNonGeneric()
   {
    var tree = new BinaryTree<int> {5, 8, 2};
@@ -39,8 +40,8 @@ namespace DevOnMobile.Tests
    int[] expectedItemOrder = { 2, 8, 5 };
    foreach (int expItem in expectedItemOrder)
    {
-    Assert.True(enumerator.MoveNext());
-    Assert.Equal(expItem, enumerator.Current);
+    Assert.IsTrue(enumerator.MoveNext());
+    Assert.AreEqual(expItem, enumerator.Current);
    }
   }
  }
