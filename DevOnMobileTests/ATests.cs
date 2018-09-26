@@ -224,6 +224,35 @@ namespace DevOnMobile.Tests
    Console.WriteLine("*** Compression ratio: {0}% (encoded size vs original size, in bits) ***", (double)totalEncodedSize / totalDecodedSize * 100);
   }
 
+  [TestMethod]
+  public void testBitStreamLengthAndReading()
+  {
+   var stream = new BitStream("1test");
+   Assert.AreEqual(5, stream.Length);
+   Assert.AreEqual(1, stream.ReadBit());
+  }
+  
+  [TestMethod, ExpectedException(typeof(FormatException))]
+  public void testBitStreamReadingNonNumericCharacter()
+  {
+   var stream = new BitStream("a");
+   Assert.AreEqual(1, stream.ReadBit());
+  }
+  
+  [TestMethod, ExpectedException(typeof(ArgumentOutOfRangeException))]
+  public void testBitStreamReadingNonBinaryNumber()
+  {
+   var stream = new BitStream("2");
+   Assert.AreEqual(1, stream.ReadBit());
+  }
+
+  [TestMethod, ExpectedException(typeof(ArgumentOutOfRangeException))]
+  public void testBitStreamWritingNonBinaryNumber()
+  {
+   var stream = new BitStream("");
+   stream.WriteBit(2);
+  }
+
   [TestMethod, Timeout(400)]
   public void testMultipleCodecs()
   {
@@ -256,6 +285,7 @@ namespace DevOnMobile.Tests
 
    checkCodec(codec3, "Hello Wooorld", "0001101001101010011101001101100111110110001000001001000100100111101010100100110110100001011011001110101010001011111");
    checkCodec(codec3, "hhheelooo   woorrrlllld!!", "001111101100010010011011110111010000010000100010110101001110001100001001101001101001101101001001001101110111100000001101101101010000101101101111111111111010011001100");
+   checkCodec(codec3, input6, output6);
 
    var input7 = genText(1000, 1.0);
    Console.WriteLine("Compression ratio on {0} random letters (encoded size vs original size):", input7.Length);
