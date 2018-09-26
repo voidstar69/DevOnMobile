@@ -35,9 +35,8 @@ namespace DevOnMobile.Tests
     using (var inMemStream = new MemoryStream(input))
     using (var zipStream = new DeflateStream(outMemStream, CompressionMode.Compress))
     {
-
      // TODO
-//     checkStreamEncode(zipStream, outMemStream, input);
+     checkStreamEncode(zipStream, outMemStream, input);
 
      inMemStream.CopyTo(zipStream);
     }
@@ -106,9 +105,9 @@ namespace DevOnMobile.Tests
   private byte[] checkStreamEncode(Stream encodeStream, MemoryStream outStream, byte[] input)
   {
    using (var inMemStream = new MemoryStream(input))
-   using (encodeStream)
+   //using (encodeStream)
    {
-    inMemStream.CopyTo(encodeStream);
+    inMemStream.CopyTo(outStream);
    }
 
    byte[] output = outStream.GetBuffer();
@@ -128,10 +127,10 @@ namespace DevOnMobile.Tests
 
    Assert.Equal(input, output); //, "Encode then decode must produce original data");
 
-   // TODO: this fails for the binary RLE codec
-   //Assert.True(encoded.Length <= input.Length, "Codec must not expand data");
+   // TODO: this fails for the binary RLE and Huffman codecs because they store bits as characters
+   //Assert.True(encoded.Length <= input.Length); //, "Codec must not expand data");
 
-   //Assert.AreNotEqual(input, encoded, "Encoding must change data");
+   Assert.NotEqual(input, encoded); //, "Encoding must change data");
 
    return encoded;
   }
@@ -229,8 +228,8 @@ namespace DevOnMobile.Tests
   [Fact] // Timeout(400)]
   public void testMultipleCodecs()
   {
-   var input3 = "a";
-   var output3 = "a";
+   var input3 = "aaaaaaaaabbbbbbbb";
+   var output3 = "a9b8";
    var input4 = "aa";
    var output4 = "a2";
    var input5 = "aab";

@@ -1,4 +1,5 @@
 *.suo
+*.user
 bin
 obj
 TestResults
@@ -6,4 +7,3 @@ TestResults
 /packages
 /coverage.xml
 /DevOnMobile.sln.DotSettings.user
-*.user
