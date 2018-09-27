@@ -106,6 +106,17 @@ namespace DevOnMobile.Tests
   }
 
   [TestMethod]
+  public void PrintList()
+  {
+   var app = new LispInterpreter();
+   using (var writer = new StringWriter())
+   {
+    app.Exec("print ((1 2) (3 4))", writer);
+    Assert.AreEqual("1 2 3 4\r\n", writer.ToString());
+   }
+  }
+
+  [TestMethod]
   public void Range()
   {
    var app = new LispInterpreter();
@@ -126,6 +137,17 @@ namespace DevOnMobile.Tests
     app.Exec("add (range 1 100)", writer);
     app.Exec("mul (range 1 10)", writer);
     Assert.AreEqual("5050\r\n3628800\r\n", writer.ToString());
+   }
+  }
+
+  [TestMethod]
+  public void UnknownOperation()
+  {
+   var app = new LispInterpreter();
+   using (var writer = new StringWriter())
+   {
+    app.Exec("foobar abc", writer);
+    Assert.AreEqual("Error: unknown command 'foobar'\r\n", writer.ToString());
    }
   }
  }
