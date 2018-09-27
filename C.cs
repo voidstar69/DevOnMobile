@@ -91,19 +91,9 @@ private void Print(ArrayList data,TextWriter output)
     else
      output.Write(' ');
 
-   if(item is ArrayList)
-   {
-    output.Write('(');
-    Print(item as ArrayList,output);
-    output.Write(')');
-   }
-   else
-   {
-
     output.Write(item);
-   }
   }
- output.WriteLine();
+  output.WriteLine();
 }
 
   private ArrayList Eval(TextReader input,TextWriter output,int indent)
@@ -130,7 +120,8 @@ private void Print(ArrayList data,TextWriter output)
      var subResult = Eval(input, output, indent + 1);
 
      // add sub-expression elements directly to parent list
-     dataList.AddRange(subResult);
+     if(subResult != null)
+      dataList.AddRange(subResult);
     }
    }
 

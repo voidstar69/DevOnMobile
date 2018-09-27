@@ -253,7 +253,7 @@ namespace DevOnMobile.Tests
    stream.WriteBit(2);
   }
 
-  [TestMethod, Timeout(400)]
+  [TestMethod, Timeout(2500)]
   public void testMultipleCodecs()
   {
    var input3 = "aaaaaaaaabbbbbbbb";
