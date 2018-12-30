@@ -6,22 +6,170 @@ using System.Text;
 
 namespace DevOnMobile
 {
- public interface Codec
- {
-  string encode(string data);
-  string decode(string data);
- }
+    public interface ITextCodec
+    {
+        string encode(string data);
+        string decode(string data);
+    }
 
- public class BitStream
+    public interface IStreamCodec
+    {
+        void encode(Stream inputStream, Stream outputStream);
+        void decode(Stream inputStream, Stream outputStream);
+    }
+
+    public interface IInputBitStream
+    {
+        int? ReadBit(); // returns null at end-of-stream
+        byte ReadByte();
+    }
+
+    public interface IOutputBitStream
+    {
+        void WriteBit(int bit);
+        void WriteByte(byte value);
+    }
+
+    // Read bits from a byte stream (with metadata stored in final byte of stream)
+    public class InputBitStream : IInputBitStream
+    {
+        private readonly Stream stream;
+        private readonly long lastBytePos;
+        private readonly byte numBitsinLastDataByte;
+        private byte bits;
+        private byte numBits;
+
+        public InputBitStream(Stream stream)
+        {
+            this.stream = stream;
+
+            // get last byte in stream, which indicates number of bits in last data byte in stream
+            long currPos = stream.Position;
+            stream.Seek(-1, SeekOrigin.End);
+            lastBytePos = stream.Position;
+            int data = stream.ReadByte();
+            if(data == -1)
+                throw new ArgumentOutOfRangeException(nameof(stream.ReadByte), "Expected last byte in stream but hit end-of-stream");
+            numBitsinLastDataByte = (byte)data;
+            stream.Position = currPos;
+        }
+
+        public int? ReadBit()
+        {
+            if (numBits == 0)
+            {
+                int data = stream.ReadByte();
+                if (data == -1)
+                    return null;
+
+                bits = (byte)data;
+                if (stream.Position == lastBytePos)
+                {
+                    numBits = numBitsinLastDataByte;
+                    stream.ReadByte();
+                }
+                else
+                {
+                    numBits = 8;
+                }
+            }
+
+            checked
+            {
+                int bit = bits & 0x1;
+                bits = (byte)(bits >> 1);
+                numBits--;
+                return bit;
+            }
+        }
+
+        public byte ReadByte()
+        {
+            byte value = 0;
+            for (var bitPos = 1; bitPos <= 8; bitPos++)
+            {
+                value >>= 1;
+                value |= (byte)(ReadBit() * 0x80);
+            }
+            return value;
+        }
+    }
+
+    // Write bits to a byte stream (with metadata stored in final byte of stream)
+    public class OutputBitStream : IOutputBitStream, IDisposable
+    {
+        private readonly Stream stream;
+        private byte bits;
+        private byte numBits;
+
+        public OutputBitStream(Stream stream)
+        {
+            this.stream = stream;
+        }
+
+        public void WriteBit(int bit)
+        {
+            if (bit != 0 && bit != 1)
+                throw new ArgumentOutOfRangeException(nameof(bit), bit, "bit must be 0 or 1");
+
+            checked
+            {
+                bits = (byte)(bits + (bit << numBits));
+                numBits++;
+            }
+
+            if (numBits == 8)
+            {
+                stream.WriteByte(bits);
+                bits = 0;
+                numBits = 0;
+            }
+        }
+
+        public void WriteByte(byte value)
+        {
+            for(var bitPos = 1; bitPos <= 8; bitPos++)
+            {
+                WriteBit(value & 1);
+                value >>= 1;
+            }
+        }
+
+        // TODO: This method must not be called more than once per bit stream!
+        private void Flush()
+        {
+            // write final bits into byte stream, and also count of final bits
+            if (numBits > 0)
+            {
+                stream.WriteByte(bits);
+                stream.WriteByte(numBits);
+            }
+            else
+            {
+                // no final bits to write, so final byte is full
+                stream.WriteByte(8);
+            }
+            bits = 0;
+            numBits = 0;
+        }
+
+        public void Dispose()
+        {
+            Flush();
+        }
+    }
+
+    // Read and write bits in a stream, backed by a text string storing '0' and '1' characters
+    public class BitsAsTextStream : IInputBitStream, IOutputBitStream
  {
   private string data;
 
-  public BitStream()
+  public BitsAsTextStream()
   {
    data = string.Empty;
   }
 
-  public BitStream(string data)
+  public BitsAsTextStream(string data)
   {
    this.data = data;
   }
@@ -72,15 +220,10 @@ namespace DevOnMobile
    return data;
   }
 
-  public int Length
-  {
-   get {
-    return data.Length;
-   }
-  }
+  //public int Length => data.Length;
  }
 
- public class HuffmanCodec : Codec
+ public class HuffmanCodec : ITextCodec, IStreamCodec
  {
   public static TextWriter log;
 
@@ -113,7 +256,7 @@ namespace DevOnMobile
 
    // Serialise the tree (rooted at this node) into the bit stream.
    // This only serialises data required by the decoder.
-   public void Serialise(BitStream stream)
+   public void Serialise(IOutputBitStream stream)
    {
     // TODO: serialise byteValue, leftChild and rightChild
     if (IsLeaf())
@@ -133,9 +276,13 @@ namespace DevOnMobile
 
    // Deserialise the tree (rooted at this node) from the bit stream.
    // This only deserialises data required by the decoder.
-   public void Deserialise(BitStream stream)
+   public void Deserialise(IInputBitStream stream)
    {
-    bool isLeaf = (stream.ReadBit() == 1);
+       int? bit = stream.ReadBit();
+       if (bit == null)
+           throw new ArgumentNullException(nameof(stream.ReadBit), "Unexpected end-of-stream");
+
+    bool isLeaf = (bit == 1);
     if (isLeaf)
     {
      byteValue = stream.ReadByte();
@@ -227,7 +374,7 @@ namespace DevOnMobile
 
     // store the Huffman coding tree in the bitstream, so the decoder can reconstruct the tree
     log.WriteLine("Serialising Huffman tree:");
-    var outputStream = new BitStream();
+    var outputStream = new BitsAsTextStream();
     treeRoot.Serialise(outputStream);
 
     // translate each input byte value into a variable number of bits
@@ -266,7 +413,7 @@ namespace DevOnMobile
     return text;
 
    // reconstruct the Huffman coding tree from the bitstream
-   var input = new BitStream(text);
+   var input = new BitsAsTextStream(text);
    var treeRoot = new Node();
    log.WriteLine("Deserialising Huffman tree:");
    treeRoot.Deserialise(input);
@@ -293,17 +440,147 @@ namespace DevOnMobile
     return new ASCIIEncoding().GetString(outputStream.ToArray());
    }
   }
- }
 
- public class BinaryRunLengthCodec : Codec
+        public void encode(Stream inputStream, Stream outputStream)
+        {
+            var freqtoTreeDict = new SortedList<int, IList<Node>>((int)inputStream.Length); // TODO: guess number of internal 'tree' nodes?
+            var byteToNodeDict = new Dictionary<byte, Node>(byte.MaxValue);
+            int[] frequency = new int[byte.MaxValue + 1];
+
+            // track frequency (number of occurences) of each unique byte value
+            int byteOrFlag;
+            while (-1 != (byteOrFlag = inputStream.ReadByte()))
+            {
+                byte num = (byte) byteOrFlag;
+                frequency[num]++;
+            }
+
+            // build a collection of (tree) nodes, one per unique byte value that occurs in the input
+            for (int num = byte.MinValue; num <= byte.MaxValue; num++)
+            {
+                var byteValue = (byte) num;
+                var freq = frequency[num];
+                if (freq > 0)
+                {
+                    var node = new Node {byteValue = byteValue, frequency = freq};
+                    byteToNodeDict.Add(byteValue, node);
+                    if (!freqtoTreeDict.ContainsKey(freq)) freqtoTreeDict[freq] = new List<Node>();
+                    freqtoTreeDict[freq].Add(node);
+                }
+            }
+
+            // loop until there is only one root node, i.e. a single tree
+            while (freqtoTreeDict.Count > 1 || freqtoTreeDict.First().Value.Count > 1)
+            {
+                // find the two nodes/trees with lowest frequency
+                var nodeList = freqtoTreeDict.First().Value;
+                var lowFreqNode1 = nodeList.First();
+                nodeList.RemoveAt(0);
+                if (nodeList.Count == 0) freqtoTreeDict.RemoveAt(0);
+                nodeList = freqtoTreeDict.First().Value;
+                var lowFreqNode2 = nodeList.First();
+                nodeList.RemoveAt(0);
+                if (nodeList.Count == 0) freqtoTreeDict.RemoveAt(0);
+
+                // combine these two nodes/trees
+                // TODO: internal node should not have byteValue!
+                var parent = new Node
+                {
+                    leftChild = lowFreqNode1,
+                    rightChild = lowFreqNode2,
+                    frequency = lowFreqNode1.frequency + lowFreqNode2.frequency
+                };
+                lowFreqNode1.parent = parent;
+                lowFreqNode2.parent = parent;
+                if (!freqtoTreeDict.ContainsKey(parent.frequency))
+                    freqtoTreeDict[parent.frequency] = new List<Node>();
+                freqtoTreeDict[parent.frequency].Add(parent);
+            }
+
+            // Huffman coding tree has now been built. Get tree root node.
+            Node treeRoot = freqtoTreeDict.First().Value.Single();
+
+            // seek to the start of the input data
+            long newPos = inputStream.Seek(0, SeekOrigin.Begin);
+            if (newPos != 0)
+                throw new ArgumentOutOfRangeException(nameof(inputStream.Position), newPos,
+                    "Seeked a Stream to the start but it returned a different position!");
+
+            // store the Huffman coding tree in the bitstream, so the decoder can reconstruct the tree
+            log.WriteLine("Serialising Huffman tree:");
+
+            using (var outputBitStream = new OutputBitStream(outputStream))
+            {
+                treeRoot.Serialise(outputBitStream);
+
+                // translate each input byte value into a variable number of bits
+                log.WriteLine("Huffman encoding each byte to a variable number of bits:");
+                while (-1 != (byteOrFlag = inputStream.ReadByte()))
+                {
+                    byte num = (byte) byteOrFlag;
+
+                    // use a stack to write the bits in reverse order
+                    var stack = new Stack<int>(8); // TODO: reverse bits more efficiently?
+                    log.Write("{0}=", num);
+                    for (var node = byteToNodeDict[num]; node.parent != null; node = node.parent)
+                    {
+                        int bit = (node == node.parent.leftChild ? 0 : 1);
+                        stack.Push(bit);
+                        log.Write(bit);
+                    }
+
+                    log.Write('/');
+                    foreach (int bit in stack)
+                    {
+                        outputBitStream.WriteBit(bit);
+                        log.Write(bit);
+                    }
+
+                    log.WriteLine();
+                }
+            }
+        }
+
+        public void decode(Stream inputStream, Stream outputStream)
+        {
+            if (inputStream.Position != 0)
+                throw new ArgumentOutOfRangeException(nameof(inputStream), "Expected stream at starting position");
+
+            // reconstruct the Huffman coding tree from the bitstream
+            var inputBitStream = new InputBitStream(inputStream);
+            var treeRoot = new Node();
+            log.WriteLine("Deserialising Huffman tree:");
+            treeRoot.Deserialise(inputBitStream);
+
+            log.WriteLine("Huffman decoding groups of bits into bytes:");
+            var node = treeRoot;
+            int? bitOrNull;
+            while (null != (bitOrNull = inputBitStream.ReadBit()))
+            {
+                int bit = bitOrNull.Value;
+                node = (bit == 0 ? node.leftChild : node.rightChild);
+                log.Write(bit);
+
+                if (node.IsLeaf())
+                {
+                    outputStream.WriteByte(node.byteValue);
+                    log.WriteLine("={0}", node.byteValue);
+                    node = treeRoot; // reset to root of tree
+                }
+            }
+        }
+    }
+
+ // run length encoding where run length of bits is stored in next 2 bits
+ public class BinaryRunLengthCodec : ITextCodec
  {
   public string encode(string text)
   {
    if(string.IsNullOrEmpty(text))
     return text;
 
-   var input = new BitStream(text);
-   var output = new BitStream();
+   var input = new BitsAsTextStream(text);
+   var output = new BitsAsTextStream();
 
    int runLen = 1;
    int prevBit = input.ReadBit().Value;
@@ -342,8 +619,8 @@ namespace DevOnMobile
    if (string.IsNullOrEmpty(text))
     return text;
 
-   var input = new BitStream(text);
-   var output = new BitStream();
+   var input = new BitsAsTextStream(text);
+   var output = new BitsAsTextStream();
 
    int bit = input.ReadBit().Value;
    bool outOfBits = false;
@@ -380,7 +657,7 @@ namespace DevOnMobile
  }
 
  // run length encoding where run length is stored in next character
- public class CharacterRunLengthCodec : Codec
+ public class CharacterRunLengthCodec : ITextCodec
  {
   public string encode(string data)
   {

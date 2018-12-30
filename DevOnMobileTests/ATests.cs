@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.IO.Compression;
+using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace DevOnMobile.Tests
@@ -117,7 +118,7 @@ namespace DevOnMobile.Tests
    return output;
   }
 
-  private string checkCodec(Codec codec, string input, string expectedEncoded)
+  private string checkCodec(ITextCodec codec, string input, string expectedEncoded)
   {
    var encoded = codec.encode(input);
    var output = codec.decode(encoded);
@@ -133,6 +134,44 @@ namespace DevOnMobile.Tests
 
    return encoded;
   }
+
+     private static byte[] CheckStreamCodec(IStreamCodec codec, string inputText, byte[] expectedEncoded)
+     {
+        var encoding = new ASCIIEncoding();
+        byte[] inputBytes = encoding.GetBytes(inputText);
+        byte[] encodedBytes;
+        byte[] decodedBytes;
+        using (var inputDataStream = new MemoryStream(inputBytes))
+        using (var encodedDataStream = new MemoryStream())
+        using (var decodedDataStream = new MemoryStream())
+        {
+            codec.encode(inputDataStream, encodedDataStream);
+            encodedDataStream.Seek(0, SeekOrigin.Begin);
+            codec.decode(encodedDataStream, decodedDataStream);
+            encodedBytes = encodedDataStream.ToArray();
+            decodedBytes = decodedDataStream.ToArray();
+        }
+
+        Console.WriteLine("{0} -> ({1})", inputText, string.Join(",", encodedBytes));
+
+         if (expectedEncoded != null)
+         {
+             Assert.AreEqual(expectedEncoded.Length, encodedBytes.Length);
+             for (var i = 0; i < encodedBytes.Length; i++)
+             {
+                 Assert.AreEqual(expectedEncoded[i], encodedBytes[i], "Unexpected encoded data");
+             }
+         }
+        
+        string decodedText = encoding.GetString(decodedBytes);
+        Assert.AreEqual(inputText, decodedText, "Encode then decode must produce original data");
+
+        // TODO: this fails for the binary RLE and Huffman codecs because they store bits as characters
+        // TODO: this sometimes fails for the Huffman stream codec because the Huffman tree takes up space
+        //Assert.IsTrue(encodedBytes.Length <= inputBytes.Length, "Codec must not expand data");
+        
+        return encodedBytes;
+     }
 
   [TestMethod, Timeout(150)]
   public void testCharacterRunLengthCodecWithRandomData()
@@ -215,41 +254,90 @@ namespace DevOnMobile.Tests
      input += ch;
     }
 
-    var encoded = checkCodec(codec1, input, null);
+    string encodedText = checkCodec(codec1, input, null);
     totalDecodedSize += input.Length * 8;
-    totalEncodedSize += encoded.Length;
+    totalEncodedSize += encodedText.Length;
+
+       byte[] encodedBytes = CheckStreamCodec(codec1, input, null);
    }
 
    Console.WriteLine();
    Console.WriteLine("*** Compression ratio: {0}% (encoded size vs original size, in bits) ***", (double)totalEncodedSize / totalDecodedSize * 100);
   }
+    
+     [TestMethod]
+     public void testBitStreamWritingAndReading()
+     {
+         byte[] data;
+         using (var memoryStream = new MemoryStream())
+         {
+             using (var bitStream = new OutputBitStream(memoryStream))
+             {
+                 bitStream.WriteBit(1);
+                 bitStream.WriteBit(0);
+                 bitStream.WriteBit(1);
+                 bitStream.WriteBit(1);
+             }
+             data = memoryStream.ToArray();
+         }
+
+         using (var memoryStream = new MemoryStream(data))
+         {
+             var bitStream = new InputBitStream(memoryStream);
+             Assert.AreEqual(1, bitStream.ReadBit());
+             Assert.AreEqual(0, bitStream.ReadBit());
+             Assert.AreEqual(1, bitStream.ReadBit());
+             Assert.AreEqual(1, bitStream.ReadBit());
+         }
+     }
+
+     [TestMethod]
+     public void testBitStreamReadingToEndOfStream()
+     {
+         byte[] data;
+         using (var memoryStream = new MemoryStream())
+         {
+             using (var bitStream = new OutputBitStream(memoryStream))
+             {
+                 bitStream.WriteBit(1);
+             }
+             data = memoryStream.ToArray();
+         }
+
+         using (var memoryStream = new MemoryStream(data))
+         {
+             var bitStream = new InputBitStream(memoryStream);
+             Assert.AreEqual(1, bitStream.ReadBit());
+             Assert.AreEqual(null, bitStream.ReadBit());
+         }
+     }
 
   [TestMethod]
   public void testBitStreamLengthAndReading()
   {
-   var stream = new BitStream("1test");
-   Assert.AreEqual(5, stream.Length);
+   var stream = new BitsAsTextStream("1test");
+   //Assert.AreEqual(5, stream.Length);
    Assert.AreEqual(1, stream.ReadBit());
   }
   
   [TestMethod, ExpectedException(typeof(FormatException))]
   public void testBitStreamReadingNonNumericCharacter()
   {
-   var stream = new BitStream("a");
+   var stream = new BitsAsTextStream("a");
    Assert.AreEqual(1, stream.ReadBit());
   }
   
   [TestMethod, ExpectedException(typeof(ArgumentOutOfRangeException))]
   public void testBitStreamReadingNonBinaryNumber()
   {
-   var stream = new BitStream("2");
+   var stream = new BitsAsTextStream("2");
    Assert.AreEqual(1, stream.ReadBit());
   }
 
   [TestMethod, ExpectedException(typeof(ArgumentOutOfRangeException))]
   public void testBitStreamWritingNonBinaryNumber()
   {
-   var stream = new BitStream("");
+   var stream = new BitsAsTextStream("");
    stream.WriteBit(2);
   }
 
@@ -286,6 +374,9 @@ namespace DevOnMobile.Tests
    checkCodec(codec3, "Hello Wooorld", "0001101001101010011101001101100111110110001000001001000100100111101010100100110110100001011011001110101010001011111");
    checkCodec(codec3, "hhheelooo   woorrrlllld!!", "001111101100010010011011110111010000010000100010110101001110001100001001101001101001101101001001001101110111100000001101101101010000101101101111111111111010011001100");
    checkCodec(codec3, input6, output6);
+   CheckStreamCodec(codec3, "Hello Wooorld", new byte[]{88,86,46,155,111,4,137,228,85,178,133,54,87,209,7,3} /*"0001101001101010011101001101100111110110001000001001000100100111101010100100110110100001011011001110101010001011111"*/);
+   
+   // TODO: check compression ratio when using Huffman codec on a stream
 
    var input7 = genText(1000, 1.0);
    Console.WriteLine("Compression ratio on {0} random letters (encoded size vs original size):", input7.Length);
@@ -294,7 +385,7 @@ namespace DevOnMobile.Tests
    Console.WriteLine("Char RLE: {0}%", (double)encoded.Length / input7.Length * 100);
 
    encoded = codec3.encode(input7);
-   Console.WriteLine("Huffman: {0}%", (double)encoded.Length / 8.0 / input7.Length * 100);
+   Console.WriteLine("Huffman to BitChars: {0}%", (double)encoded.Length / 8.0 / input7.Length * 100);
   }
 
 /*
