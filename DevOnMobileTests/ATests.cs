@@ -233,20 +233,21 @@ namespace DevOnMobile.Tests
    Console.WriteLine("*** Compression ratio: {0}% (encoded size vs original size) ***", (double)totalEncodedSize / totalDecodedSize * 100);
   }
 
-  [TestMethod, Timeout(100)]
+  [TestMethod, Timeout(200)]
   public void testHuffmanCodecWithRandomData()
   {
    var random = new Random();
    var codec1 = new HuffmanCodec();
-   var totalDecodedSize = 0;
-   var totalEncodedSize = 0;
+      var totalDecodedSize = 0;
+      var totalEncodedSizeChar = 0;
+      var totalEncodedSizeBinary = 0;
 
-   for (int i = 0; i < 20; i++)
+   for (int i = 0; i < 15; i++)
    {
     var input = "";
     char ch = ' ';
 
-    for (int j = 0; j < 20; j++)
+    for (int j = 0; j < 25; j++)
     {
      if (random.NextDouble() < 0.5)
       ch = (char)('a' + random.Next(26));
@@ -256,13 +257,15 @@ namespace DevOnMobile.Tests
 
     string encodedText = checkCodec(codec1, input, null);
     totalDecodedSize += input.Length * 8;
-    totalEncodedSize += encodedText.Length;
+    totalEncodedSizeChar += encodedText.Length;
 
        byte[] encodedBytes = CheckStreamCodec(codec1, input, null);
+       totalEncodedSizeBinary += encodedBytes.Length * 8;
    }
 
-   Console.WriteLine();
-   Console.WriteLine("*** Compression ratio: {0}% (encoded size vs original size, in bits) ***", (double)totalEncodedSize / totalDecodedSize * 100);
+      Console.WriteLine("Encoded size vs original size, in bits:");
+      Console.WriteLine("*** Char   Compression ratio: {0}%", (double)totalEncodedSizeChar / totalDecodedSize * 100);
+      Console.WriteLine("*** Binary Compression ratio: {0}%", (double)totalEncodedSizeBinary / totalDecodedSize * 100);
   }
     
      [TestMethod]
@@ -341,7 +344,7 @@ namespace DevOnMobile.Tests
    stream.WriteBit(2);
   }
 
-  [TestMethod, Timeout(2500)]
+  [TestMethod, Timeout(5000)]
   public void testMultipleCodecs()
   {
    var input3 = "aaaaaaaaabbbbbbbb";
@@ -374,10 +377,8 @@ namespace DevOnMobile.Tests
    checkCodec(codec3, "Hello Wooorld", "0001101001101010011101001101100111110110001000001001000100100111101010100100110110100001011011001110101010001011111");
    checkCodec(codec3, "hhheelooo   woorrrlllld!!", "001111101100010010011011110111010000010000100010110101001110001100001001101001101001101101001001001101110111100000001101101101010000101101101111111111111010011001100");
    checkCodec(codec3, input6, output6);
-   CheckStreamCodec(codec3, "Hello Wooorld", new byte[]{88,86,46,155,111,4,137,228,85,178,133,54,87,209,7,3} /*"0001101001101010011101001101100111110110001000001001000100100111101010100100110110100001011011001110101010001011111"*/);
+   CheckStreamCodec(codec3, "Hello Wooorld", new byte[] {88, 86, 46, 155, 111, 4, 137, 228, 85, 178, 133, 54, 87, 209, 7, 3});
    
-   // TODO: check compression ratio when using Huffman codec on a stream
-
    var input7 = genText(1000, 1.0);
    Console.WriteLine("Compression ratio on {0} random letters (encoded size vs original size):", input7.Length);
 
@@ -386,6 +387,9 @@ namespace DevOnMobile.Tests
 
    encoded = codec3.encode(input7);
    Console.WriteLine("Huffman to BitChars: {0}%", (double)encoded.Length / 8.0 / input7.Length * 100);
+
+      byte[] encodedBytes = CheckStreamCodec(codec3, input7, null);
+      Console.WriteLine("Huffman to Bits: {0}%", (double)encodedBytes.Length / input7.Length * 100);
   }
 
 /*
