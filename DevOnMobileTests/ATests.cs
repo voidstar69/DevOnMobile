@@ -233,7 +233,7 @@ namespace DevOnMobile.Tests
    Console.WriteLine("*** Compression ratio: {0}% (encoded size vs original size) ***", (double)totalEncodedSize / totalDecodedSize * 100);
   }
 
-  [TestMethod, Timeout(200)]
+  [TestMethod, Timeout(500)]
   public void testHuffmanCodecWithRandomData()
   {
    var random = new Random();
