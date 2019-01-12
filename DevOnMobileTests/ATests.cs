@@ -129,7 +129,7 @@ namespace DevOnMobile.Tests
 
    Assert.AreEqual(input, output); //, "Encode then decode must produce original data");
 
-   // TODO: this fails for the binary RLE and Huffman codecs because they store bits as characters
+   // TODO: this fails for the binary RLE and Huffman-as-Chars codecs because they store bits as characters
    //Assert.True(encoded.Length <= input.Length); //, "Codec must not expand data");
 
    return encoded;
