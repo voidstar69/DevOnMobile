@@ -334,7 +334,8 @@ namespace DevOnMobile
 
      private void EncodeInternal(Stream inputStream, IOutputBitStream outputBitStream)
      {
-         Dictionary<byte, Node> byteToNodeDict = BuildHuffmanTree(inputStream, out var treeRoot);
+         Node treeRoot;
+         Dictionary<byte, Node> byteToNodeDict = BuildHuffmanTree(inputStream, out treeRoot);
 
          // store the Huffman coding tree in the bitstream, so the decoder can reconstruct the tree
          log.WriteLine("Serialising Huffman tree:");
