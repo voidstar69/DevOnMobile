@@ -232,16 +232,16 @@ namespace DevOnMobile
  public class HuffmanCodec : ITextCodec, IStreamCodec
  {
      private static TextWriter log;
-
-  static HuffmanCodec()
-  {
+        
+     static HuffmanCodec()
+     {
 #if DEBUG
-   log = Console.Out;
+      //log = Console.Out;
+      log = TextWriter.Null;
 #else
-   log = TextWriter.Null;
+      log = TextWriter.Null;
 #endif
-
-  }
+     }
 
      // This represents a tree node (leaf node or internal node).
      // Every node has either two children or no children.
