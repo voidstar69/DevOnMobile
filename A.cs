@@ -101,6 +101,7 @@ namespace DevOnMobile
         private readonly Stream stream;
         private byte bits;
         private byte numBits;
+        private bool flushed = false;
 
         public OutputBitStream(Stream stream)
         {
@@ -135,9 +136,13 @@ namespace DevOnMobile
             }
         }
 
-        // TODO: This method must not be called more than once per bit stream!
         private void Flush()
         {
+            if (flushed)
+            {
+                throw new ApplicationException("OutputBitStream may only be flushed once!");
+            }
+
             // write final bits into byte stream, and also count of final bits
             if (numBits > 0)
             {
@@ -151,6 +156,7 @@ namespace DevOnMobile
             }
             bits = 0;
             numBits = 0;
+            flushed = true;
         }
 
         public void Dispose()
@@ -225,351 +231,272 @@ namespace DevOnMobile
 
  public class HuffmanCodec : ITextCodec, IStreamCodec
  {
-  public static TextWriter log;
-
-  static HuffmanCodec()
-  {
+     private static TextWriter log;
+        
+     static HuffmanCodec()
+     {
 #if DEBUG
-   log = Console.Out;
+      //log = Console.Out;
+      log = TextWriter.Null;
 #else
-   log = TextWriter.Null;
+      log = TextWriter.Null;
 #endif
-
-  }
-
-  // TODO: use [Serializable] ?
-  private class Node // TODO: this represents leaf nodes. Adapt it to also represent internal nodes.
-  {
-   public byte byteValue;
-   public int frequency; // number of occurences of this byte value. TODO: we may be able to get rid of this
-
-   public Node parent;
-
-   // TODO: leaf nodes do not need children pointers
-   public Node leftChild;
-   public Node rightChild;
-
-   public bool IsLeaf()
-   {
-    return leftChild == null && rightChild == null;
-   }
-
-   // Serialise the tree (rooted at this node) into the bit stream.
-   // This only serialises data required by the decoder.
-   public void Serialise(IOutputBitStream stream)
-   {
-    // TODO: serialise byteValue, leftChild and rightChild
-    if (IsLeaf())
-    {
-     log.WriteLine("Leaf node {0} (0x{0:X})", byteValue);
-     stream.WriteBit(1);
-     stream.WriteByte(byteValue);
-    }
-    else
-    {
-     log.WriteLine("Internal node");
-     stream.WriteBit(0);
-     leftChild.Serialise(stream);
-     rightChild.Serialise(stream);
-    }
-   }
-
-   // Deserialise the tree (rooted at this node) from the bit stream.
-   // This only deserialises data required by the decoder.
-   public void Deserialise(IInputBitStream stream)
-   {
-       int? bit = stream.ReadBit();
-       if (bit == null)
-           throw new ArgumentNullException(nameof(stream.ReadBit), "Unexpected end-of-stream");
-
-    bool isLeaf = (bit == 1);
-    if (isLeaf)
-    {
-     byteValue = stream.ReadByte();
-     log.WriteLine("Leaf node {0} (0x{0:X})", byteValue);
-    }
-    else
-    {
-     log.WriteLine("Internal node");
-     leftChild = new Node();
-     leftChild.Deserialise(stream);
-     rightChild = new Node();
-     rightChild.Deserialise(stream);
-    }
-   }
-  }
-
-  public string encode(string text)
-  {
-   if (string.IsNullOrEmpty(text))
-    return text;
-
-   var encoding = new ASCIIEncoding();
-   byte[] rawBytes = encoding.GetBytes(text);
-   var freqtoTreeDict = new SortedList<int, IList<Node>>(rawBytes.Length); // TODO: guess number of internal 'tree' nodes?
-   var byteToNodeDict = new Dictionary<byte, Node>(byte.MaxValue);
-   int[] frequency = new int[byte.MaxValue + 1];
-
-   using (MemoryStream inputStream = new MemoryStream(rawBytes))
-   {
-    // track frequency (number of occurences) of each unique byte value
-    int byteOrFlag;
-    while(-1 != (byteOrFlag = inputStream.ReadByte()))
-    {
-     byte num = (byte)byteOrFlag;
-     frequency[num]++;
-    }
-
-    // build a collection of (tree) nodes, one per unique byte value that occurs in the input
-    for (int num = byte.MinValue; num <= byte.MaxValue; num++)
-    {
-     var byteValue = (byte)num;
-     var freq = frequency[num];
-     if (freq > 0)
-     {
-      var node = new Node { byteValue = byteValue, frequency = freq };
-      byteToNodeDict.Add(byteValue, node);
-
-      if (!freqtoTreeDict.ContainsKey(freq))
-       freqtoTreeDict[freq] = new List<Node>();
-      freqtoTreeDict[freq].Add(node);
      }
-    }
 
-    // loop until there is only one root node, i.e. a single tree
-    while(freqtoTreeDict.Count > 1 || freqtoTreeDict.First().Value.Count > 1)
-    {
-     // find the two nodes/trees with lowest frequency
-     var nodeList = freqtoTreeDict.First().Value;
-     var lowFreqNode1 = nodeList.First();
-     nodeList.RemoveAt(0);
-     if (nodeList.Count == 0)
-      freqtoTreeDict.RemoveAt(0);
-
-     nodeList = freqtoTreeDict.First().Value;
-     var lowFreqNode2 = nodeList.First();
-     nodeList.RemoveAt(0);
-     if (nodeList.Count == 0)
-      freqtoTreeDict.RemoveAt(0);
-
-     // combine these two nodes/trees
-     // TODO: internal node should not have byteValue!
-     var parent = new Node { leftChild = lowFreqNode1, rightChild = lowFreqNode2,
-      frequency = lowFreqNode1.frequency + lowFreqNode2.frequency };
-     lowFreqNode1.parent = parent;
-     lowFreqNode2.parent = parent;
-
-     if (!freqtoTreeDict.ContainsKey(parent.frequency))
-      freqtoTreeDict[parent.frequency] = new List<Node>();
-     freqtoTreeDict[parent.frequency].Add(parent);
-    }
-
-    // Huffman coding tree has now been built. Get tree root node.
-    Node treeRoot = freqtoTreeDict.First().Value.Single();
-
-    // seek to the start of the input data
-    long newPos = inputStream.Seek(0, SeekOrigin.Begin);
-    if (newPos != 0)
-     throw new ArgumentOutOfRangeException("Seek position", newPos, "Seeked a MemoryStream to the start but it returned a different position!");
-
-    // store the Huffman coding tree in the bitstream, so the decoder can reconstruct the tree
-    log.WriteLine("Serialising Huffman tree:");
-    var outputStream = new BitsAsTextStream();
-    treeRoot.Serialise(outputStream);
-
-    // translate each input byte value into a variable number of bits
-    log.WriteLine("Huffman encoding each byte to a variable number of bits:");
-    while (-1 != (byteOrFlag = inputStream.ReadByte()))
-    {
-     byte num = (byte)byteOrFlag;
-
-     // use a stack to write the bits in reverse order
-     var stack = new Stack<int>(8); // TODO: reverse bits more efficiently?
-
-     log.Write("{0}=", num);
-     for (var node = byteToNodeDict[num]; node.parent != null; node = node.parent)
+     // This represents a tree node (leaf node or internal node).
+     // Every node has either two children or no children.
+     // TODO: use [Serializable] ?
+     private class Node
      {
-      int bit = (node == node.parent.leftChild ? 0 : 1);
-      stack.Push(bit);
-      log.Write(bit);
-     }
-     log.Write('/');
+         public byte byteValue; // TODO: only leaf nodes need this
+         public int frequency; // number of occurences of this byte value. TODO: we may be able to get rid of this
 
-     foreach (int bit in stack)
+         public Node parent;
+
+         // TODO: leaf nodes do not need children pointers
+         public Node leftChild;
+         public Node rightChild;
+
+         public bool IsLeaf()
+         {
+             return leftChild == null && rightChild == null;
+         }
+
+         // Serialise the tree (rooted at this node) into the bit stream.
+         // This only serialises data required by the decoder.
+         public void Serialise(IOutputBitStream stream)
+         {
+             // TODO: serialise byteValue, leftChild and rightChild
+             if (IsLeaf())
+             {
+                 log.WriteLine("Leaf node {0} (0x{0:X})", byteValue);
+                 stream.WriteBit(1);
+                 stream.WriteByte(byteValue);
+             }
+             else
+             {
+                 log.WriteLine("Internal node");
+                 stream.WriteBit(0);
+                 leftChild.Serialise(stream);
+                 rightChild.Serialise(stream);
+             }
+         }
+
+         // Deserialise the tree (rooted at this node) from the bit stream.
+         // This only deserialises data required by the decoder.
+         public void Deserialise(IInputBitStream stream)
+         {
+             int? bit = stream.ReadBit();
+             if (bit == null)
+                 throw new ArgumentNullException(nameof(stream.ReadBit), "Unexpected end-of-stream");
+
+             bool isLeaf = (bit == 1);
+             if (isLeaf)
+             {
+                 byteValue = stream.ReadByte();
+                 log.WriteLine("Leaf node {0} (0x{0:X})", byteValue);
+             }
+             else
+             {
+                 log.WriteLine("Internal node");
+                 leftChild = new Node();
+                 leftChild.Deserialise(stream);
+                 rightChild = new Node();
+                 rightChild.Deserialise(stream);
+             }
+         }
+     }
+
+     // encode text to bits, stored as binary data
+     public void encode(Stream inputStream, Stream outputStream)
      {
-      outputStream.WriteBit(bit);
-      log.Write(bit);
+         using (var outputBitStream = new OutputBitStream(outputStream))
+         {
+             EncodeInternal(inputStream, outputBitStream);
+         }
      }
-     log.WriteLine();
-    }
 
-    return outputStream.GetData();
-   }
-  }
+     // encode text to bits, stored as a sequennce of characters 0 or 1
+     public string encode(string text)
+     {
+         if (string.IsNullOrEmpty(text))
+             return text;
 
-  public string decode(string text)
-  {
-   if (string.IsNullOrEmpty(text))
-    return text;
+         var encoding = new ASCIIEncoding();
+         byte[] rawBytes = encoding.GetBytes(text);
+         using (var inputStream = new MemoryStream(rawBytes))
+         {
+             var outputStream = new BitsAsTextStream();
+             EncodeInternal(inputStream, outputStream);
+             return outputStream.GetData();
+         }
+     }
 
-   // reconstruct the Huffman coding tree from the bitstream
-   var input = new BitsAsTextStream(text);
-   var treeRoot = new Node();
-   log.WriteLine("Deserialising Huffman tree:");
-   treeRoot.Deserialise(input);
+     private void EncodeInternal(Stream inputStream, IOutputBitStream outputBitStream)
+     {
+         Node treeRoot;
+         Dictionary<byte, Node> byteToNodeDict = BuildHuffmanTree(inputStream, out treeRoot);
 
-   log.WriteLine("Huffman decoding groups of bits into bytes:");
-   using (MemoryStream outputStream = new MemoryStream())
-   {
-    var node = treeRoot;
-    int? bitOrNull;
-    while (null != (bitOrNull = input.ReadBit()))
+         // store the Huffman coding tree in the bitstream, so the decoder can reconstruct the tree
+         log.WriteLine("Serialising Huffman tree:");
+         treeRoot.Serialise(outputBitStream);
+        
+         // seek to the start of the input data
+         long newPos = inputStream.Seek(0, SeekOrigin.Begin);
+         if (newPos != 0)
+             throw new ArgumentOutOfRangeException(nameof(inputStream.Position), newPos,
+                 "Seeked a Stream to the start but it returned a different position!");
+
+         // translate each input byte value into a variable number of bits
+         log.WriteLine("Huffman encoding each byte to a variable number of bits:");
+         int byteOrFlag;
+         while (-1 != (byteOrFlag = inputStream.ReadByte()))
+         {
+             byte num = (byte) byteOrFlag;
+
+             // use a stack to write the bits in reverse order
+             var stack = new Stack<int>(8); // TODO: reverse bits more efficiently?
+             log.Write("{0}=", num);
+             for (var node = byteToNodeDict[num]; node.parent != null; node = node.parent)
+             {
+                 int bit = (node == node.parent.leftChild ? 0 : 1);
+                 stack.Push(bit);
+                 log.Write(bit);
+             }
+
+             log.Write('/');
+             foreach (int bit in stack)
+             {
+                 outputBitStream.WriteBit(bit);
+                 log.Write(bit);
+             }
+
+             log.WriteLine();
+         }
+     }
+
+     static Dictionary<byte, Node> BuildHuffmanTree(Stream inputStream, out Node treeRoot)
+     {
+         var byteToNodeDict = new Dictionary<byte, Node>(byte.MaxValue);
+         var freqtoTreeDict = new SortedList<int, IList<Node>>((int) inputStream.Length); // TODO: guess number of internal 'tree' nodes?
+         var frequency = new int[byte.MaxValue + 1];
+
+         // track frequency (number of occurences) of each unique byte value
+         int byteOrFlag;
+         while (-1 != (byteOrFlag = inputStream.ReadByte()))
+         {
+             var num = (byte) byteOrFlag;
+             frequency[num]++;
+         }
+
+         // build a collection of (tree) nodes, one per unique byte value that occurs in the input
+         for (int num = byte.MinValue; num <= byte.MaxValue; num++)
+         {
+             var byteValue = (byte) num;
+             int freq = frequency[num];
+             if (freq > 0)
+             {
+                 var node = new Node {byteValue = byteValue, frequency = freq};
+                 byteToNodeDict.Add(byteValue, node);
+                 if (!freqtoTreeDict.ContainsKey(freq)) freqtoTreeDict[freq] = new List<Node>();
+                 freqtoTreeDict[freq].Add(node);
+             }
+         }
+
+         // loop until there is only one root node, i.e. a single tree
+         while (freqtoTreeDict.Count > 1 || freqtoTreeDict.First().Value.Count > 1)
+         {
+             // find the two nodes/trees with lowest frequency
+             var nodeList = freqtoTreeDict.First().Value;
+             var lowFreqNode1 = nodeList.First();
+             nodeList.RemoveAt(0);
+             if (nodeList.Count == 0) freqtoTreeDict.RemoveAt(0);
+             nodeList = freqtoTreeDict.First().Value;
+             var lowFreqNode2 = nodeList.First();
+             nodeList.RemoveAt(0);
+             if (nodeList.Count == 0) freqtoTreeDict.RemoveAt(0);
+
+             // combine these two nodes/trees
+             // TODO: internal node should not have byteValue!
+             var parent = new Node
+             {
+                 leftChild = lowFreqNode1,
+                 rightChild = lowFreqNode2,
+                 frequency = lowFreqNode1.frequency + lowFreqNode2.frequency
+             };
+             lowFreqNode1.parent = parent;
+             lowFreqNode2.parent = parent;
+             if (!freqtoTreeDict.ContainsKey(parent.frequency))
+                 freqtoTreeDict[parent.frequency] = new List<Node>();
+             freqtoTreeDict[parent.frequency].Add(parent);
+         }
+
+         // Huffman coding tree has now been built. Get tree root node.
+         Node root = freqtoTreeDict.Single().Value.Single();
+
+         // Tree must have at least two levels so that walking the tree from leaf to root produces at least one transition / one bit
+         if (root.IsLeaf())
+         {
+             Node leftChild = root;
+             var rightChild = new Node {leftChild = null, rightChild = null};
+             root = new Node {parent = null, leftChild = leftChild, rightChild = rightChild};
+             leftChild.parent = root;
+             rightChild.parent = root;
+         }
+
+         treeRoot = root;
+         return byteToNodeDict;
+     }
+
+     public string decode(string text)
+     {
+         if (string.IsNullOrEmpty(text))
+             return text;
+
+         using (MemoryStream outputStream = new MemoryStream())
+         {
+             var inputBitStream = new BitsAsTextStream(text);
+             DecodeInternal(inputBitStream, outputStream);
+             return new ASCIIEncoding().GetString(outputStream.ToArray());
+         }
+     }
+
+     public void decode(Stream inputStream, Stream outputStream)
+     {
+         if (inputStream.Position != 0)
+             throw new ArgumentOutOfRangeException(nameof(inputStream), "Expected stream at starting position");
+
+         // reconstruct the Huffman coding tree from the bitstream
+         var inputBitStream = new InputBitStream(inputStream);
+
+         DecodeInternal(inputBitStream, outputStream);
+     }
+
+    private void DecodeInternal(IInputBitStream inputBitStream, Stream outputStream)
     {
-     int bit = bitOrNull.Value;
-     node = (bit == 0 ? node.leftChild : node.rightChild);
-     log.Write(bit);
+        // reconstruct the Huffman coding tree from the bitstream
+        var treeRoot = new Node();
+        log.WriteLine("Deserialising Huffman tree:");
+        treeRoot.Deserialise(inputBitStream);
 
-     if (node.IsLeaf())
-     {
-      outputStream.WriteByte(node.byteValue);
-      log.WriteLine("={0}", node.byteValue);
-      node = treeRoot; // reset to root of tree
-     }
-    }
-
-    return new ASCIIEncoding().GetString(outputStream.ToArray());
-   }
-  }
-
-        public void encode(Stream inputStream, Stream outputStream)
+        log.WriteLine("Huffman decoding groups of bits into bytes:");
+        var node = treeRoot;
+        int? bitOrNull;
+        while (null != (bitOrNull = inputBitStream.ReadBit()))
         {
-            var freqtoTreeDict = new SortedList<int, IList<Node>>((int)inputStream.Length); // TODO: guess number of internal 'tree' nodes?
-            var byteToNodeDict = new Dictionary<byte, Node>(byte.MaxValue);
-            int[] frequency = new int[byte.MaxValue + 1];
+            int bit = bitOrNull.Value;
+            node = (bit == 0 ? node.leftChild : node.rightChild);
+            log.Write(bit);
 
-            // track frequency (number of occurences) of each unique byte value
-            int byteOrFlag;
-            while (-1 != (byteOrFlag = inputStream.ReadByte()))
+            if (node.IsLeaf())
             {
-                byte num = (byte) byteOrFlag;
-                frequency[num]++;
-            }
-
-            // build a collection of (tree) nodes, one per unique byte value that occurs in the input
-            for (int num = byte.MinValue; num <= byte.MaxValue; num++)
-            {
-                var byteValue = (byte) num;
-                var freq = frequency[num];
-                if (freq > 0)
-                {
-                    var node = new Node {byteValue = byteValue, frequency = freq};
-                    byteToNodeDict.Add(byteValue, node);
-                    if (!freqtoTreeDict.ContainsKey(freq)) freqtoTreeDict[freq] = new List<Node>();
-                    freqtoTreeDict[freq].Add(node);
-                }
-            }
-
-            // loop until there is only one root node, i.e. a single tree
-            while (freqtoTreeDict.Count > 1 || freqtoTreeDict.First().Value.Count > 1)
-            {
-                // find the two nodes/trees with lowest frequency
-                var nodeList = freqtoTreeDict.First().Value;
-                var lowFreqNode1 = nodeList.First();
-                nodeList.RemoveAt(0);
-                if (nodeList.Count == 0) freqtoTreeDict.RemoveAt(0);
-                nodeList = freqtoTreeDict.First().Value;
-                var lowFreqNode2 = nodeList.First();
-                nodeList.RemoveAt(0);
-                if (nodeList.Count == 0) freqtoTreeDict.RemoveAt(0);
-
-                // combine these two nodes/trees
-                // TODO: internal node should not have byteValue!
-                var parent = new Node
-                {
-                    leftChild = lowFreqNode1,
-                    rightChild = lowFreqNode2,
-                    frequency = lowFreqNode1.frequency + lowFreqNode2.frequency
-                };
-                lowFreqNode1.parent = parent;
-                lowFreqNode2.parent = parent;
-                if (!freqtoTreeDict.ContainsKey(parent.frequency))
-                    freqtoTreeDict[parent.frequency] = new List<Node>();
-                freqtoTreeDict[parent.frequency].Add(parent);
-            }
-
-            // Huffman coding tree has now been built. Get tree root node.
-            Node treeRoot = freqtoTreeDict.First().Value.Single();
-
-            // seek to the start of the input data
-            long newPos = inputStream.Seek(0, SeekOrigin.Begin);
-            if (newPos != 0)
-                throw new ArgumentOutOfRangeException(nameof(inputStream.Position), newPos,
-                    "Seeked a Stream to the start but it returned a different position!");
-
-            // store the Huffman coding tree in the bitstream, so the decoder can reconstruct the tree
-            log.WriteLine("Serialising Huffman tree:");
-
-            using (var outputBitStream = new OutputBitStream(outputStream))
-            {
-                treeRoot.Serialise(outputBitStream);
-
-                // translate each input byte value into a variable number of bits
-                log.WriteLine("Huffman encoding each byte to a variable number of bits:");
-                while (-1 != (byteOrFlag = inputStream.ReadByte()))
-                {
-                    byte num = (byte) byteOrFlag;
-
-                    // use a stack to write the bits in reverse order
-                    var stack = new Stack<int>(8); // TODO: reverse bits more efficiently?
-                    log.Write("{0}=", num);
-                    for (var node = byteToNodeDict[num]; node.parent != null; node = node.parent)
-                    {
-                        int bit = (node == node.parent.leftChild ? 0 : 1);
-                        stack.Push(bit);
-                        log.Write(bit);
-                    }
-
-                    log.Write('/');
-                    foreach (int bit in stack)
-                    {
-                        outputBitStream.WriteBit(bit);
-                        log.Write(bit);
-                    }
-
-                    log.WriteLine();
-                }
-            }
-        }
-
-        public void decode(Stream inputStream, Stream outputStream)
-        {
-            if (inputStream.Position != 0)
-                throw new ArgumentOutOfRangeException(nameof(inputStream), "Expected stream at starting position");
-
-            // reconstruct the Huffman coding tree from the bitstream
-            var inputBitStream = new InputBitStream(inputStream);
-            var treeRoot = new Node();
-            log.WriteLine("Deserialising Huffman tree:");
-            treeRoot.Deserialise(inputBitStream);
-
-            log.WriteLine("Huffman decoding groups of bits into bytes:");
-            var node = treeRoot;
-            int? bitOrNull;
-            while (null != (bitOrNull = inputBitStream.ReadBit()))
-            {
-                int bit = bitOrNull.Value;
-                node = (bit == 0 ? node.leftChild : node.rightChild);
-                log.Write(bit);
-
-                if (node.IsLeaf())
-                {
-                    outputStream.WriteByte(node.byteValue);
-                    log.WriteLine("={0}", node.byteValue);
-                    node = treeRoot; // reset to root of tree
-                }
+                outputStream.WriteByte(node.byteValue);
+                log.WriteLine("={0}", node.byteValue);
+                node = treeRoot; // reset to root of tree
             }
         }
     }
+}
 
  // run length encoding where run length of bits is stored in next 2 bits
  public class BinaryRunLengthCodec : ITextCodec
