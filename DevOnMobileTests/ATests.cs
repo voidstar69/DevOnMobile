@@ -52,7 +52,7 @@ namespace DevOnMobile.Tests
      }
     
      // TODO: Why does my Huffman codec have much worse compression than Deflate and GZip? Huffman vs LZW?
-     [TestMethod, Timeout(1000)]
+     [TestMethod, Timeout(120000)]
      public void TestHuffman()
      {
          var codec = new HuffmanCodec();
