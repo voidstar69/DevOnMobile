@@ -60,6 +60,14 @@ namespace DevOnMobile.Tests
          Console.WriteLine("Huffman: {0}% ({1} bytes)", (double) encodedBytes.Length / randomBytes.Length * 100, encodedBytes.Length);
      }
 
+     [TestMethod, Timeout(120000)]
+     public void TestLempelZiv77()
+     {
+         var codec = new LempelZiv77Codec();
+         byte[] encodedBytes = CheckStreamCodecWithBinaryData(codec, randomBytes, null, false);
+         Console.WriteLine("LZ77: {0}% ({1} bytes)", (double) encodedBytes.Length / randomBytes.Length * 100, encodedBytes.Length);
+     }
+
      [TestMethod, Timeout(100)]
      public void TestHuffmanCodecWithTwoSymbols()
      {
@@ -288,41 +296,71 @@ namespace DevOnMobile.Tests
    Console.WriteLine("*** Compression ratio: {0}% (encoded size vs original size) ***", (double)totalEncodedSize / totalDecodedSize * 100);
   }
 
-  [TestMethod, Timeout(500)]
-  public void testHuffmanCodecWithRandomData()
-  {
-   var random = new Random();
-   var codec1 = new HuffmanCodec();
-      var totalDecodedSize = 0;
-      var totalEncodedSizeChar = 0;
-      var totalEncodedSizeBinary = 0;
+     [TestMethod, Timeout(500)]
+     public void testHuffmanCodecWithRandomData()
+     {
+         var random = new Random();
+         var codec1 = new HuffmanCodec();
+         var totalDecodedSize = 0;
+         var totalEncodedSizeChar = 0;
+         var totalEncodedSizeBinary = 0;
 
-   for (int i = 0; i < 15; i++)
-   {
-    var input = "";
-    char ch = ' ';
+         for (int i = 0; i < 15; i++)
+         {
+             var input = "";
+             char ch = ' ';
 
-    for (int j = 0; j < 25; j++)
-    {
-     if (random.NextDouble() < 0.5)
-      ch = (char)('a' + random.Next(26));
+             for (int j = 0; j < 25; j++)
+             {
+                 if (random.NextDouble() < 0.5)
+                     ch = (char) ('a' + random.Next(26));
 
-     input += ch;
-    }
+                 input += ch;
+             }
 
-    string encodedText = checkCodec(codec1, input, null);
-    totalDecodedSize += input.Length * 8;
-    totalEncodedSizeChar += encodedText.Length;
+             string encodedText = checkCodec(codec1, input, null);
+             totalDecodedSize += input.Length * 8;
+             totalEncodedSizeChar += encodedText.Length;
 
-       byte[] encodedBytes = CheckStreamCodecWithText(codec1, input, null);
-       totalEncodedSizeBinary += encodedBytes.Length * 8;
-   }
+             byte[] encodedBytes = CheckStreamCodecWithText(codec1, input, null);
+             totalEncodedSizeBinary += encodedBytes.Length * 8;
+         }
 
-      Console.WriteLine("Encoded size vs original size, in bits:");
-      Console.WriteLine("*** Char   Compression ratio: {0}%", (double)totalEncodedSizeChar / totalDecodedSize * 100);
-      Console.WriteLine("*** Binary Compression ratio: {0}%", (double)totalEncodedSizeBinary / totalDecodedSize * 100);
-  }
-    
+         Console.WriteLine("Encoded size vs original size, in bits:");
+         Console.WriteLine("*** Char   Compression ratio: {0}%", (double) totalEncodedSizeChar / totalDecodedSize * 100);
+         Console.WriteLine("*** Binary Compression ratio: {0}%", (double) totalEncodedSizeBinary / totalDecodedSize * 100);
+     }
+
+     [TestMethod, Timeout(500)]
+     public void testLempelZiv77CodecWithRandomData()
+     {
+         var random = new Random();
+         var codec = new LempelZiv77Codec();
+         var totalDecodedSize = 0;
+         var totalEncodedSize = 0;
+
+         for (int i = 0; i < 15; i++)
+         {
+             var input = "";
+             char ch = ' ';
+
+             for (int j = 0; j < 25; j++)
+             {
+                 if (random.NextDouble() < 0.5)
+                     ch = (char) ('a' + random.Next(26));
+
+                 input += ch;
+             }
+
+             byte[] encodedBytes = CheckStreamCodecWithText(codec, input, null);
+             totalDecodedSize += input.Length * 8;
+             totalEncodedSize += encodedBytes.Length * 8;
+         }
+
+         Console.WriteLine("Encoded size vs original size, in bits:");
+         Console.WriteLine("*** Compression ratio: {0}%", (double) totalEncodedSize / totalDecodedSize * 100);
+     }
+
      [TestMethod]
      public void testBitStreamWritingAndReading()
      {
