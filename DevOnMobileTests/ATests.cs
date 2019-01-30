@@ -60,10 +60,10 @@ namespace DevOnMobile.Tests
          Console.WriteLine("Huffman: {0}% ({1} bytes)", (double) encodedBytes.Length / randomBytes.Length * 100, encodedBytes.Length);
      }
 
-     [TestMethod, Timeout(120000)]
-     public void TestLempelZiv77()
+     [TestMethod, Timeout(1000)]
+     public void TestLempelZiv78()
      {
-         var codec = new LempelZiv77Codec();
+         var codec = new LempelZiv78Codec();
          byte[] encodedBytes = CheckStreamCodecWithBinaryData(codec, randomBytes, null, false);
          Console.WriteLine("LZ77: {0}% ({1} bytes)", (double) encodedBytes.Length / randomBytes.Length * 100, encodedBytes.Length);
      }
@@ -83,6 +83,15 @@ namespace DevOnMobile.Tests
 
          var codec = new HuffmanCodec();
          CheckStreamCodecWithBinaryData(codec, input);
+     }
+
+     [TestMethod, Timeout(100)]
+     public void TestLempelZiv78WithFewSymbols()
+     {
+         byte[] input = {1, 2, 1, 2, 3, 1, 2 /*, 1, 1, 1, 2, 1, 2*/};
+
+         var codec = new LempelZiv78Codec();
+         CheckStreamCodecWithBinaryData(codec, input, new byte[]{0,0,1,0,0,2,0,1,2,0,0,3,0,3});
      }
 
      private static byte[] genRandomBytes(int len)
@@ -205,7 +214,7 @@ namespace DevOnMobile.Tests
 
          if (printData)
          {
-             Console.WriteLine("{0} -> ({1})", string.Join(",", inputBytes), string.Join(",", encodedBytes));
+             Console.WriteLine("{0} -> ({1}) -> {2}", string.Join(",", inputBytes), string.Join(",", encodedBytes), string.Join(",", decodedBytes));
          }
 
          if (expectedEncoded != null)
@@ -332,10 +341,10 @@ namespace DevOnMobile.Tests
      }
 
      [TestMethod, Timeout(500)]
-     public void testLempelZiv77CodecWithRandomData()
+     public void testLempelZiv78CodecWithRandomData()
      {
          var random = new Random();
-         var codec = new LempelZiv77Codec();
+         var codec = new LempelZiv78Codec();
          var totalDecodedSize = 0;
          var totalEncodedSize = 0;
 
