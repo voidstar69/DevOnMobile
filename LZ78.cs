@@ -30,7 +30,8 @@ namespace DevOnMobile
                 //var entry = new Entry {PrefixIndex = lastMatchingIndex, Suffix = byteVal};
                 uint entry = ((uint)lastMatchingIndex << 8) + byteVal;
 
-                if (dict.TryGetValue(entry, out ushort dictIndex))
+                ushort dictIndex;
+                if (dict.TryGetValue(entry, out dictIndex))
                 {
                     // grow run of matching bytes
                     lastMatchingIndex = dictIndex;
