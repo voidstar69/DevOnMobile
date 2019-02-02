@@ -1,10 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace DevOnMobile
 {
     public class LempelZiv78Codec : IStreamCodec
     {
+        // TODO: limit size of dictionary? Original LZ78 algorithm uses a fixed size array as a dictionary
+        private const int MaxDictSize = 4096;
+
         private struct Entry
         {
             public ushort PrefixIndex;
@@ -13,9 +17,8 @@ namespace DevOnMobile
 
         public void encode(Stream inputStream, Stream outputStream)
         {
-            // TODO: limit size of dictionary? Original LZ78 algorithm uses a fixed size array as a dictionary
-            //const int maxDictSize = 10;
-            var dict = new Dictionary<Entry, ushort>(4096);
+            // map PrefixIndex mixed with Suffix, to entry index
+            var dict = new Dictionary<uint, ushort>(MaxDictSize);
 
             ushort lastMatchingIndex = 0;
             ushort nextAvailableIndex = 1;
@@ -24,18 +27,22 @@ namespace DevOnMobile
             {
                 var byteVal = (byte) byteOrFlag;
 
-                var entry = new Entry {PrefixIndex = lastMatchingIndex, Suffix = byteVal};
+                //var entry = new Entry {PrefixIndex = lastMatchingIndex, Suffix = byteVal};
+                uint entry = ((uint)lastMatchingIndex << 8) + byteVal;
 
-                if (dict.ContainsKey(entry))
+                if (dict.TryGetValue(entry, out ushort dictIndex))
                 {
                     // grow run of matching bytes
-                    lastMatchingIndex = dict[entry];
+                    lastMatchingIndex = dictIndex;
                 }
                 else
                 {
                     // reached end of run of matching bytes, so output dictionary index of this run, and next byte value
-                    dict[entry] = nextAvailableIndex;
-                    nextAvailableIndex++;
+                    if (nextAvailableIndex <= MaxDictSize)
+                    {
+                        dict[entry] = nextAvailableIndex;
+                        nextAvailableIndex++;
+                    }
 
                     // write two-byte last matching index
                     var highByte = (byte) (lastMatchingIndex >> 8);
@@ -59,12 +66,10 @@ namespace DevOnMobile
 
         public void decode(Stream inputStream, Stream outputStream)
         {
-            // TODO: could be a fixed-size array, Entry[]
-            var dict = new Dictionary<ushort, Entry>(4096);
+            // map entry index to PrefixIndex mixed with Suffix
+            var dict = new Entry[MaxDictSize + 1];
 
-            ushort lastMatchingIndex = 0;
             ushort nextAvailableIndex = 1;
-
             while (true)
             {
                 // read two-byte last matching index
@@ -79,7 +84,7 @@ namespace DevOnMobile
                 {
                     throw new EndOfStreamException();
                 }
-                lastMatchingIndex = (ushort)((highByte << 8) + lowByte);
+                var lastMatchingIndex = (ushort)((highByte << 8) + lowByte);
 
                 // output run of bytes from dictionary
                 var stack = new Stack<byte>(); // TODO: reverse bytes more efficiently?
@@ -103,10 +108,13 @@ namespace DevOnMobile
                 }
                 var byteVal = (byte) byteValOrFlag;
 
-                // store new entry into dictionary to grow run of bytes
-                var entry = new Entry {PrefixIndex = lastMatchingIndex, Suffix = byteVal};
-                dict[nextAvailableIndex] = entry;
-                nextAvailableIndex++;
+                if (nextAvailableIndex <= MaxDictSize)
+                {
+                    // store new entry into dictionary to grow run of bytes
+                    var entry = new Entry {PrefixIndex = lastMatchingIndex, Suffix = byteVal};
+                    dict[nextAvailableIndex] = entry;
+                    nextAvailableIndex++;
+                }
 
                 // output next byte value
                 outputStream.WriteByte(byteVal);
