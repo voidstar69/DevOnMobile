@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 
 namespace DevOnMobile
 {
     public class LempelZiv78Codec : IStreamCodec
     {
-        // TODO: limit size of dictionary? Original LZ78 algorithm uses a fixed size array as a dictionary
         private const int MaxDictSize = 4096;
 
         private struct Entry
@@ -88,18 +86,8 @@ namespace DevOnMobile
                 var lastMatchingIndex = (ushort)((highByte << 8) + lowByte);
 
                 // output run of bytes from dictionary
-                var stack = new Stack<byte>(); // TODO: reverse bytes more efficiently?
-                ushort index = lastMatchingIndex;
-                while (index != 0)
-                {
-                    stack.Push(dict[index].Suffix);
-                    index = dict[index].PrefixIndex;
-                }
-
-                foreach (byte runByte in stack)
-                {
-                    outputStream.WriteByte(runByte);
-                }
+                OutputBytesInReverseUsingRecursion(dict, lastMatchingIndex, outputStream);
+                //OutputBytesInReverseUsingStack(dict, lastMatchingIndex, outputStream);
 
                 // read data byte
                 int byteValOrFlag = inputStream.ReadByte();
@@ -121,5 +109,37 @@ namespace DevOnMobile
                 outputStream.WriteByte(byteVal);
             }
         }
+
+        private static void OutputBytesInReverseUsingRecursion(Entry[] dict, ushort index, Stream outputStream)
+        {
+            // output run of bytes from dictionary
+            if (index == 0)
+                return;
+
+            OutputBytesInReverseUsingRecursion(dict, dict[index].PrefixIndex, outputStream);
+            outputStream.WriteByte(dict[index].Suffix);
+        }
+
+/*
+        private static Stack<byte> stack = new Stack<byte>(100);
+
+        private static void OutputBytesInReverseUsingStack(Entry[] dict, ushort lastMatchingIndex, Stream outputStream)
+        {
+            // output run of bytes from dictionary
+            ushort index = lastMatchingIndex;
+            while (index != 0)
+            {
+                stack.Push(dict[index].Suffix);
+                index = dict[index].PrefixIndex;
+            }
+
+            foreach (byte runByte in stack)
+            {
+                outputStream.WriteByte(runByte);
+            }
+
+            stack.Clear();
+        }
+*/
     }
 }

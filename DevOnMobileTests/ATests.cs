@@ -15,52 +15,39 @@ namespace DevOnMobile.Tests
      private const double ByteChangeProbability = 0.2;
      private static readonly byte[] randomBytes = GenRandomBytes(NumRandomBytes, ByteChangeProbability);
 
+     // TODO: experiment with passing CompressionLevel to DeflateStream ctor
      [TestMethod, Timeout(1000)]
      public void LargeData_Deflate()
      {
          using (var outMemStream = new MemoryStream())
+         using (var deflateStream = new DeflateStream(outMemStream, CompressionMode.Compress))
          {
-             // TODO: experiment with passing CompressionLevel to DeflateStream ctor
-             using (var inMemStream = new MemoryStream(randomBytes))
-             using (var zipStream = new DeflateStream(outMemStream, CompressionMode.Compress))
-             {
-                 // TODO
-                 //checkStreamEncode(zipStream, outMemStream, randomBytes);
-
-                 inMemStream.CopyTo(zipStream);
-             }
-
-             byte[] output = outMemStream.GetBuffer();
+             byte[] output = CheckStreamEncode(randomBytes, deflateStream, outMemStream);
              Console.WriteLine("Deflate: {0}% ({1} bytes)", (double) output.Length / randomBytes.Length * 100, output.Length);
          }
      }
 
+     // TODO: experiment with passing CompressionLevel to GZipStream ctor
      [TestMethod, Timeout(1000)]
      public void LargeData_GZip()
      {
          using (var outMemStream = new MemoryStream())
+         using (var zipStream = new GZipStream(outMemStream, CompressionMode.Compress))
          {
-             // TODO: experiment with passing CompressionLevel to GZipStream ctor
-             using (var inMemStream = new MemoryStream(randomBytes))
-             using (var zipStream = new GZipStream(outMemStream, CompressionMode.Compress))
-             {
-                 inMemStream.CopyTo(zipStream);
-             }
-
-             byte[] output = outMemStream.GetBuffer();
+             byte[] output = CheckStreamEncode(randomBytes, zipStream, outMemStream);
              Console.WriteLine("GZip: {0}% ({1} bytes)", (double) output.Length / randomBytes.Length * 100, output.Length);
          }
      }
-    
+
      // TODO: Why does my Huffman codec have much worse compression than Deflate and GZip? Huffman vs LZW? All symbols have equal probability? Need to use real-world data.
-     [TestMethod, Timeout(20000)]
+     [TestMethod, Timeout(60000)]
      public void LargeData_Huffman()
      {
          byte[] encodedBytes = CheckStreamCodecWithBinaryData(new HuffmanCodec(), randomBytes, null, false);
          Console.WriteLine("Huffman: {0}% ({1} bytes)", (double) encodedBytes.Length / randomBytes.Length * 100, encodedBytes.Length);
      }
 
-     [TestMethod, Timeout(1000)]
+     [TestMethod, Timeout(10000)]
      public void LargeData_LempelZiv78()
      {
          byte[] encodedBytes = CheckStreamCodecWithBinaryData(new LempelZiv78Codec(), randomBytes, null, false);
@@ -88,21 +75,13 @@ namespace DevOnMobile.Tests
          CheckStreamCodecWithBinaryData(new LempelZiv78Codec(), input, new byte[]{0,0,1,0,0,2,0,1,2,0,0,3,0,3});
      }
 
-     private static byte[] GenRandomBytes(int len)
-     {
-         var data = new byte[len];
-         var random = new Random();
-         random.NextBytes(data);
-         return data;
-     }
-
      private static byte[] GenRandomBytes(int len, double byteChangeProb)
      {
          var data = new byte[len];
          var random = new Random();
          byte currByte = 0;
-
-         for (int j = 0; j < len; j++)
+        
+         for (var j = 0; j < len; j++)
          {
              if (random.NextDouble() < byteChangeProb)
                  currByte = (byte) random.Next(256);
@@ -129,19 +108,14 @@ namespace DevOnMobile.Tests
 
          return text;
      }
-
-     private byte[] CheckStreamEncode(Stream encodeStream, MemoryStream outStream, byte[] input)
+    
+     private static byte[] CheckStreamEncode(byte[] input, Stream encodeStream, MemoryStream outStream)
      {
          using (var inMemStream = new MemoryStream(input))
-             //using (encodeStream)
          {
-             inMemStream.CopyTo(outStream);
+             inMemStream.CopyTo(encodeStream);
          }
-
-         byte[] output = outStream.GetBuffer();
-         Console.WriteLine("Stream Encode: {0} bytes -> {1} bytes = {2}% compression",
-             input.Length, output.Length, (double) output.Length / input.Length * 100);
-         return output;
+         return outStream.GetBuffer();
      }
 
      private static string CheckCodec(ITextCodec codec, string input, string expectedEncoded)
@@ -438,7 +412,7 @@ namespace DevOnMobile.Tests
   }
 
   [TestMethod, Timeout(5000)]
-  public void testMultipleCodecs()
+  public void TestMultipleCodecs()
   {
    var input3 = "aaaaaaaaabbbbbbbb";
    var output3 = "a9b8";
@@ -472,72 +446,69 @@ namespace DevOnMobile.Tests
    CheckCodec(codec3, input6, output6);
    CheckStreamCodecWithText(codec3, "Hello Wooorld", new byte[] {88, 86, 46, 155, 111, 4, 137, 228, 85, 178, 133, 54, 87, 209, 7, 3});
    
-   var input7 = GenText(1000, 1.0);
+   string input7 = GenText(1000, 1.0);
    Console.WriteLine("Compression ratio on {0} random letters (encoded size vs original size):", input7.Length);
 
-   var encoded = codec1.encode(input7);
+   string encoded = codec1.encode(input7);
    Console.WriteLine("Char RLE: {0}%", (double)encoded.Length / input7.Length * 100);
 
    encoded = codec3.encode(input7);
-   Console.WriteLine("Huffman to BitChars: {0}%", (double)encoded.Length / 8.0 / input7.Length * 100);
+   Console.WriteLine("Huffman to BitChars: {0}%", encoded.Length / 8.0 / input7.Length * 100);
 
       byte[] encodedBytes = CheckStreamCodecWithText(codec3, input7, null);
       Console.WriteLine("Huffman to Bits: {0}%", (double)encodedBytes.Length / input7.Length * 100);
   }
 
-/*
-  [Fact]
-  public void encodeThenDecodeEmptyDataMustProduceOriginalData()
-  {
-   const string input = "";
-   var codec = new CharacterRunLengthCodec();
-   var encoded = codec.encode(input);
-   var output = codec.decode(encoded);
-   Assert.AreEqual(input, output);
-  }
+     [TestMethod]
+     public void RLE_EncodeThenDecodeEmptyDataMustProduceOriginalData()
+     {
+         const string input = "";
+         var codec = new CharacterRunLengthCodec();
+         string encoded = codec.encode(input);
+         string output = codec.decode(encoded);
+         Assert.AreEqual(input, output);
+     }
 
-  [Fact]
-  public void encodeThenDecodeManyRepeatedCharsMustProduceOriginalData()
-  {
-   const string input = "qdttpmmmmmmmmmmhmm";
-   var codec = new CharacterRunLengthCodec();
-   var encoded = codec.encode(input);
-   var output = codec.decode(encoded);
-   Assert.AreEqual(input, output);
-  }
+     [TestMethod]
+     public void RLE_EncodeThenDecodeManyRepeatedCharsMustProduceOriginalData()
+     {
+         const string input = "qdttpmmmmmmmmmmhmm";
+         var codec = new CharacterRunLengthCodec();
+         string encoded = codec.encode(input);
+         string output = codec.decode(encoded);
+         Assert.AreEqual(input, output);
+     }
 
-  [Fact]
-  public void encodeThenDecodeMustProduceOriginalData()
-  {
-   //const string input = "Hello World";
-   var input = "hhheelooo   woorrrlllld!!";
-   var expectedEncoded = "h3e2lo3 3wo2r3l4d!2";
+     [TestMethod]
+     public void RLE_EncodeThenDecodeMustProduceOriginalData()
+     {
+         //const string input = "Hello World";
+         const string input = "hhheelooo   woorrrlllld!!";
+         const string expectedEncoded = "h3e2lo3 3wo2r3l4d!2";
 
-   var codec = new CharacterRunLengthCodec();
-   var encoded = codec.encode(input);
-   Assert.AreEqual(expectedEncoded, encoded, "Unexpected encoded data");
-   var output = codec.decode(encoded);
-   Assert.AreEqual(input, output);
-  }
+         var codec = new CharacterRunLengthCodec();
+         string encoded = codec.encode(input);
+         Assert.AreEqual(expectedEncoded, encoded, "Unexpected encoded data");
+         string output = codec.decode(encoded);
+         Assert.AreEqual(input, output);
+     }
 
-  [Fact]
-  public void verifyRunLengthEncodedData()
-  {
-   const string input = "Hello Wooorld";
-   var codec = new CharacterRunLengthCodec();
-   var encoded = codec.encode(input);
-   Assert.AreEqual("Hel2o Wo3rld", encoded);
-  }
-*/
+     [TestMethod]
+     public void RLE_VerifyRunLengthEncodedData()
+     {
+         const string input = "Hello Wooorld";
+         var codec = new CharacterRunLengthCodec();
+         string encoded = codec.encode(input);
+         Assert.AreEqual("Hel2o Wo3rld", encoded);
+     }
 
-  [TestMethod]
-  public void codecMustNotExpandData()
-  {
-   const string input = "Hello World";
-   var codec = new CharacterRunLengthCodec();
-   var encoded = codec.encode(input);
-   var output = codec.decode(encoded);
-   Assert.IsTrue(encoded.Length <= input.Length);
-  }
+     [TestMethod]
+     public void RLE_CodecMustNotExpandData()
+     {
+         const string input = "Hello World";
+         var codec = new CharacterRunLengthCodec();
+         string encoded = codec.encode(input);
+         Assert.IsTrue(encoded.Length <= input.Length);
+     }
  }
 }
