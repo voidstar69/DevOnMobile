@@ -127,6 +127,15 @@ namespace DevOnMobile
             }
         }
 
+        public void WriteBits(uint value, byte numBits)
+        {
+             foreach (int bit in stack)
+             {
+                outputBitStream.WriteBit(bit);
+                 log.Write(bit);
+             }
+        }
+
         public void WriteByte(byte value)
         {
             for(var bitPos = 1; bitPos <= 8; bitPos++)
