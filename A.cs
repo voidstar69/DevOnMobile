@@ -224,6 +224,16 @@ namespace DevOnMobile
    data += bit.ToString();
   }
 
+  public uint ReadBits(byte numBits)
+  {
+    throw NotImplementedException();
+  }
+
+  public void WriteBits(uint value, byte numBits)
+  {
+    throw NotImplementedException();
+  }
+
   public byte ReadByte()
   {
    byte value = 0;
