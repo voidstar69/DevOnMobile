@@ -145,7 +145,7 @@ namespace DevOnMobile
         {
             for(var bitPos = 1; bitPos <= numBits; bitPos++)
             {
-                WriteBit(value & 1);
+                WriteBit((byte)(value & 1));
                 value >>= 1;
             }
         }
