@@ -226,12 +226,12 @@ namespace DevOnMobile
 
   public uint ReadBits(byte numBits)
   {
-    throw NotImplementedException();
+    throw new NotImplementedException();
   }
 
   public void WriteBits(uint value, byte numBits)
   {
-    throw NotImplementedException();
+    throw new NotImplementedException();
   }
 
   public byte ReadByte()
