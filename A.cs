@@ -21,12 +21,14 @@ namespace DevOnMobile
     public interface IInputBitStream
     {
         int? ReadBit(); // returns null at end-of-stream
+        uint ReadBits(byte numBits);
         byte ReadByte();
     }
 
     public interface IOutputBitStream
     {
         void WriteBit(int bit);
+        void WriteBits(uint value, byte numBits);
         void WriteByte(byte value);
     }
 
@@ -83,6 +85,18 @@ namespace DevOnMobile
             }
         }
 
+        uint ReadBits(byte numBits)
+        {
+            uint value = 0;
+            uint bitMask = 1;
+            for (var bitPos = 1; bitPos <= numBits; bitPos++)
+            {
+                value |= (uint)(ReadBit() * bitMask);
+                bitMask <<= 1;
+            }
+            return value;
+        }
+
         public byte ReadByte()
         {
             byte value = 0;
@@ -129,11 +143,11 @@ namespace DevOnMobile
 
         public void WriteBits(uint value, byte numBits)
         {
-             foreach (int bit in stack)
-             {
-                outputBitStream.WriteBit(bit);
-                 log.Write(bit);
-             }
+            for(var bitPos = 1; bitPos <= numBits; bitPos++)
+            {
+                WriteBit(value & 1);
+                value >>= 1;
+            }
         }
 
         public void WriteByte(byte value)
