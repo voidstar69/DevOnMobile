@@ -22,6 +22,9 @@ public class LempelZiv78_12BitCodec : IStreamCodec
             ushort lastMatchingIndex = 0;
             ushort nextAvailableIndex = 1;
             int byteOrFlag;
+            using(OutputBitStream outBitStream = new OutputBitStream(outputStream))
+            {
+
             while (-1 != (byteOrFlag = inputStream.ReadByte()))
             {
                 var byteVal = (byte) byteOrFlag;
@@ -44,24 +47,30 @@ public class LempelZiv78_12BitCodec : IStreamCodec
                         nextAvailableIndex++;
                     }
 
-                    // write two-byte last matching index
-                    var highByte = (byte) (lastMatchingIndex >> 8);
-                    var lowByte = (byte) (lastMatchingIndex & 0xff);
-                    outputStream.WriteByte(highByte);
-                    outputStream.WriteByte(lowByte);
+                    // write 12-bit last matching index
+                    outBitStream.WriteBits(lastMatchingIndex, NumIndexBits);
+
+                    //var highByte = (byte) (lastMatchingIndex >> 8);
+                    //var lowByte = (byte) (lastMatchingIndex & 0xff);
+                    //outputStream.WriteByte(highByte);
+                    //outputStream.WriteByte(lowByte);
 
                     // write data byte
-                    outputStream.WriteByte(byteVal);
+                    outBitStream.WriteByte(byteVal);
 
                     lastMatchingIndex = 0;
                 }
             }
 
-            // write two-byte last matching index
-            var hiByte = (byte) (lastMatchingIndex >> 8);
-            var loByte = (byte) (lastMatchingIndex & 0xff);
-            outputStream.WriteByte(hiByte);
-            outputStream.WriteByte(loByte);
+            // write 12-bit last matching index
+            outBitStream.WriteBits(lastMatchingIndex, NumIndexBits);
+
+            //var hiByte = (byte) (lastMatchingIndex >> 8);
+            //var loByte = (byte) (lastMatchingIndex & 0xff);
+            //outputStream.WriteByte(hiByte);
+            //outputStream.WriteByte(loByte);
+
+            }
         }
 
         public void decode(Stream inputStream, Stream outputStream)
@@ -73,6 +82,7 @@ public class LempelZiv78_12BitCodec : IStreamCodec
             while (true)
             {
                 // read two-byte last matching index
+                // TODO
                 int highByte = inputStream.ReadByte();
                 if (highByte == -1)
                 {
