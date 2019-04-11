@@ -85,7 +85,7 @@ namespace DevOnMobile
             }
         }
 
-        uint ReadBits(byte numBits)
+        public uint ReadBits(byte numBits)
         {
             uint value = 0;
             uint bitMask = 1;
