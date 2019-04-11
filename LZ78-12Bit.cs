@@ -1,4 +1,7 @@
-namespace Codec
+using System.Collections.Generic;
+using System.IO;
+
+namespace DevOnMobile
 {
 public class LempelZiv78_12BitCodec : IStreamCodec
     {
