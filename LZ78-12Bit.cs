@@ -79,11 +79,11 @@ namespace DevOnMobile
             var dict = new Entry[MaxDictSize + 1];
 
             ushort nextAvailableIndex = 1;
-            using(InputBitStream inBitStream = new InputBitStream(inputStream))
+            InputBitStream inBitStream = new InputBitStream(inputStream);
             while (true)
             {
                 // read 12-bit last matching index
-                var lastMatchingIndex = inBitStream.ReadBits(NumIndexBits);
+                ushort lastMatchingIndex = (ushort)inBitStream.ReadBits(NumIndexBits);
 
                 // output run of bytes from dictionary
                 OutputBytesInReverseUsingRecursion(dict, lastMatchingIndex, outputStream);
