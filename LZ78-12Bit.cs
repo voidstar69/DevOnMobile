@@ -3,7 +3,7 @@ using System.IO;
 
 namespace DevOnMobile
 {
-public class LempelZiv78_12BitCodec : IStreamCodec
+    public class LempelZiv78_12BitCodec : IStreamCodec
     {
         private const int NumIndexBits = 12;
         private const int MaxDictSize = 1 << NumIndexBits;
@@ -143,3 +143,4 @@ public class LempelZiv78_12BitCodec : IStreamCodec
         }
 */
     }
+}
