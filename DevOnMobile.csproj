@@ -51,6 +51,7 @@
     <Compile Include="B.cs" />
     <Compile Include="C.cs" />
     <Compile Include="LZ78.cs" />
+    <Compile Include="LZ78-12Bit.cs" />
     <Compile Include="Prime.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
