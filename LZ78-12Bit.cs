@@ -79,22 +79,11 @@ public class LempelZiv78_12BitCodec : IStreamCodec
             var dict = new Entry[MaxDictSize + 1];
 
             ushort nextAvailableIndex = 1;
+            using(InputBitStream inBitStream = new InputBitStream(inputStream))
             while (true)
             {
-                // read two-byte last matching index
-                // TODO
-                int highByte = inputStream.ReadByte();
-                if (highByte == -1)
-                {
-                    throw new EndOfStreamException();
-                }
-
-                int lowByte = inputStream.ReadByte();
-                if (lowByte == -1)
-                {
-                    throw new EndOfStreamException();
-                }
-                var lastMatchingIndex = (ushort)((highByte << 8) + lowByte);
+                // read 12-bit last matching index
+                var lastMatchingIndex = inBitStream.ReadBits(NumIndexBits);
 
                 // output run of bytes from dictionary
                 OutputBytesInReverseUsingRecursion(dict, lastMatchingIndex, outputStream);
