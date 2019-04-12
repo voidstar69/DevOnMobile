@@ -11,12 +11,12 @@ namespace DevOnMobile.Tests
  [TestClass]
  public class CodecTests
  {
-     private const int NumRandomBytes = 1024 * 1024;
+     private const int NumRandomBytes = 100 * 1024;
      private const double ByteChangeProbability = 0.2;
      private static readonly byte[] randomBytes = GenRandomBytes(NumRandomBytes, ByteChangeProbability);
 
      // TODO: experiment with passing CompressionLevel to DeflateStream ctor
-     [TestMethod, Timeout(2000)]
+     [TestMethod, Timeout(1000)]
      public void LargeData_Deflate()
      {
          using (var outMemStream = new MemoryStream())
@@ -28,7 +28,7 @@ namespace DevOnMobile.Tests
      }
 
      // TODO: experiment with passing CompressionLevel to GZipStream ctor
-     [TestMethod, Timeout(2000)]
+     [TestMethod, Timeout(1000)]
      public void LargeData_GZip()
      {
          using (var outMemStream = new MemoryStream())
@@ -40,14 +40,14 @@ namespace DevOnMobile.Tests
      }
 
      // TODO: Why does my Huffman codec have much worse compression than Deflate and GZip? Huffman vs LZW? All symbols have equal probability? Need to use real-world data.
-     [TestMethod, Timeout(120000)]
+     [TestMethod, Timeout(60000)]
      public void LargeData_Huffman()
      {
          byte[] encodedBytes = CheckStreamCodecWithBinaryData(new HuffmanCodec(), randomBytes, null, false);
          Console.WriteLine("Huffman: {0}% ({1} bytes)", (double) encodedBytes.Length / randomBytes.Length * 100, encodedBytes.Length);
      }
 
-     [TestMethod, Timeout(20000)]
+     [TestMethod, Timeout(10000)]
      public void LargeData_LempelZiv78()
      {
          byte[] encodedBytes = CheckStreamCodecWithBinaryData(new LempelZiv78Codec(), randomBytes, null, false);
