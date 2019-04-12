@@ -54,6 +54,13 @@ namespace DevOnMobile.Tests
          Console.WriteLine("LZ78: {0}% ({1} bytes)", (double) encodedBytes.Length / randomBytes.Length * 100, encodedBytes.Length);
      }
 
+     [TestMethod, Timeout(10000)]
+     public void LargeData_LempelZiv78_12Bit()
+     {
+         byte[] encodedBytes = CheckStreamCodecWithBinaryData(new LempelZiv78_12BitCodec(), randomBytes, null, false);
+         Console.WriteLine("LZ78-12bit: {0}% ({1} bytes)", (double) encodedBytes.Length / randomBytes.Length * 100, encodedBytes.Length);
+     }
+
      [TestMethod, Timeout(100)]
      public void TestHuffmanCodecWithOneSymbol()
      {
