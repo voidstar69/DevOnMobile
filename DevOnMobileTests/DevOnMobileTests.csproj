@@ -6,7 +6,7 @@
     <ProjectGuid>{EE616A77-F3E6-409E-9637-2D7A98A506C1}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>DevOnMobileTests</RootNamespace>
+    <RootNamespace>DevOnMobile.Tests</RootNamespace>
     <AssemblyName>DevOnMobileTests</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -68,7 +68,9 @@
   <ItemGroup>
     <Compile Include="ATests.cs" />
     <Compile Include="BTests.cs" />
+    <Compile Include="CodecTestUtils.cs" />
     <Compile Include="CTests.cs" />
+    <Compile Include="LZ78-12BitTests.cs" />
     <Compile Include="PrimeTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

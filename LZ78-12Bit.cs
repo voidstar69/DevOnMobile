@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -5,8 +6,9 @@ namespace DevOnMobile
 {
     public class LempelZiv78_12BitCodec : IStreamCodec
     {
-        private const int NumIndexBits = 12;
-        private const int MaxDictSize = 1 << NumIndexBits;
+        private const int NumIndexBits = 16;
+        private const ushort MaxDictSize = (1 << NumIndexBits) - 1;
+        private const ushort Sentinel = 0;
 
         private struct Entry
         {
@@ -19,58 +21,48 @@ namespace DevOnMobile
             // map PrefixIndex mixed with Suffix, to entry index
             var dict = new Dictionary<uint, ushort>(MaxDictSize);
 
-            ushort lastMatchingIndex = 0;
+            ushort lastMatchingIndex = Sentinel;
             ushort nextAvailableIndex = 1;
-            int byteOrFlag;
-            using(OutputBitStream outBitStream = new OutputBitStream(outputStream))
+            using(var outBitStream = new OutputBitStream(outputStream))
             {
-
-            while (-1 != (byteOrFlag = inputStream.ReadByte()))
-            {
-                var byteVal = (byte) byteOrFlag;
-
-                //var entry = new Entry {PrefixIndex = lastMatchingIndex, Suffix = byteVal};
-                uint entry = ((uint)lastMatchingIndex << 8) + byteVal;
-
-                ushort dictIndex;
-                if (dict.TryGetValue(entry, out dictIndex))
+                int byteOrFlag;
+                while (-1 != (byteOrFlag = inputStream.ReadByte()))
                 {
-                    // grow run of matching bytes
-                    lastMatchingIndex = dictIndex;
-                }
-                else
-                {
-                    // reached end of run of matching bytes, so output dictionary index of this run, and next byte value
-                    if (nextAvailableIndex <= MaxDictSize)
+                    var byteVal = (byte) byteOrFlag;
+
+                    //var entry = new Entry {PrefixIndex = lastMatchingIndex, Suffix = byteVal};
+                    uint entry = ((uint)lastMatchingIndex << 8) + byteVal;
+                    
+                    ushort dictIndex;
+                    if (dict.TryGetValue(entry, out dictIndex))
                     {
-                        dict[entry] = nextAvailableIndex;
-                        nextAvailableIndex++;
+                        // grow run of matching bytes
+                        lastMatchingIndex = dictIndex;
                     }
+                    else
+                    {
+                        // reached end of run of matching bytes, so output dictionary index of this run, and next byte value
+                        if (nextAvailableIndex < MaxDictSize)
+                        {
+                            dict[entry] = nextAvailableIndex;
+                            nextAvailableIndex++;
+                        }
 
-                    // write 12-bit last matching index
-                    outBitStream.WriteBits(lastMatchingIndex, NumIndexBits);
+                        // write N-bit last matching index
+                        outBitStream.WriteBits(lastMatchingIndex, NumIndexBits);
 
-                    //var highByte = (byte) (lastMatchingIndex >> 8);
-                    //var lowByte = (byte) (lastMatchingIndex & 0xff);
-                    //outputStream.WriteByte(highByte);
-                    //outputStream.WriteByte(lowByte);
+                        // write data byte
+                        outBitStream.WriteByte(byteVal);
 
-                    // write data byte
-                    outBitStream.WriteByte(byteVal);
-
-                    lastMatchingIndex = 0;
+                        lastMatchingIndex = Sentinel;
+                    }
                 }
+
+                // write N-bit last matching index
+                outBitStream.WriteBits(lastMatchingIndex, NumIndexBits);
             }
 
-            // write 12-bit last matching index
-            outBitStream.WriteBits(lastMatchingIndex, NumIndexBits);
-
-            //var hiByte = (byte) (lastMatchingIndex >> 8);
-            //var loByte = (byte) (lastMatchingIndex & 0xff);
-            //outputStream.WriteByte(hiByte);
-            //outputStream.WriteByte(loByte);
-
-            }
+            Console.WriteLine("LempelZiv78_12BitCodec.encode: dictionary size = {0} ({1})", dict.Count, nextAvailableIndex - 1);
         }
 
         public void decode(Stream inputStream, Stream outputStream)
@@ -79,11 +71,13 @@ namespace DevOnMobile
             var dict = new Entry[MaxDictSize + 1];
 
             ushort nextAvailableIndex = 1;
-            InputBitStream inBitStream = new InputBitStream(inputStream);
+            var inBitStream = new InputBitStream(inputStream);
             while (true)
             {
-                // read 12-bit last matching index
-                ushort lastMatchingIndex = (ushort)inBitStream.ReadBits(NumIndexBits);
+                // read N-bit last matching index
+                var lastMatchingIndex = (ushort)inBitStream.ReadBits(NumIndexBits);
+
+                // TODO: throw new EndOfStreamException();   if end of stream reached?
 
                 // output run of bytes from dictionary
                 OutputBytesInReverseUsingRecursion(dict, lastMatchingIndex, outputStream);
@@ -93,13 +87,19 @@ namespace DevOnMobile
                 int byteValOrFlag = inputStream.ReadByte();
                 if (byteValOrFlag == -1)
                 {
+                    Console.WriteLine("LempelZiv78_12BitCodec.decode: dictionary size = {0}", nextAvailableIndex - 1);
                     return;
                 }
                 var byteVal = (byte) byteValOrFlag;
 
-                if (nextAvailableIndex <= MaxDictSize)
+                if (nextAvailableIndex < MaxDictSize)
                 {
                     // store new entry into dictionary to grow run of bytes
+                    if(nextAvailableIndex == lastMatchingIndex)
+                    {
+                        throw new InvalidDataException("Inserting a loop into the Dictionary!");
+                    }
+
                     var entry = new Entry {PrefixIndex = lastMatchingIndex, Suffix = byteVal};
                     dict[nextAvailableIndex] = entry;
                     nextAvailableIndex++;
@@ -113,34 +113,41 @@ namespace DevOnMobile
         private static void OutputBytesInReverseUsingRecursion(Entry[] dict, ushort index, Stream outputStream)
         {
             // output run of bytes from dictionary
-            if (index == 0)
+            if (index == Sentinel)
                 return;
+
+            if(index == dict[index].PrefixIndex)
+            {
+                throw new InvalidDataException("Dictionary contains a loop!");
+            }
 
             OutputBytesInReverseUsingRecursion(dict, dict[index].PrefixIndex, outputStream);
             outputStream.WriteByte(dict[index].Suffix);
         }
 
-/*
-        private static Stack<byte> stack = new Stack<byte>(100);
+        private static readonly Stack<byte> Stack = new Stack<byte>(100);
 
         private static void OutputBytesInReverseUsingStack(Entry[] dict, ushort lastMatchingIndex, Stream outputStream)
         {
             // output run of bytes from dictionary
             ushort index = lastMatchingIndex;
-            while (index != 0)
+            while (index != Sentinel)
             {
-                stack.Push(dict[index].Suffix);
+                if(index == dict[index].PrefixIndex)
+                {
+                    throw new InvalidDataException("Dictionary contains a loop!");
+                }
+
+                Stack.Push(dict[index].Suffix);
                 index = dict[index].PrefixIndex;
             }
 
-            foreach (byte runByte in stack)
+            foreach (byte runByte in Stack)
             {
                 outputStream.WriteByte(runByte);
             }
-}
 
-            stack.Clear();
+            Stack.Clear();
         }
-*/
     }
 }

@@ -43,11 +43,11 @@ namespace DevOnMobile
                         nextAvailableIndex++;
                     }
 
-                    // write two-byte last matching index
-                    var highByte = (byte) (lastMatchingIndex >> 8);
+                    // write two-byte last matching index (in little endian order)
                     var lowByte = (byte) (lastMatchingIndex & 0xff);
-                    outputStream.WriteByte(highByte);
+                    var highByte = (byte) (lastMatchingIndex >> 8);
                     outputStream.WriteByte(lowByte);
+                    outputStream.WriteByte(highByte);
 
                     // write data byte
                     outputStream.WriteByte(byteVal);
@@ -56,11 +56,11 @@ namespace DevOnMobile
                 }
             }
 
-            // write two-byte last matching index
-            var hiByte = (byte) (lastMatchingIndex >> 8);
+            // write two-byte last matching index (in little endian order)
             var loByte = (byte) (lastMatchingIndex & 0xff);
-            outputStream.WriteByte(hiByte);
+            var hiByte = (byte) (lastMatchingIndex >> 8);
             outputStream.WriteByte(loByte);
+            outputStream.WriteByte(hiByte);
         }
 
         public void decode(Stream inputStream, Stream outputStream)
@@ -71,15 +71,15 @@ namespace DevOnMobile
             ushort nextAvailableIndex = 1;
             while (true)
             {
-                // read two-byte last matching index
-                int highByte = inputStream.ReadByte();
-                if (highByte == -1)
+                // read two-byte last matching index (in little endian order)
+                int lowByte = inputStream.ReadByte();
+                if (lowByte == -1)
                 {
                     throw new EndOfStreamException();
                 }
 
-                int lowByte = inputStream.ReadByte();
-                if (lowByte == -1)
+                int highByte = inputStream.ReadByte();
+                if (highByte == -1)
                 {
                     throw new EndOfStreamException();
                 }
