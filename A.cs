@@ -266,7 +266,6 @@ namespace DevOnMobile
          // This only serialises data required by the decoder.
          public void Serialise(IOutputBitStream stream)
          {
-             // TODO: serialise byteValue, leftChild and rightChild
              if (IsLeaf())
              {
                  log.WriteLine("Leaf node {0} (0x{0:X})", byteValue);
@@ -307,7 +306,7 @@ namespace DevOnMobile
          }
      }
 
-     // encode text to bits, stored as binary data
+     // encode binary data -> binary data
      public void encode(Stream inputStream, Stream outputStream)
      {
          using (var outputBitStream = new OutputBitStream(outputStream))
@@ -316,7 +315,7 @@ namespace DevOnMobile
          }
      }
 
-     // encode text to bits, stored as a sequennce of characters 0 or 1
+     // encode text to bits, stored as a sequence of characters 0 or 1
      public string encode(string text)
      {
          if (string.IsNullOrEmpty(text))
