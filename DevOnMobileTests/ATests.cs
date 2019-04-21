@@ -10,7 +10,7 @@ namespace DevOnMobile.Tests
  [TestClass]
  public class CodecTests
  {
-     private const int NumRandomBytes = 1024 * 1024;
+     private const int NumRandomBytes = 128 * 1024;
      private const double ByteChangeProbability = 0.2;
      private static readonly byte[] randomBytes = CodecTestUtils.GenRandomBytes(NumRandomBytes, ByteChangeProbability);
 

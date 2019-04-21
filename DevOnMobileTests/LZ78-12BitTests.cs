@@ -6,7 +6,7 @@ namespace DevOnMobile.Tests
     [TestClass]
     public class Lz78Codec12BitTests
     {
-        private const int NumRandomBytes = 1024 * 1024;
+        private const int NumRandomBytes = 128 * 1024;
         private const double ByteChangeProbability = 0.2;
         private static readonly byte[] RandomBytes = CodecTestUtils.GenRandomBytes(NumRandomBytes, ByteChangeProbability);
 
