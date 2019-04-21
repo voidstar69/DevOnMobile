@@ -6,10 +6,6 @@ namespace DevOnMobile.Tests
     [TestClass]
     public class Lz78Codec12BitTests
     {
-        private const int NumRandomBytes = 128 * 1024;
-        private const double ByteChangeProbability = 0.2;
-        private static readonly byte[] RandomBytes = CodecTestUtils.GenRandomBytes(NumRandomBytes, ByteChangeProbability);
-
         [TestMethod, Timeout(1000)]
         public void TestWithOneSymbol()
         {
@@ -31,14 +27,15 @@ namespace DevOnMobile.Tests
             CodecTestUtils.CheckStreamCodecWithBinaryData(new LempelZiv78_12BitCodec(), input, new byte[]{0,0,1,0,0,2,1,0,2,0,0,3,3,0,8});
         }
 
-        [TestMethod, Timeout(10000)]
+        [TestMethod, Timeout(60000)]
         public void TestWithLargeData()
         {
-            byte[] encodedBytes = CodecTestUtils.CheckStreamCodecWithBinaryData(new LempelZiv78_12BitCodec(), RandomBytes, null, false);
-            Console.WriteLine("LZ78-12bit: {0}% ({1}->{2} bytes)", (double) encodedBytes.Length / RandomBytes.Length * 100, RandomBytes.Length, encodedBytes.Length);
+            byte[] randomBytes = CodecTestUtils.GenRandomBytes(128 * 1024, 0.2);
+            byte[] encodedBytes = CodecTestUtils.CheckStreamCodecWithBinaryData(new LempelZiv78_12BitCodec(), randomBytes, null, false);
+            Console.WriteLine("LZ78-12bit: {0}% ({1}->{2} bytes)", (double) encodedBytes.Length / randomBytes.Length * 100, randomBytes.Length, encodedBytes.Length);
         }
 
-        [TestMethod, Timeout(10000)]
+        [TestMethod, Timeout(60000)]
         public void TestFor64KBoundaryBug()
         {
             byte[] veryRandomBytes = CodecTestUtils.GenRandomBytes(256 * 1024, 1.0);

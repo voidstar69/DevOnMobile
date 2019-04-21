@@ -62,6 +62,10 @@ namespace DevOnMobile
                 outBitStream.WriteBits(lastMatchingIndex, NumIndexBits);
             }
 
+            if (dict.Count != nextAvailableIndex - 1)
+            {
+                throw new InvalidDataException("Dictionary is corrupt!");
+            }
             Console.WriteLine("LempelZiv78_12BitCodec.encode: dictionary size = {0} ({1})", dict.Count, nextAvailableIndex - 1);
         }
 
@@ -125,6 +129,7 @@ namespace DevOnMobile
             outputStream.WriteByte(dict[index].Suffix);
         }
 
+/*
         private static readonly Stack<byte> Stack = new Stack<byte>(100);
 
         private static void OutputBytesInReverseUsingStack(Entry[] dict, ushort lastMatchingIndex, Stream outputStream)
@@ -149,5 +154,6 @@ namespace DevOnMobile
 
             Stack.Clear();
         }
+*/
     }
 }
