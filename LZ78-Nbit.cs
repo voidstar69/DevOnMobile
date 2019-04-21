@@ -4,11 +4,11 @@ using System.IO;
 
 namespace DevOnMobile
 {
-    public class LempelZiv78_12BitCodec : IStreamCodec
+    public class LempelZiv78_NBitCodec : IStreamCodec
     {
-        private const int NumIndexBits = 16;
-        private const ushort MaxDictSize = (1 << NumIndexBits) - 1;
         private const ushort Sentinel = 0;
+        private readonly byte numIndexBits;
+        private readonly ushort maxDictSize;
 
         private struct Entry
         {
@@ -16,10 +16,28 @@ namespace DevOnMobile
             public byte Suffix;
         }
 
+        public LempelZiv78_NBitCodec(int codecBitSize)
+        {
+            if (codecBitSize < 1 || codecBitSize > 16)
+            {
+                throw new ArgumentOutOfRangeException(nameof(codecBitSize), codecBitSize, "Only 1-16 bits supported");
+            }
+
+            numIndexBits = (byte)codecBitSize;
+            if (codecBitSize == 16)
+            {
+                maxDictSize = 65535;
+            }
+            else
+            {
+                maxDictSize = (ushort) (1 << codecBitSize);
+            }
+        }
+
         public void encode(Stream inputStream, Stream outputStream)
         {
             // map PrefixIndex mixed with Suffix, to entry index
-            var dict = new Dictionary<uint, ushort>(MaxDictSize);
+            var dict = new Dictionary<uint, ushort>(maxDictSize);
 
             ushort lastMatchingIndex = Sentinel;
             ushort nextAvailableIndex = 1;
@@ -42,14 +60,14 @@ namespace DevOnMobile
                     else
                     {
                         // reached end of run of matching bytes, so output dictionary index of this run, and next byte value
-                        if (nextAvailableIndex < MaxDictSize)
+                        if (nextAvailableIndex < maxDictSize)
                         {
                             dict[entry] = nextAvailableIndex;
                             nextAvailableIndex++;
                         }
 
                         // write N-bit last matching index
-                        outBitStream.WriteBits(lastMatchingIndex, NumIndexBits);
+                        outBitStream.WriteBits(lastMatchingIndex, numIndexBits);
 
                         // write data byte
                         outBitStream.WriteByte(byteVal);
@@ -59,27 +77,27 @@ namespace DevOnMobile
                 }
 
                 // write N-bit last matching index
-                outBitStream.WriteBits(lastMatchingIndex, NumIndexBits);
+                outBitStream.WriteBits(lastMatchingIndex, numIndexBits);
             }
 
             if (dict.Count != nextAvailableIndex - 1)
             {
                 throw new InvalidDataException("Dictionary is corrupt!");
             }
-            Console.WriteLine("LempelZiv78_12BitCodec.encode: dictionary size = {0} ({1})", dict.Count, nextAvailableIndex - 1);
+            Console.WriteLine("LempelZiv78_NBitCodec.encode: dictionary size = {0} ({1})", dict.Count, nextAvailableIndex - 1);
         }
 
         public void decode(Stream inputStream, Stream outputStream)
         {
             // map entry index to PrefixIndex mixed with Suffix
-            var dict = new Entry[MaxDictSize + 1];
+            var dict = new Entry[maxDictSize + 1];
 
             ushort nextAvailableIndex = 1;
             var inBitStream = new InputBitStream(inputStream);
             while (true)
             {
                 // read N-bit last matching index
-                var lastMatchingIndex = (ushort)inBitStream.ReadBits(NumIndexBits);
+                var lastMatchingIndex = (ushort)inBitStream.ReadBits(numIndexBits);
 
                 // TODO: throw new EndOfStreamException();   if end of stream reached?
 
@@ -91,12 +109,12 @@ namespace DevOnMobile
                 int byteValOrFlag = inputStream.ReadByte();
                 if (byteValOrFlag == -1)
                 {
-                    Console.WriteLine("LempelZiv78_12BitCodec.decode: dictionary size = {0}", nextAvailableIndex - 1);
+                    Console.WriteLine("LempelZiv78_NBitCodec.decode: dictionary size = {0}", nextAvailableIndex - 1);
                     return;
                 }
                 var byteVal = (byte) byteValOrFlag;
 
-                if (nextAvailableIndex < MaxDictSize)
+                if (nextAvailableIndex < maxDictSize)
                 {
                     // store new entry into dictionary to grow run of bytes
                     if(nextAvailableIndex == lastMatchingIndex)

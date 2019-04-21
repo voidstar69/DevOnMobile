@@ -70,7 +70,8 @@
     <Compile Include="BTests.cs" />
     <Compile Include="CodecTestUtils.cs" />
     <Compile Include="CTests.cs" />
-    <Compile Include="LZ78-12BitTests.cs" />
+    <Compile Include="LZ78Codec12BitTests.cs" />
+    <Compile Include="LZ78Codec16BitTests.cs" />
     <Compile Include="PrimeTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
