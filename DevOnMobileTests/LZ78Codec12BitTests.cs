@@ -3,7 +3,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace DevOnMobile.Tests
 {
-    // TODO: all 12-bit tests fail! Bad dictionary handling or bit encoding/decoding from stream?
     [TestClass]
     public class Lz78Codec12BitTests
     {
@@ -18,14 +17,14 @@ namespace DevOnMobile.Tests
         public void TestWithTwoSymbols()
         {
             byte[] input = {0, 5, 0, 5, 0, 0, 5, 5, 0, 0};
-            CodecTestUtils.CheckStreamCodecWithBinaryData(new LempelZiv78_NBitCodec(12), input, new byte[] {0,0,0,0,0,5,1,0,5,1,0,0,2,0,5,4,0,8});
+            CodecTestUtils.CheckStreamCodecWithBinaryData(new LempelZiv78_NBitCodec(12), input, new byte[] {0,0,0,0,5,1,80,16,0,0,2,80,64,0,8});
         }
 
         [TestMethod, Timeout(1000)]
         public void TestWithFewSymbols()
         {
             byte[] input = {1, 2, 1, 2, 3, 1, 2};
-            CodecTestUtils.CheckStreamCodecWithBinaryData(new LempelZiv78_NBitCodec(12), input, new byte[]{0,0,1,0,0,2,1,0,2,0,0,3,3,0,8});
+            CodecTestUtils.CheckStreamCodecWithBinaryData(new LempelZiv78_NBitCodec(12), input, new byte[]{0,16,0,0,2,1,32,0,0,3,3,0,4});
         }
 
         [TestMethod, Timeout(60000)]

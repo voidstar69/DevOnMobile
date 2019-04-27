@@ -91,6 +91,7 @@ namespace DevOnMobile
         {
             // map entry index to PrefixIndex mixed with Suffix
             var dict = new Entry[maxDictSize + 1];
+            //var dict = new Dictionary<int, Entry>(maxDictSize + 1);
 
             ushort nextAvailableIndex = 1;
             var inBitStream = new InputBitStream(inputStream);
@@ -106,9 +107,10 @@ namespace DevOnMobile
                 //OutputBytesInReverseUsingStack(dict, lastMatchingIndex, outputStream);
 
                 // read data byte
-                int byteValOrFlag = inputStream.ReadByte();
-                if (byteValOrFlag == -1)
+                byte? byteValOrFlag = inBitStream.ReadByte();
+                if (byteValOrFlag == null)
                 {
+                    // end of input stream
                     Console.WriteLine("LempelZiv78_NBitCodec.decode: dictionary size = {0}", nextAvailableIndex - 1);
                     return;
                 }
@@ -132,7 +134,7 @@ namespace DevOnMobile
             }
         }
 
-        private static void OutputBytesInReverseUsingRecursion(Entry[] dict, ushort index, Stream outputStream)
+        private static void OutputBytesInReverseUsingRecursion(/*IList<Entry>*/ /*IDictionary<int, Entry>*/ Entry[] dict, ushort index, Stream outputStream)
         {
             // output run of bytes from dictionary
             if (index == Sentinel)

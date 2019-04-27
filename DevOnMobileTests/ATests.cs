@@ -351,7 +351,7 @@ namespace DevOnMobile.Tests
         Assert.AreEqual(1, inStream.ReadBit());
         Assert.AreEqual(0, inStream.ReadBit());
         Assert.AreEqual(7u, inStream.ReadBits(4));
-        Assert.AreEqual(126, inStream.ReadByte());
+        Assert.AreEqual((byte)126, inStream.ReadByte());
     }
   }
 
@@ -372,9 +372,9 @@ namespace DevOnMobile.Tests
         var inStream = new InputBitStream(encodedDataStream);
         Assert.AreEqual(1, inStream.ReadBit());
         Assert.AreEqual(0, inStream.ReadBit());
-        Assert.AreEqual(7u, inStream.ReadByte());
-        Assert.AreEqual(0u, inStream.ReadByte());
-        Assert.AreEqual(126, inStream.ReadByte());
+        Assert.AreEqual((byte)7, inStream.ReadByte());
+        Assert.AreEqual((byte)0, inStream.ReadByte());
+        Assert.AreEqual((byte)126, inStream.ReadByte());
     }
   }
 

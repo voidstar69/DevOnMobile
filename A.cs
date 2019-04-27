@@ -20,9 +20,10 @@ namespace DevOnMobile
 
     public interface IInputBitStream
     {
-        int? ReadBit(); // returns null at end-of-stream
-        uint ReadBits(byte numBits);
-        byte ReadByte();
+        // All methods return null when reading past the end of the stream
+        int? ReadBit(); 
+        uint? ReadBits(byte numBits);
+        byte? ReadByte();
     }
 
     public interface IOutputBitStream
@@ -85,25 +86,31 @@ namespace DevOnMobile
             }
         }
 
-        public uint ReadBits(byte numBits)
+        public uint? ReadBits(byte numBits)
         {
             uint value = 0;
             uint bitMask = 1;
             for (var bitPos = 1; bitPos <= numBits; bitPos++)
             {
-                value |= (uint)(ReadBit() * bitMask);
+                int? bit = ReadBit();
+                if (bit == null)
+                    return null;
+                value |= (uint)(bit * bitMask);
                 bitMask <<= 1;
             }
             return value;
         }
 
-        public byte ReadByte()
+        public byte? ReadByte()
         {
             byte value = 0;
             for (var bitPos = 1; bitPos <= 8; bitPos++)
             {
                 value >>= 1;
-                value |= (byte)(ReadBit() * 0x80);
+                int? bit = ReadBit();
+                if (bit == null)
+                    return null;
+                value |= (byte)(bit * 0x80);
             }
             return value;
         }
@@ -224,7 +231,7 @@ namespace DevOnMobile
    data += bit.ToString();
   }
 
-  public uint ReadBits(byte numBits)
+  public uint? ReadBits(byte numBits)
   {
     throw new NotImplementedException();
   }
@@ -234,13 +241,16 @@ namespace DevOnMobile
     throw new NotImplementedException();
   }
 
-  public byte ReadByte()
+  public byte? ReadByte()
   {
    byte value = 0;
    for (int bitPos = 1; bitPos <= 8; bitPos++)
    {
     value >>= 1;
-    value |= (byte)(ReadBit() * 0x80);
+    int? bit = ReadBit();
+    if (bit == null)
+        return null;
+    value |= (byte)(bit * 0x80);
    }
    return value;
   }
@@ -325,7 +335,10 @@ namespace DevOnMobile
              bool isLeaf = (bit == 1);
              if (isLeaf)
              {
-                 byteValue = stream.ReadByte();
+                 byte? byteOrNull = stream.ReadByte();
+                 if (byteOrNull == null)
+                     throw new ArgumentNullException(nameof(stream.ReadByte), "Unexpected end-of-stream");
+                 byteValue = byteOrNull.Value;
                  log.WriteLine("Leaf node {0} (0x{0:X})", byteValue);
              }
              else
