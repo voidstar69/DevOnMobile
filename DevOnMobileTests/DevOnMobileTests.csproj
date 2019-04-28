@@ -72,6 +72,8 @@
     <Compile Include="CTests.cs" />
     <Compile Include="LZ78Codec12BitTests.cs" />
     <Compile Include="LZ78Codec16BitTests.cs" />
+    <Compile Include="LZWCodec12BitTests.cs" />
+    <Compile Include="LZWCodec16BitTests.cs" />
     <Compile Include="PrimeTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
