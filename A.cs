@@ -38,7 +38,7 @@ namespace DevOnMobile
     {
         private readonly Stream stream;
         private readonly long lastBytePos;
-        private readonly byte numBitsinLastDataByte;
+        private readonly byte numBitsInLastDataByte;
         private byte bits;
         private byte numBits;
 
@@ -47,14 +47,14 @@ namespace DevOnMobile
             this.stream = stream;
 
             // get last byte in stream, which indicates number of bits in last data byte in stream
-            long currPos = stream.Position;
-            stream.Seek(-1, SeekOrigin.End);
-            lastBytePos = stream.Position;
+            //long curPos = stream.Position;
+            lastBytePos = stream.Seek(-1, SeekOrigin.End);
             int data = stream.ReadByte();
             if(data == -1)
                 throw new ArgumentOutOfRangeException(nameof(stream.ReadByte), "Expected last byte in stream but hit end-of-stream");
-            numBitsinLastDataByte = (byte)data;
-            stream.Position = currPos;
+            numBitsInLastDataByte = (byte)data;
+            //stream.Position = curPos;
+            stream.Seek(0, SeekOrigin.Begin);
         }
 
         public int? ReadBit()
@@ -68,7 +68,7 @@ namespace DevOnMobile
                 bits = (byte)data;
                 if (stream.Position == lastBytePos)
                 {
-                    numBits = numBitsinLastDataByte;
+                    numBits = numBitsInLastDataByte;
                     stream.ReadByte();
                 }
                 else

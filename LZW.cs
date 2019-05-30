@@ -79,6 +79,7 @@ namespace DevOnMobile
                         outBitStream.WriteByte(byteVal);
 
                         lastMatchingIndex = Sentinel;
+                        //lastMatchingIndex = (ushort) (byteVal + 1);
                     }
                 }
 
@@ -90,7 +91,7 @@ namespace DevOnMobile
             {
                 throw new InvalidDataException("Dictionary is corrupt!");
             }
-            Console.WriteLine("LempelZiv78_NBitCodec.encode: dictionary size = {0} ({1})", dict.Count, nextAvailableIndex - 1);
+            Console.WriteLine("LempelZivWelchCodec.encode: dictionary size = {0} ({1})", dict.Count, nextAvailableIndex - 1);
         }
 
         public void decode(Stream inputStream, Stream outputStream)
@@ -107,12 +108,19 @@ namespace DevOnMobile
             }
 
             var inBitStream = new InputBitStream(inputStream);
+            //var nextIndex = (ushort)inBitStream.ReadBits(numIndexBits).Value;
             while (true)
             {
                 // read N-bit last matching index
-                var lastMatchingIndex = (ushort)inBitStream.ReadBits(numIndexBits);
-
-                // TODO: throw new EndOfStreamException();   if end of stream reached?
+                uint? indexBits = inBitStream.ReadBits(numIndexBits);
+                if (indexBits == null)
+                {
+                    // end of input stream
+                    Console.WriteLine("LempelZivWelchCodec.decode: dictionary size = {0}", nextAvailableIndex - 1);
+                    return;
+                }
+                var lastMatchingIndex = (ushort)indexBits;
+                //ushort lastMatchingIndex = nextIndex;
 
                 // output run of bytes from dictionary
                 OutputBytesInReverseUsingRecursion(dict, lastMatchingIndex, outputStream);
@@ -126,16 +134,27 @@ namespace DevOnMobile
                     Console.WriteLine("LempelZiv78_NBitCodec.decode: dictionary size = {0}", nextAvailableIndex - 1);
                     return;
                 }
-                var byteVal = (byte) byteValOrFlag;
+                var byteVal = (byte)byteValOrFlag;
+
+                // read next N-bit last matching index
+                //indexBits = inBitStream.ReadBits(numIndexBits);
+                //if (indexBits == null)
+                //{
+                //    // end of input stream
+                //    Console.WriteLine("LempelZivWelchCodec.decode: dictionary size = {0}", nextAvailableIndex - 1);
+                //    return;
+                //}
+                //nextIndex = (ushort) indexBits;
+                //byteVal = dict[nextIndex].Suffix;
 
                 if (nextAvailableIndex < maxDictSize)
                 {
-                    // store new entry into dictionary to grow run of bytes
                     if(nextAvailableIndex == lastMatchingIndex)
                     {
                         throw new InvalidDataException("Inserting a loop into the Dictionary!");
                     }
 
+                    // store new entry into dictionary to grow run of bytes
                     var entry = new Entry {PrefixIndex = lastMatchingIndex, Suffix = byteVal};
                     dict[nextAvailableIndex] = entry;
                     nextAvailableIndex++;
