@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -13,21 +12,21 @@ namespace DevOnMobile.Tests
         public void TestWithOneSymbol()
         {
             byte[] input = {1 , 1, 1, 1, 1, 1, 1, 1, 1, 1};
-            CodecTestUtils.CheckStreamCodecWithBinaryData(new LempelZiv78_NBitCodec(16), input, new byte[]{0,0,1,1,0,1,2,0,1,3,0,1,0,0,8});
+            CodecTestUtils.CheckStreamCodecWithBinaryData(new LempelZiv78_NBitCodec(16), input, new byte[]{0,0,1,1,0,1,2,0,1,3,0,1,0,0});
         }
 
         [TestMethod, Timeout(2000)]
         public void TestWithTwoSymbols()
         {
             byte[] input = {0, 5, 0, 5, 0, 0, 5, 5, 0, 0};
-            CodecTestUtils.CheckStreamCodecWithBinaryData(new LempelZiv78_NBitCodec(16), input, new byte[] {0,0,0,0,0,5,1,0,5,1,0,0,2,0,5,4,0,8});
+            CodecTestUtils.CheckStreamCodecWithBinaryData(new LempelZiv78_NBitCodec(16), input, new byte[] {0,0,0,0,0,5,1,0,5,1,0,0,2,0,5,4,0});
         }
 
         [TestMethod, Timeout(1000)]
         public void TestWithFewSymbols()
         {
             byte[] input = {1, 2, 1, 2, 3, 1, 2};
-            CodecTestUtils.CheckStreamCodecWithBinaryData(new LempelZiv78_NBitCodec(16), input, new byte[]{0,0,1,0,0,2,1,0,2,0,0,3,3,0,8});
+            CodecTestUtils.CheckStreamCodecWithBinaryData(new LempelZiv78_NBitCodec(16), input, new byte[]{0,0,1,0,0,2,1,0,2,0,0,3,3,0});
         }
 
         [TestMethod, Timeout(60000)]
@@ -46,11 +45,11 @@ namespace DevOnMobile.Tests
             Console.WriteLine("LZ78-12bit: {0}% ({1}->{2} bytes)", (double) encodedBytes.Length / veryRandomBytes.Length * 100, veryRandomBytes.Length, encodedBytes.Length);
         }
 
-        [TestMethod, Timeout(120000)]
-        public void TestWithFewSymbols_Modular()
+        [TestMethod, Timeout(1000)]
+        public void TestWithFewSymbols_VerifyIncrementally()
         {
             byte[] input = {1, 2, 1, 2, 3, 1, 2};
-            IReadOnlyList<byte> expectedEncoded = new byte[]{0,0,1,0,0,2,1,0,2,0,0,3,3,0,8};
+            IReadOnlyList<byte> expectedEncoded = new byte[]{0,0,1,0,0,2,1,0,2,0,0,3,3,0};
             byte[] encodedBytes;
 
             ushort maxDictSize;
@@ -68,11 +67,11 @@ namespace DevOnMobile.Tests
             using (var encodedStream = new MemoryStream())
             using (var decodedStream = new MemoryStream())
             {
-                using (var encoderOutBitStream = new OutputBitStream(encodedStream))
+                using (var encoderOutBitStream = new OutputBitStream(encodedStream, false))
                 {
                     var encoder = new LZ78Encoder(numIndexBits, maxDictSize);
                     var decoder = new LZ78Decoder(numIndexBits, maxDictSize);
-                    var decoderInBitStream = new InputBitStream(encodedStream);
+                    var decoderInBitStream = new InputBitStream(encodedStream, false);
                     Queue<byte> inputBytesToCompare = new Queue<byte>();
                     int byteOrFlag;
                     while (-1 != (byteOrFlag = inputDataStream.ReadByte()))

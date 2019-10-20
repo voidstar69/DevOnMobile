@@ -10,21 +10,21 @@ namespace DevOnMobile.Tests
         public void TestWithOneSymbol()
         {
             byte[] input = {1 , 1, 1, 1, 1, 1, 1, 1, 1, 1};
-            CodecTestUtils.CheckStreamCodecWithBinaryData(new LempelZiv78_NBitCodec(12), input, new byte[]{0,16,16,0,1,2,16,48,0,1,0,0,4});
+            CodecTestUtils.CheckStreamCodecWithBinaryData(new LempelZiv78_NBitCodec(12), input, new byte[]{0,16,16,0,1,2,16,48,0,1,0,0});
         }
 
         [TestMethod, Timeout(2000)]
         public void TestWithTwoSymbols()
         {
             byte[] input = {0, 5, 0, 5, 0, 0, 5, 5, 0, 0};
-            CodecTestUtils.CheckStreamCodecWithBinaryData(new LempelZiv78_NBitCodec(12), input, new byte[] {0,0,0,0,5,1,80,16,0,0,2,80,64,0,8});
+            CodecTestUtils.CheckStreamCodecWithBinaryData(new LempelZiv78_NBitCodec(12), input, new byte[] {0,0,0,0,5,1,80,16,0,0,2,80,64,0});
         }
 
         [TestMethod, Timeout(1000)]
         public void TestWithFewSymbols()
         {
             byte[] input = {1, 2, 1, 2, 3, 1, 2};
-            CodecTestUtils.CheckStreamCodecWithBinaryData(new LempelZiv78_NBitCodec(12), input, new byte[]{0,16,0,0,2,1,32,0,0,3,3,0,4});
+            CodecTestUtils.CheckStreamCodecWithBinaryData(new LempelZiv78_NBitCodec(12), input, new byte[]{0,16,0,0,2,1,32,0,0,3,3,0});
         }
 
         [TestMethod, Timeout(60000)]

@@ -29,7 +29,7 @@ namespace DevOnMobile
         public void encode(Stream inputStream, Stream outputStream)
         {
             var encoder = new LZ78Encoder(numIndexBits, maxDictSize);
-            using(var outBitStream = new OutputBitStream(outputStream))
+            using(var outBitStream = new OutputBitStream(outputStream, false))
             {
                 int byteOrFlag;
                 while (-1 != (byteOrFlag = inputStream.ReadByte()))
@@ -44,16 +44,20 @@ namespace DevOnMobile
         public void decode(Stream inputStream, Stream outputStream)
         {
             var decoder = new LZ78Decoder(numIndexBits, maxDictSize);
-            var inBitStream = new InputBitStream(inputStream);
+            var inBitStream = new InputBitStream(inputStream, false);
             while (true)
             {
                 // read N-bit index
-                var indexBits = (ushort)inBitStream.ReadBits(numIndexBits);
+                uint? indexBits = inBitStream.ReadBits(numIndexBits);
+                if (indexBits == null)
+                {
+                    break;
+                }
 
                 // read data byte
                 byte? byteValOrFlag = inBitStream.ReadByte();
 
-                if (decoder.DecodeEntry(indexBits, byteValOrFlag, outputStream))
+                if (decoder.DecodeEntry((ushort)indexBits, byteValOrFlag, outputStream))
                 {
                     break;
                 }
