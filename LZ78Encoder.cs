@@ -28,17 +28,23 @@ namespace DevOnMobile
             return dict;
         }
 
-        // TODO: wrap this in a method that consumes input bytes until an entry is output/returned?
-        public void EncodeByte(byte byteVal, IOutputBitStream outBitStream)
+        /// <summary>
+        /// Encodes a single byte value into a compressed bit stream.
+        /// </summary>
+        /// <param name="byteVal"></param>
+        /// <param name="outBitStream"></param>
+        /// <returns>True iff any encoded bits were written to <param name="outBitStream"/></returns>
+        public bool EncodeByte(byte byteVal, IOutputBitStream outBitStream)
         {
             //var entry = new Entry {PrefixIndex = lastMatchingIndex, Suffix = byteVal};
             uint entry = ((uint)lastMatchingIndex << 8) + byteVal;
-                    
+
             ushort dictIndex;
             if (dict.TryGetValue(entry, out dictIndex))
             {
                 // grow run of matching bytes
                 lastMatchingIndex = dictIndex;
+                return false;
             }
             else
             {
@@ -56,6 +62,7 @@ namespace DevOnMobile
                 outBitStream.WriteByte(byteVal);
 
                 lastMatchingIndex = Sentinel;
+                return true;
             }
         }
 
@@ -68,7 +75,7 @@ namespace DevOnMobile
             {
                 throw new InvalidDataException("Dictionary is corrupt!");
             }
-            Console.WriteLine("LempelZiv78_NBitCodec.encode: dictionary size = {0} ({1})", dict.Count, nextAvailableIndex - 1);
+            Console.WriteLine("LZ78Encoder.Flush: dictionary size = {0} ({1})", dict.Count, nextAvailableIndex - 1);
         }
     }
 }

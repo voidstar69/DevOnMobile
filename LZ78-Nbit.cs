@@ -5,15 +5,8 @@ namespace DevOnMobile
 {
     public class LempelZiv78_NBitCodec : IStreamCodec
     {
-        private const ushort Sentinel = 0;
         private readonly byte numIndexBits;
         private readonly ushort maxDictSize;
-
-        private struct Entry
-        {
-            public ushort PrefixIndex;
-            public byte Suffix;
-        }
 
         public LempelZiv78_NBitCodec(int codecBitSize)
         {
@@ -60,7 +53,7 @@ namespace DevOnMobile
                 // read data byte
                 byte? byteValOrFlag = inBitStream.ReadByte();
 
-                if (!decoder.DecodeEntry(indexBits, byteValOrFlag, outputStream))
+                if (decoder.DecodeEntry(indexBits, byteValOrFlag, outputStream))
                 {
                     break;
                 }

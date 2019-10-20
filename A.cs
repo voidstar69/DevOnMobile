@@ -47,14 +47,19 @@ namespace DevOnMobile
             this.stream = stream;
 
             // get last byte in stream, which indicates number of bits in last data byte in stream
-            long currPos = stream.Position;
-            stream.Seek(-1, SeekOrigin.End);
-            lastBytePos = stream.Position;
-            int data = stream.ReadByte();
-            if(data == -1)
-                throw new ArgumentOutOfRangeException(nameof(stream.ReadByte), "Expected last byte in stream but hit end-of-stream");
-            numBitsinLastDataByte = (byte)data;
-            stream.Position = currPos;
+            // TODO: Should not seek in streams! Find a better way to represent this, maybe at start of steam? (Same problem - seek to beginning!)
+            //long currPos = stream.Position;
+            //stream.Seek(-1, SeekOrigin.End); // TODO: handle empty stream!
+            //lastBytePos = stream.Position;
+            //int data = stream.ReadByte();
+            //if(data == -1)
+            //    throw new ArgumentOutOfRangeException(nameof(stream.ReadByte), "Expected last byte in stream but hit end-of-stream");
+            //numBitsinLastDataByte = (byte)data;
+            //stream.Position = currPos;
+
+
+            lastBytePos = -1;
+            numBitsinLastDataByte = 0;
         }
 
         public int? ReadBit()
@@ -292,7 +297,7 @@ namespace DevOnMobile
      private class Node
      {
          public byte byteValue; // TODO: only leaf nodes need this
-         public int frequency; // number of occurences of this byte value. TODO: we may be able to get rid of this
+         public int frequency; // number of occurrences of this byte value. TODO: we may be able to get rid of this
 
          public Node parent;
 

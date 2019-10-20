@@ -33,6 +33,13 @@ namespace DevOnMobile
             return dict;
         }
 
+        /// <summary>
+        /// Decodes a single compression entry into a decompressed bit stream.
+        /// </summary>
+        /// <param name="indexBits"></param>
+        /// <param name="byteVal"></param>
+        /// <param name="outputStream"></param>
+        /// <returns>True iff byteVal is null, i.e. end of input stream reached. Some bits may still be output.</returns>
         public bool DecodeEntry(ushort indexBits, byte? byteVal, Stream outputStream)
         {
             // read N-bit last matching index
@@ -48,8 +55,8 @@ namespace DevOnMobile
             if (byteVal == null)
             {
                 // end of input stream
-                Console.WriteLine("LempelZiv78_NBitCodec.decode: dictionary size = {0}", nextAvailableIndex - 1);
-                return false;
+                Console.WriteLine("LZ78Decoder.DecodeEntry: dictionary size = {0}", nextAvailableIndex - 1);
+                return true;
             }
             var dataByte = (byte) byteVal;
 
@@ -68,7 +75,7 @@ namespace DevOnMobile
 
             // output next byte value
             outputStream.WriteByte(dataByte);
-            return true;
+            return false;
         }
 
         private static void OutputBytesInReverseUsingRecursion(/*IList<Entry>*/ /*IDictionary<int, Entry>*/ Entry[] dict, ushort index, Stream outputStream)

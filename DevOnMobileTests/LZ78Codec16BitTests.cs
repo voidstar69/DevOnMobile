@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace DevOnMobile.Tests
@@ -42,5 +45,136 @@ namespace DevOnMobile.Tests
             byte[] encodedBytes = CodecTestUtils.CheckStreamCodecWithBinaryData(new LempelZiv78_NBitCodec(16), veryRandomBytes, null, false);
             Console.WriteLine("LZ78-12bit: {0}% ({1}->{2} bytes)", (double) encodedBytes.Length / veryRandomBytes.Length * 100, veryRandomBytes.Length, encodedBytes.Length);
         }
-   }
+
+        [TestMethod, Timeout(120000)]
+        public void TestWithFewSymbols_Modular()
+        {
+            byte[] input = {1, 2, 1, 2, 3, 1, 2};
+            IReadOnlyList<byte> expectedEncoded = new byte[]{0,0,1,0,0,2,1,0,2,0,0,3,3,0,8};
+            byte[] encodedBytes;
+
+            ushort maxDictSize;
+            byte numIndexBits = 16;
+            if (numIndexBits == 16)
+            {
+                maxDictSize = 65535;
+            }
+            else
+            {
+                maxDictSize = (ushort) (1 << numIndexBits);
+            }
+
+            using (var inputDataStream = new MemoryStream(input))
+            using (var encodedStream = new MemoryStream())
+            using (var decodedStream = new MemoryStream())
+            {
+                //codec.encode(inputStream, encodedDataStream);
+                //encodedDataStream.Seek(0, SeekOrigin.Begin);
+                //codec.decode(encodedDataStream, decodedDataStream);
+                //encodedBytes = encodedDataStream.ToArray();
+                //decodedBytes = decodedDataStream.ToArray();
+
+                var encoder = new LZ78Encoder(numIndexBits, maxDictSize);
+                var decoder = new LZ78Decoder(numIndexBits, maxDictSize);
+                // TODO: bit streams need to advance independently through underlying stream!
+                var decoderInBitStream = new InputBitStream(encodedStream);
+                using (var encoderOutBitStream = new OutputBitStream(encodedStream))
+                {
+                    Queue<byte> inputBytesToCompare = new Queue<byte>();
+                    while (true)
+                    {
+                        int byteOrFlag = inputDataStream.ReadByte();
+                        if (byteOrFlag == -1)
+                        {
+                            // TODO: encoder.Flush will encode a final entry. Need to decode and check this.
+                            long encodedStreamPosBeforeFlush = encodedStream.Position;
+
+                            encoder.Flush(encoderOutBitStream);
+
+                            // Some encoded bits were written to the encoded bit stream.
+                            // Jump back before these bits to allow the decoder to decode these bits.
+                            encodedStream.Position = encodedStreamPosBeforeFlush;
+
+                            bool endOfStreamReached = DecodeEntryAndVerify(decoderInBitStream, numIndexBits, decodedStream, decoder, inputBytesToCompare);
+                            Assert.IsTrue(endOfStreamReached);
+                            break;
+                        }
+
+                        var byteVal = (byte) byteOrFlag;
+                        inputBytesToCompare.Enqueue(byteVal);
+
+                        Console.Write("Input byte: {0} ", byteVal);
+
+                        long encodedStreamPosBeforeEncodingByte = encodedStream.Position;
+                        if (encoder.EncodeByte(byteVal, encoderOutBitStream))
+                        {
+                            // Some encoded bits were written to the encoded bit stream.
+                            // Jump back before these bits to allow the decoder to decode these bits.
+                            encodedStream.Position = encodedStreamPosBeforeEncodingByte;
+
+                            if (DecodeEntryAndVerify(decoderInBitStream, numIndexBits, decodedStream, decoder, inputBytesToCompare))
+                            {
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("No Decoded bytes yet");
+                        }
+                    }
+
+                    // TODO: encoder.Flush will encode a final entry. Need to decode and check this.
+                    //encoder.Flush(encoderOutBitStream);
+                }
+
+                encodedBytes = encodedStream.ToArray();
+            }
+
+            if (expectedEncoded != null)
+            {
+                Assert.IsTrue(CodecTestUtils.AreArraysEqual(expectedEncoded, encodedBytes), "Unexpected encoded data");
+            }
+        }
+
+        /// <summary>
+        /// Decodes the next compression entry, then verifies the N bytes against the first N bytes in the queue.
+        /// </summary>
+        /// <param name="decoderInBitStream"></param>
+        /// <param name="numIndexBits"></param>
+        /// <param name="decodedStream"></param>
+        /// <param name="decoder"></param>
+        /// <param name="inputBytesToCompare"></param>
+        /// <returns>True iff end of input stream reached</returns>
+        private static bool DecodeEntryAndVerify(InputBitStream decoderInBitStream, byte numIndexBits, MemoryStream decodedStream,
+            LZ78Decoder decoder, Queue<byte> inputBytesToCompare)
+        {
+            // read N-bit index
+            var indexBits = (ushort) decoderInBitStream.ReadBits(numIndexBits);
+
+            // read data byte
+            byte? byteValOrFlag = decoderInBitStream.ReadByte();
+
+            long decodedStreamPosBeforeDecodingByte = decodedStream.Position;
+            bool endOfStreamReached = decoder.DecodeEntry(indexBits, byteValOrFlag, decodedStream);
+            long decodedStreamPosAfterDecodingByte = decodedStream.Position;
+
+            decodedStream.Position = decodedStreamPosBeforeDecodingByte;
+
+            Console.Write("Decoded bytes: ");
+            while (decodedStream.Position < decodedStreamPosAfterDecodingByte)
+            {
+                byte decodedByteVal = (byte) decodedStream.ReadByte();
+                byte inputByte = inputBytesToCompare.Dequeue();
+
+                Console.Write(decodedByteVal);
+                Console.Write(' ');
+                Assert.AreEqual(inputByte, decodedByteVal);
+            }
+
+            Console.WriteLine();
+
+            // TODO: compare internal state of encoder and decoder, i.e. dictionary vs array of Entry, to look for diffs/errors
+            return endOfStreamReached;
+        }
+    }
 }
