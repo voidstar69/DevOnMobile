@@ -68,38 +68,15 @@ namespace DevOnMobile.Tests
             using (var encodedStream = new MemoryStream())
             using (var decodedStream = new MemoryStream())
             {
-                //codec.encode(inputStream, encodedDataStream);
-                //encodedDataStream.Seek(0, SeekOrigin.Begin);
-                //codec.decode(encodedDataStream, decodedDataStream);
-                //encodedBytes = encodedDataStream.ToArray();
-                //decodedBytes = decodedDataStream.ToArray();
-
-                var encoder = new LZ78Encoder(numIndexBits, maxDictSize);
-                var decoder = new LZ78Decoder(numIndexBits, maxDictSize);
-                // TODO: bit streams need to advance independently through underlying stream!
-                var decoderInBitStream = new InputBitStream(encodedStream);
                 using (var encoderOutBitStream = new OutputBitStream(encodedStream))
                 {
+                    var encoder = new LZ78Encoder(numIndexBits, maxDictSize);
+                    var decoder = new LZ78Decoder(numIndexBits, maxDictSize);
+                    var decoderInBitStream = new InputBitStream(encodedStream);
                     Queue<byte> inputBytesToCompare = new Queue<byte>();
-                    while (true)
+                    int byteOrFlag;
+                    while (-1 != (byteOrFlag = inputDataStream.ReadByte()))
                     {
-                        int byteOrFlag = inputDataStream.ReadByte();
-                        if (byteOrFlag == -1)
-                        {
-                            // TODO: encoder.Flush will encode a final entry. Need to decode and check this.
-                            long encodedStreamPosBeforeFlush = encodedStream.Position;
-
-                            encoder.Flush(encoderOutBitStream);
-
-                            // Some encoded bits were written to the encoded bit stream.
-                            // Jump back before these bits to allow the decoder to decode these bits.
-                            encodedStream.Position = encodedStreamPosBeforeFlush;
-
-                            bool endOfStreamReached = DecodeEntryAndVerify(decoderInBitStream, numIndexBits, decodedStream, decoder, inputBytesToCompare);
-                            Assert.IsTrue(endOfStreamReached);
-                            break;
-                        }
-
                         var byteVal = (byte) byteOrFlag;
                         inputBytesToCompare.Enqueue(byteVal);
 
@@ -112,7 +89,8 @@ namespace DevOnMobile.Tests
                             // Jump back before these bits to allow the decoder to decode these bits.
                             encodedStream.Position = encodedStreamPosBeforeEncodingByte;
 
-                            if (DecodeEntryAndVerify(decoderInBitStream, numIndexBits, decodedStream, decoder, inputBytesToCompare))
+                            if (DecodeEntryAndVerify(decoderInBitStream, numIndexBits, decodedStream, decoder,
+                                inputBytesToCompare))
                             {
                                 break;
                             }
@@ -123,10 +101,17 @@ namespace DevOnMobile.Tests
                         }
                     }
 
-                    // TODO: encoder.Flush will encode a final entry. Need to decode and check this.
-                    //encoder.Flush(encoderOutBitStream);
-                }
+                    long encodedStreamPosBeforeFlush = encodedStream.Position;
+                    encoder.Flush(encoderOutBitStream);
 
+                    // Some encoded bits were written to the encoded bit stream.
+                    // Jump back before these bits to allow the decoder to decode these bits.
+                    encodedStream.Position = encodedStreamPosBeforeFlush;
+
+                    bool endOfStreamReached = DecodeEntryAndVerify(decoderInBitStream, numIndexBits, decodedStream,
+                        decoder, inputBytesToCompare);
+                    Assert.IsTrue(endOfStreamReached);
+                }
                 encodedBytes = encodedStream.ToArray();
             }
 
