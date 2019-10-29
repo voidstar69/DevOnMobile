@@ -158,7 +158,7 @@ namespace DevOnMobile
         public void WriteBit(int bit)
         {
             if (bit != 0 && bit != 1)
-                throw new ArgumentOutOfRangeException(nameof(bit), bit, "bit must be 0 or 1");
+                throw new ArgumentOutOfRangeException("bit", bit, "bit must be 0 or 1");
 
             checked
             {
@@ -368,14 +368,14 @@ namespace DevOnMobile
          {
              int? bit = stream.ReadBit();
              if (bit == null)
-                 throw new ArgumentNullException(nameof(stream.ReadBit), "Unexpected end-of-stream");
+                 throw new ArgumentNullException("stream.ReadBit", "Unexpected end-of-stream");
 
              bool isLeaf = (bit == 1);
              if (isLeaf)
              {
                  byte? byteOrNull = stream.ReadByte();
                  if (byteOrNull == null)
-                     throw new ArgumentNullException(nameof(stream.ReadByte), "Unexpected end-of-stream");
+                     throw new ArgumentNullException("stream.ReadByte", "Unexpected end-of-stream");
                  byteValue = byteOrNull.Value;
                  log.WriteLine("Leaf node {0} (0x{0:X})", byteValue);
              }
@@ -430,7 +430,7 @@ namespace DevOnMobile
          // seek to the start of the input data
          long newPos = inputStream.Seek(0, SeekOrigin.Begin);
          if (newPos != 0)
-             throw new ArgumentOutOfRangeException(nameof(inputStream.Position), newPos,
+             throw new ArgumentOutOfRangeException("inputStream.Position", newPos,
                  "Seeked a Stream to the start but it returned a different position!");
 
          // translate each input byte value into a variable number of bits
@@ -550,7 +550,7 @@ namespace DevOnMobile
      public void decode(Stream inputStream, Stream outputStream)
      {
          if (inputStream.Position != 0)
-             throw new ArgumentOutOfRangeException(nameof(inputStream), "Expected stream at starting position");
+             throw new ArgumentOutOfRangeException("inputStream", "Expected stream at starting position");
 
          // reconstruct the Huffman coding tree from the bitstream
          var inputBitStream = new InputBitStream(inputStream);
