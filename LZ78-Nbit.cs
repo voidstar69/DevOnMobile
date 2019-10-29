@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Text;
 
 namespace DevOnMobile
 {
@@ -25,6 +26,8 @@ namespace DevOnMobile
                 maxDictSize = (ushort) (1 << codecBitSize);
             }
         }
+
+        public int dictionarySize { get; private set; }
 
         public void encode(Stream inputStream, Stream outputStream)
         {
@@ -62,6 +65,8 @@ namespace DevOnMobile
                     break;
                 }
             }
+
+            dictionarySize = decoder.DictionarySizeAfterDecoding;
         }
     }
 }

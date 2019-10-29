@@ -5,13 +5,15 @@ namespace DevOnMobile
 {
     public class LempelZiv78Codec : IStreamCodec
     {
-        private const int MaxDictSize = 4096;
+        private const int MaxDictSize = 65535;//4096;
 
         private struct Entry
         {
             public ushort PrefixIndex;
             public byte Suffix;
         }
+
+        public int dictionarySize { get; private set; }
 
         public void encode(Stream inputStream, Stream outputStream)
         {
@@ -93,6 +95,7 @@ namespace DevOnMobile
                 int byteValOrFlag = inputStream.ReadByte();
                 if (byteValOrFlag == -1)
                 {
+                    dictionarySize = (ushort)(nextAvailableIndex - 1);
                     return;
                 }
                 var byteVal = (byte) byteValOrFlag;

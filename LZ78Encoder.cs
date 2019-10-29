@@ -75,7 +75,7 @@ namespace DevOnMobile
             {
                 throw new InvalidDataException("Dictionary is corrupt!");
             }
-            Console.WriteLine("LZ78Encoder.Flush: dictionary size = {0} ({1})", dict.Count, nextAvailableIndex - 1);
+            //Console.WriteLine("LZ78Encoder.Flush: dictionary size = {0} ({1})", dict.Count, nextAvailableIndex - 1);
         }
     }
 }

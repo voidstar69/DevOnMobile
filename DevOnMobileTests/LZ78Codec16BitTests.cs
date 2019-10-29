@@ -34,7 +34,7 @@ namespace DevOnMobile.Tests
         {
             byte[] randomBytes = CodecTestUtils.GenRandomBytes(128 * 1024, 0.2);
             byte[] encodedBytes = CodecTestUtils.CheckStreamCodecWithBinaryData(new LempelZiv78_NBitCodec(16), randomBytes, null, false);
-            Console.WriteLine("LZ78-12bit: {0}% ({1}->{2} bytes)", (double) encodedBytes.Length / randomBytes.Length * 100, randomBytes.Length, encodedBytes.Length);
+            Console.WriteLine("LZ78-16bit: {0}% ({1}->{2} bytes)", (double) encodedBytes.Length / randomBytes.Length * 100, randomBytes.Length, encodedBytes.Length);
         }
 
         [TestMethod, Timeout(60000)]
@@ -42,7 +42,7 @@ namespace DevOnMobile.Tests
         {
             byte[] veryRandomBytes = CodecTestUtils.GenRandomBytes(256 * 1024, 1.0);
             byte[] encodedBytes = CodecTestUtils.CheckStreamCodecWithBinaryData(new LempelZiv78_NBitCodec(16), veryRandomBytes, null, false);
-            Console.WriteLine("LZ78-12bit: {0}% ({1}->{2} bytes)", (double) encodedBytes.Length / veryRandomBytes.Length * 100, veryRandomBytes.Length, encodedBytes.Length);
+            Console.WriteLine("LZ78-16bit: {0}% ({1}->{2} bytes)", (double) encodedBytes.Length / veryRandomBytes.Length * 100, veryRandomBytes.Length, encodedBytes.Length);
         }
 
         [TestMethod, Timeout(1000)]
