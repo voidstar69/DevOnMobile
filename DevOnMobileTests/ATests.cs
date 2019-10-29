@@ -10,20 +10,25 @@ namespace DevOnMobile.Tests
  [TestClass]
  public class CodecTests
  {
-     private const int NumRandomBytes = 1 /*128*/ * 1024;
+     private const int NumRandomBytes = 128 * 1024;
      private const double ByteChangeProbability = 0.2;
      private static readonly byte[] RandomBytes = CodecTestUtils.GenRandomBytes(NumRandomBytes, ByteChangeProbability);
 
-     [TestMethod]//, Timeout(60000)]
+     [TestMethod, Timeout(60000)]
      public void Benchmark_Multiple_Algorithms()
      {
          {
-             // TODO: determine size of buffers after encode/decode, to verify and also to determine compression ratio
+             // TODO: determine size of buffers after encode/decode, to verify and also to determine compression ratio. Seems to be no way to tell!
              byte[] encodedBytes = new byte[RandomBytes.Length];
              using (var outMemStream = new MemoryStream(encodedBytes, 0, RandomBytes.Length, true, true))
-             using (var deflateStream = new DeflateStream(outMemStream, CompressionMode.Compress))
              {
-                 EncodeToStdStream(RandomBytes, deflateStream);
+                 using (var deflateStream = new DeflateStream(outMemStream, CompressionMode.Compress))
+                 {
+                     EncodeToStdStream(RandomBytes, deflateStream);
+                     //outMemStream.Flush();
+                     //var a = outMemStream.GetBuffer();
+                 }
+                 //var b = outMemStream.GetBuffer();
                  Console.WriteLine("Deflate: {0}% ({1}->{2} bytes)", (double) encodedBytes.Length / RandomBytes.Length * 100, RandomBytes.Length, encodedBytes.Length);
                  Console.WriteLine();
              }
@@ -36,14 +41,25 @@ namespace DevOnMobile.Tests
                  DecodeToStdStream(deflateStream, outMemStream);
                  //byte[] decodedBytes = outMemStream.GetBuffer();
                  Assert.IsTrue(CodecTestUtils.AreArraysEqual(RandomBytes, decodedBytes), "Encode then decode must produce original data");
-                 Console.WriteLine("Deflate: {0}% ({1}=>{2} bytes)", (double) encodedBytes.Length / RandomBytes.Length * 100, RandomBytes.Length, encodedBytes.Length);
+                 Console.WriteLine("Deflate: {0}% ({1}->{2} bytes)", (double) encodedBytes.Length / RandomBytes.Length * 100, RandomBytes.Length, encodedBytes.Length);
                  Console.WriteLine();
              }
          }
          {
+             // TODO: probably doing something wrong here. Need to do the same thing as above for DeflateStream. Although we capture stats correctly here!
+             using (var outMemStream = new MemoryStream())
+             using (var zipStream = new GZipStream(outMemStream, CompressionMode.Compress))
+             {
+                 EncodeToStdStream(RandomBytes, zipStream);
+                 byte[] encodedBytes = outMemStream.GetBuffer();
+                 Console.WriteLine("GZip: {0}% ({1}->{2} bytes)", (double) encodedBytes.Length / RandomBytes.Length * 100, RandomBytes.Length, encodedBytes.Length);
+                 Console.WriteLine();
+         }
+         }
+         {
              Console.Write("LZ78: ");
              byte[] encodedBytes = CodecTestUtils.CheckStreamCodecWithBinaryData(new LempelZiv78Codec(), RandomBytes, null, false);
-             Console.WriteLine("Ratio {0}% ({1} bytes)", (double) encodedBytes.Length / RandomBytes.Length * 100, encodedBytes.Length);
+             Console.WriteLine("Ratio {0}% ({1}->{2} bytes)", (double) encodedBytes.Length / RandomBytes.Length * 100, RandomBytes.Length, encodedBytes.Length);
              Console.WriteLine();
          }
          {
@@ -64,15 +80,7 @@ namespace DevOnMobile.Tests
              Console.WriteLine("Ratio: {0}% ({1}->{2} bytes)", (double) encodedBytes.Length / RandomBytes.Length * 100, RandomBytes.Length, encodedBytes.Length);
              Console.WriteLine();
          }
-        
-         using (var outMemStream = new MemoryStream())
-         using (var zipStream = new GZipStream(outMemStream, CompressionMode.Compress))
-         {
-             EncodeToStdStream(RandomBytes, zipStream);
-             byte[] encodedBytes = outMemStream.GetBuffer();
-             Console.WriteLine("GZip: {0}% ({1}->{2} bytes)", (double) encodedBytes.Length / RandomBytes.Length * 100, RandomBytes.Length, encodedBytes.Length);
-             Console.WriteLine();
-         }
+       
      }
 
      // TODO: experiment with passing CompressionLevel to DeflateStream ctor
@@ -159,8 +167,8 @@ namespace DevOnMobile.Tests
          using (var inMemStream = new MemoryStream(input))
          {
              inMemStream.CopyTo(encodeStream);
-             inMemStream.Flush();
-             encodeStream.Flush();
+             //inMemStream.Flush();
+             //encodeStream.Flush();
          }
      }
 
