@@ -52,6 +52,8 @@
     <Compile Include="C.cs" />
     <Compile Include="LZ78.cs" />
     <Compile Include="LZ78-Nbit.cs" />
+    <Compile Include="LZ78Decoder.cs" />
+    <Compile Include="LZ78Encoder.cs" />
     <Compile Include="Prime.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

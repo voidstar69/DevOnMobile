@@ -6,7 +6,7 @@ using System.IO;
 
 namespace DevOnMobile.Tests
 {
-    internal class CodecTestUtils
+    internal static class CodecTestUtils
     {
         internal static byte[] GenRandomBytes(int len, double byteChangeProb)
         {
@@ -71,7 +71,7 @@ namespace DevOnMobile.Tests
             return encodedBytes;
         }
 
-        private static bool AreArraysEqual<T>(IReadOnlyList<T> expected, IReadOnlyList<T> actual)
+        internal static bool AreArraysEqual<T>(IReadOnlyList<T> expected, IReadOnlyList<T> actual)
         {
             if (expected.Count != actual.Count)
                 return false;

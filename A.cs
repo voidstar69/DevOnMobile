@@ -37,44 +37,67 @@ namespace DevOnMobile
     public class InputBitStream : IInputBitStream
     {
         private readonly Stream stream;
-        private readonly long lastBytePos;
-        private readonly byte numBitsinLastDataByte;
+        private readonly bool storeLengthAtEndMode;
         private byte bits;
         private byte numBits;
 
-        public InputBitStream(Stream stream)
+        // Only used when in storeLengthAtEndMode
+        private int nextByte = -1;
+        private int nextNextByte = -1;
+
+        public InputBitStream(Stream stream, bool storeLengthAtEndMode = true)
         {
             this.stream = stream;
+            this.storeLengthAtEndMode = storeLengthAtEndMode;
+        }
 
-            // get last byte in stream, which indicates number of bits in last data byte in stream
-            long currPos = stream.Position;
-            stream.Seek(-1, SeekOrigin.End);
-            lastBytePos = stream.Position;
-            int data = stream.ReadByte();
-            if(data == -1)
-                throw new ArgumentOutOfRangeException(nameof(stream.ReadByte), "Expected last byte in stream but hit end-of-stream");
-            numBitsinLastDataByte = (byte)data;
-            stream.Position = currPos;
+        private int ReadByteFromUnderlyingStream()
+        {
+            if (!storeLengthAtEndMode)
+            {
+                numBits = 8;
+                return stream.ReadByte();
+            }
+
+            // Not in Trailing Zero Bits mode, so always need to look two bytes
+            // ahead to spot final data byte length followed by EndOfStream marker
+
+            if (nextByte == -1)
+            {
+                nextByte = stream.ReadByte();
+            }
+            if (nextNextByte == -1)
+            {
+                nextNextByte = stream.ReadByte();
+            }
+
+            int currentByte = nextByte;
+            nextByte = nextNextByte;
+            nextNextByte = stream.ReadByte();
+
+            if (nextNextByte == -1)
+            {
+                // At end of stream. Second-to-last byte is the final data byte.
+                // Last byte is the number of valid bits in the final data byte.
+                numBits = (byte)nextByte;
+                nextByte = -1;
+            }
+            else
+            {
+                numBits = 8;
+            }
+
+            return currentByte;
         }
 
         public int? ReadBit()
         {
             if (numBits == 0)
             {
-                int data = stream.ReadByte();
+                int data = ReadByteFromUnderlyingStream();
                 if (data == -1)
                     return null;
-
                 bits = (byte)data;
-                if (stream.Position == lastBytePos)
-                {
-                    numBits = numBitsinLastDataByte;
-                    stream.ReadByte();
-                }
-                else
-                {
-                    numBits = 8;
-                }
             }
 
             checked
@@ -120,13 +143,15 @@ namespace DevOnMobile
     public class OutputBitStream : IOutputBitStream, IDisposable
     {
         private readonly Stream stream;
+        private readonly bool storeLengthAtEndMode;
         private byte bits;
         private byte numBits;
         private bool flushed = false;
 
-        public OutputBitStream(Stream stream)
+        public OutputBitStream(Stream stream, bool storeLengthAtEndMode = true)
         {
             this.stream = stream;
+            this.storeLengthAtEndMode = storeLengthAtEndMode;
         }
 
         public void WriteBit(int bit)
@@ -173,17 +198,29 @@ namespace DevOnMobile
                 throw new ApplicationException("OutputBitStream may only be flushed once!");
             }
 
-            // write final bits into byte stream, and also count of final bits
-            if (numBits > 0)
+            if (storeLengthAtEndMode)
             {
-                stream.WriteByte(bits);
-                stream.WriteByte(numBits);
+                // write final bits into byte stream, and also count of final bits
+                if (numBits > 0)
+                {
+                    stream.WriteByte(bits);
+                    stream.WriteByte(numBits);
+                }
+                else
+                {
+                    // no final bits to write, so final byte is full
+                    stream.WriteByte(8);
+                }
             }
             else
             {
-                // no final bits to write, so final byte is full
-                stream.WriteByte(8);
+                // write final bits into byte stream
+                if (numBits > 0)
+                {
+                    stream.WriteByte(bits);
+                }
             }
+
             bits = 0;
             numBits = 0;
             flushed = true;
@@ -292,7 +329,7 @@ namespace DevOnMobile
      private class Node
      {
          public byte byteValue; // TODO: only leaf nodes need this
-         public int frequency; // number of occurences of this byte value. TODO: we may be able to get rid of this
+         public int frequency; // number of occurrences of this byte value. TODO: we may be able to get rid of this
 
          public Node parent;
 

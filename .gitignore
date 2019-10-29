@@ -3,7 +3,7 @@
 bin
 obj
 TestResults
-/.vs/DevOnMobile/v15/Server/sqlite3
+/.vs
 /packages
 /coverage.xml
 /DevOnMobile.sln.DotSettings.user
