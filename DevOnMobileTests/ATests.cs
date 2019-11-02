@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
@@ -18,66 +19,77 @@ namespace DevOnMobile.Tests
      public void Benchmark_Multiple_Algorithms()
      {
          {
-             // TODO: determine size of buffers after encode/decode, to verify and also to determine compression ratio. Seems to be no way to tell!
-             byte[] encodedBytes = new byte[RandomBytes.Length];
-             using (var outMemStream = new MemoryStream(encodedBytes, 0, RandomBytes.Length, true, true))
+             using (var outMemStream = new MemoryStream())
+             using (var gzipStream = new GZipStream(outMemStream, CompressionMode.Compress))
              {
-                 using (var deflateStream = new DeflateStream(outMemStream, CompressionMode.Compress))
-                 {
-                     EncodeToStdStream(RandomBytes, deflateStream);
-                     //outMemStream.Flush();
-                     //var a = outMemStream.GetBuffer();
-                 }
-                 //var b = outMemStream.GetBuffer();
-                 Console.WriteLine("Deflate: {0}% ({1}->{2} bytes)", (double) encodedBytes.Length / RandomBytes.Length * 100, RandomBytes.Length, encodedBytes.Length);
+                 EncodeToStdStream(RandomBytes, gzipStream);
+                 long encodedBytesLen = outMemStream.Position;
+                 byte[] encodedBytes = outMemStream.GetBuffer();
+                 Console.WriteLine("GZip");
+                 Console.WriteLine("Ratio: {0:F2}% ({1}->{2} bytes)", (double) encodedBytesLen/RandomBytes.Length*100, RandomBytes.Length, encodedBytesLen);
                  Console.WriteLine();
              }
 
-             byte[] decodedBytes = new byte[RandomBytes.Length];
-             using (var inMemStream = new MemoryStream(encodedBytes))
-             using (var outMemStream = new MemoryStream(decodedBytes, 0, RandomBytes.Length, true, true))
-             using (var deflateStream = new DeflateStream(inMemStream, CompressionMode.Decompress))
-             {
-                 DecodeToStdStream(deflateStream, outMemStream);
-                 //byte[] decodedBytes = outMemStream.GetBuffer();
-                 Assert.IsTrue(CodecTestUtils.AreArraysEqual(RandomBytes, decodedBytes), "Encode then decode must produce original data");
-                 Console.WriteLine("Deflate: {0}% ({1}->{2} bytes)", (double) encodedBytes.Length / RandomBytes.Length * 100, RandomBytes.Length, encodedBytes.Length);
-                 Console.WriteLine();
-             }
+             // TODO: decode via GZip and verify encode/decode cycle
          }
          {
-             // TODO: probably doing something wrong here. Need to do the same thing as above for DeflateStream. Although we capture stats correctly here!
+             Stopwatch stopWatch;
+             long encodeMillis;
+             byte[] encodedBytes;
+             long encodedBytesLen;
              using (var outMemStream = new MemoryStream())
-             using (var zipStream = new GZipStream(outMemStream, CompressionMode.Compress))
              {
-                 EncodeToStdStream(RandomBytes, zipStream);
-                 byte[] encodedBytes = outMemStream.GetBuffer();
-                 Console.WriteLine("GZip: {0}% ({1}->{2} bytes)", (double) encodedBytes.Length / RandomBytes.Length * 100, RandomBytes.Length, encodedBytes.Length);
-                 Console.WriteLine();
-         }
+                 stopWatch = Stopwatch.StartNew();
+                 using (var deflateStream = new DeflateStream(outMemStream, CompressionMode.Compress))
+                 {
+                     EncodeToStdStream(RandomBytes, deflateStream);
+                     encodedBytesLen = outMemStream.Position;
+                 }
+                 encodedBytes = outMemStream.GetBuffer();
+                 encodeMillis = stopWatch.ElapsedMilliseconds;
+             }
+
+             byte[] decodedBytes;
+             long decodedBytesLen;
+             stopWatch = Stopwatch.StartNew();
+             using (var inMemStream = new MemoryStream(encodedBytes))
+             using (var outMemStream = new MemoryStream())
+             {
+                 using (var deflateStream = new DeflateStream(inMemStream, CompressionMode.Decompress))
+                 {
+                     DecodeToStdStream(deflateStream, outMemStream);
+                     decodedBytesLen = outMemStream.Position;
+                 }
+                 decodedBytes = outMemStream.GetBuffer();
+             }
+             long decodeMillis = stopWatch.ElapsedMilliseconds;
+             Assert.IsTrue(CodecTestUtils.AreArraysEqual(RandomBytes, decodedBytes, (int)decodedBytesLen), "Encode then decode must produce original data");
+             Console.WriteLine("Deflate: Encode time: {0}ms, Decode time: {1}ms, Total time {2}ms", encodeMillis, decodeMillis, encodeMillis + decodeMillis);
+             Console.WriteLine("Ratio: {0:F2}% ({1}->{2} bytes)", (double) encodedBytesLen/RandomBytes.Length*100, RandomBytes.Length, encodedBytesLen);
+             Console.WriteLine();
          }
          {
              Console.Write("LZ78: ");
              byte[] encodedBytes = CodecTestUtils.CheckStreamCodecWithBinaryData(new LempelZiv78Codec(), RandomBytes, null, false);
-             Console.WriteLine("Ratio {0}% ({1}->{2} bytes)", (double) encodedBytes.Length / RandomBytes.Length * 100, RandomBytes.Length, encodedBytes.Length);
+             Console.WriteLine("Ratio {0:F2}% ({1}->{2} bytes)", (double) encodedBytes.Length / RandomBytes.Length * 100, RandomBytes.Length, encodedBytes.Length);
              Console.WriteLine();
          }
          {
              Console.Write("LZ78-16bit: ");
              byte[] encodedBytes = CodecTestUtils.CheckStreamCodecWithBinaryData(new LempelZiv78_NBitCodec(16), RandomBytes, null, false);
-             Console.WriteLine("Ratio: {0}% ({1}->{2} bytes)", (double) encodedBytes.Length / RandomBytes.Length * 100, RandomBytes.Length, encodedBytes.Length);
+             Console.WriteLine("Ratio: {0:F2}% ({1}->{2} bytes)", (double) encodedBytes.Length / RandomBytes.Length * 100, RandomBytes.Length, encodedBytes.Length);
              Console.WriteLine();
          }
          {
              Console.Write("LZ78-12bit: ");
              byte[] encodedBytes = CodecTestUtils.CheckStreamCodecWithBinaryData(new LempelZiv78_NBitCodec(12), RandomBytes, null, false);
-             Console.WriteLine("Ratio: {0}% ({1}->{2} bytes)", (double) encodedBytes.Length / RandomBytes.Length * 100, RandomBytes.Length, encodedBytes.Length);
+             Console.WriteLine("Ratio: {0:F2}% ({1}->{2} bytes)", (double) encodedBytes.Length / RandomBytes.Length * 100, RandomBytes.Length, encodedBytes.Length);
              Console.WriteLine();
          }
          {
              Console.Write("Huffman: ");
              byte[] encodedBytes = CodecTestUtils.CheckStreamCodecWithBinaryData(new HuffmanCodec(), RandomBytes, null, false);
-             Console.WriteLine("Ratio: {0}% ({1}->{2} bytes)", (double) encodedBytes.Length / RandomBytes.Length * 100, RandomBytes.Length, encodedBytes.Length);
+             Console.WriteLine("Ratio: {0:F2}% ({1}->{2} bytes)", (double) encodedBytes.Length / RandomBytes.Length * 100, RandomBytes.Length, encodedBytes.Length);
              Console.WriteLine();
          }
        
@@ -175,8 +187,8 @@ namespace DevOnMobile.Tests
      private static void DecodeToStdStream(Stream decodeStream, MemoryStream outStream)
      {
          decodeStream.CopyTo(outStream);
-         decodeStream.Flush();
-         outStream.Flush();
+         //decodeStream.Flush();
+         //outStream.Flush();
      }
 
      private static string CheckCodec(ITextCodec codec, string input, string expectedEncoded)

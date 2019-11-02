@@ -117,12 +117,16 @@ namespace DevOnMobile.Tests
             return encodedBytes;
         }
 
-        internal static bool AreArraysEqual<T>(IReadOnlyList<T> expected, IReadOnlyList<T> actual)
+        internal static bool AreArraysEqual<T>(IReadOnlyList<T> expected, IReadOnlyList<T> actual, int length = -1)
         {
-            if (expected.Count != actual.Count)
-                return false;
+            if (length == -1)
+            {
+                if (expected.Count != actual.Count)
+                    return false;
+                length = actual.Count;
+            }
 
-            for (var i = 0; i < actual.Count; i++)
+            for (var i = 0; i < length; i++)
             {
                 if (!expected[i].Equals(actual[i]))
                     return false;
