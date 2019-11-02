@@ -18,36 +18,68 @@ namespace DevOnMobile.Tests
      [TestMethod, Timeout(60000)]
      public void Benchmark_Multiple_Algorithms()
      {
-         {
-             using (var outMemStream = new MemoryStream())
-             using (var gzipStream = new GZipStream(outMemStream, CompressionMode.Compress))
-             {
-                 EncodeToStdStream(RandomBytes, gzipStream);
-                 long encodedBytesLen = outMemStream.Position;
-                 byte[] encodedBytes = outMemStream.GetBuffer();
-                 Console.WriteLine("GZip");
-                 Console.WriteLine("Ratio: {0:F2}% ({1}->{2} bytes)", (double) encodedBytesLen/RandomBytes.Length*100, RandomBytes.Length, encodedBytesLen);
-                 Console.WriteLine();
-             }
+         //foreach (byte randomByte in RandomBytes)
+         //{
+         //}
 
-             // TODO: decode via GZip and verify encode/decode cycle
-         }
+         //for (int i = 0; i < RandomBytes.Length; i++)
+         //{
+         //    byte randomByte = RandomBytes[i];
+         //}
+
+         // TODO: Whichever algorithm is first always has slower encode time. Due to memory caching? Touching all of RandomBytes does not seem to make any difference.
+
+         // GZIP
          {
-             Stopwatch stopWatch;
-             long encodeMillis;
              byte[] encodedBytes;
              long encodedBytesLen;
+             Stopwatch stopWatch = Stopwatch.StartNew();
              using (var outMemStream = new MemoryStream())
              {
-                 stopWatch = Stopwatch.StartNew();
+                 using (var gzipStream = new GZipStream(outMemStream, CompressionMode.Compress))
+                 {
+                     EncodeToStdStream(RandomBytes, gzipStream);
+                     encodedBytesLen = outMemStream.Position;
+                 }
+                 encodedBytes = outMemStream.GetBuffer();
+             }
+             long encodeMillis = stopWatch.ElapsedMilliseconds;
+
+             byte[] decodedBytes;
+             long decodedBytesLen;
+             stopWatch = Stopwatch.StartNew();
+             using (var inMemStream = new MemoryStream(encodedBytes))
+             using (var outMemStream = new MemoryStream())
+             {
+                 using (var gzipStream = new GZipStream(inMemStream, CompressionMode.Decompress))
+                 {
+                     DecodeToStdStream(gzipStream, outMemStream);
+                 }
+                 decodedBytesLen = outMemStream.Position;
+                 decodedBytes = outMemStream.GetBuffer();
+             }
+             long decodeMillis = stopWatch.ElapsedMilliseconds;
+             Assert.IsTrue(CodecTestUtils.AreArraysEqual(RandomBytes, decodedBytes, (int)decodedBytesLen), "Encode then decode must produce original data");
+             Console.WriteLine("GZip: Encode time: {0}ms, Decode time: {1}ms, Total time {2}ms", encodeMillis, decodeMillis, encodeMillis + decodeMillis);
+             Console.WriteLine("Ratio: {0:F2}% ({1}->{2} bytes)", (double) encodedBytesLen/RandomBytes.Length*100, RandomBytes.Length, encodedBytesLen);
+             Console.WriteLine();
+         }
+
+         // DEFLATE
+         {
+             byte[] encodedBytes;
+             long encodedBytesLen;
+             Stopwatch stopWatch = Stopwatch.StartNew();
+             using (var outMemStream = new MemoryStream())
+             {
                  using (var deflateStream = new DeflateStream(outMemStream, CompressionMode.Compress))
                  {
                      EncodeToStdStream(RandomBytes, deflateStream);
                      encodedBytesLen = outMemStream.Position;
                  }
                  encodedBytes = outMemStream.GetBuffer();
-                 encodeMillis = stopWatch.ElapsedMilliseconds;
              }
+             long encodeMillis = stopWatch.ElapsedMilliseconds;
 
              byte[] decodedBytes;
              long decodedBytesLen;
@@ -58,8 +90,8 @@ namespace DevOnMobile.Tests
                  using (var deflateStream = new DeflateStream(inMemStream, CompressionMode.Decompress))
                  {
                      DecodeToStdStream(deflateStream, outMemStream);
-                     decodedBytesLen = outMemStream.Position;
                  }
+                 decodedBytesLen = outMemStream.Position;
                  decodedBytes = outMemStream.GetBuffer();
              }
              long decodeMillis = stopWatch.ElapsedMilliseconds;
@@ -68,6 +100,7 @@ namespace DevOnMobile.Tests
              Console.WriteLine("Ratio: {0:F2}% ({1}->{2} bytes)", (double) encodedBytesLen/RandomBytes.Length*100, RandomBytes.Length, encodedBytesLen);
              Console.WriteLine();
          }
+
          {
              Console.Write("LZ78: ");
              byte[] encodedBytes = CodecTestUtils.CheckStreamCodecWithBinaryData(new LempelZiv78Codec(), RandomBytes, null, false);
