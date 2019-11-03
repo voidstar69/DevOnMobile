@@ -11,7 +11,7 @@ namespace DevOnMobile.Tests
  [TestClass]
  public class CodecTests
  {
-     private const int NumRandomBytes = 128 * 1024;
+     private const int NumRandomBytes = 1024 * 1024;
      private const double ByteChangeProbability = 0.2;
      private static readonly byte[] RandomBytes = CodecTestUtils.GenRandomBytes(NumRandomBytes, ByteChangeProbability);
 
@@ -36,7 +36,7 @@ namespace DevOnMobile.Tests
              Stopwatch stopWatch = Stopwatch.StartNew();
              using (var outMemStream = new MemoryStream())
              {
-                 using (var gzipStream = new GZipStream(outMemStream, CompressionMode.Compress))
+                 using (var gzipStream = new GZipStream(outMemStream, CompressionLevel.Optimal))
                  {
                      EncodeToStdStream(RandomBytes, gzipStream);
                      encodedBytesLen = outMemStream.Position;
@@ -72,7 +72,7 @@ namespace DevOnMobile.Tests
              Stopwatch stopWatch = Stopwatch.StartNew();
              using (var outMemStream = new MemoryStream())
              {
-                 using (var deflateStream = new DeflateStream(outMemStream, CompressionMode.Compress))
+                 using (var deflateStream = new DeflateStream(outMemStream, CompressionLevel.Optimal))
                  {
                      EncodeToStdStream(RandomBytes, deflateStream);
                      encodedBytesLen = outMemStream.Position;
@@ -102,8 +102,21 @@ namespace DevOnMobile.Tests
          }
 
          {
+             Console.Write("Huffman: ");
+             byte[] encodedBytes = CodecTestUtils.CheckStreamCodecWithBinaryData(new HuffmanCodec(), RandomBytes, null, false);
+             Console.WriteLine("Ratio: {0:F2}% ({1}->{2} bytes)", (double) encodedBytes.Length / RandomBytes.Length * 100, RandomBytes.Length, encodedBytes.Length);
+             Console.WriteLine();
+         }
+         {
              Console.Write("LZ78: ");
              byte[] encodedBytes = CodecTestUtils.CheckStreamCodecWithBinaryData(new LempelZiv78Codec(), RandomBytes, null, false);
+             Console.WriteLine("Ratio {0:F2}% ({1}->{2} bytes)", (double) encodedBytes.Length / RandomBytes.Length * 100, RandomBytes.Length, encodedBytes.Length);
+             Console.WriteLine();
+         }
+         {
+             Console.WriteLine("LZ78 + Huffman: ");
+             byte[] lzEncodedBytes = CodecTestUtils.CheckStreamCodecWithBinaryData(new LempelZiv78Codec(), RandomBytes, null, false);
+             byte[] encodedBytes = CodecTestUtils.CheckStreamCodecWithBinaryData(new HuffmanCodec(), lzEncodedBytes, null, false);
              Console.WriteLine("Ratio {0:F2}% ({1}->{2} bytes)", (double) encodedBytes.Length / RandomBytes.Length * 100, RandomBytes.Length, encodedBytes.Length);
              Console.WriteLine();
          }
@@ -120,12 +133,12 @@ namespace DevOnMobile.Tests
              Console.WriteLine();
          }
          {
-             Console.Write("Huffman: ");
-             byte[] encodedBytes = CodecTestUtils.CheckStreamCodecWithBinaryData(new HuffmanCodec(), RandomBytes, null, false);
-             Console.WriteLine("Ratio: {0:F2}% ({1}->{2} bytes)", (double) encodedBytes.Length / RandomBytes.Length * 100, RandomBytes.Length, encodedBytes.Length);
+             Console.WriteLine("LZ78-12bit + Huffman: ");
+             byte[] lzEncodedBytes = CodecTestUtils.CheckStreamCodecWithBinaryData(new LempelZiv78_NBitCodec(12), RandomBytes, null, false);
+             byte[] encodedBytes = CodecTestUtils.CheckStreamCodecWithBinaryData(new HuffmanCodec(), lzEncodedBytes, null, false);
+             Console.WriteLine("Ratio {0:F2}% ({1}->{2} bytes)", (double) encodedBytes.Length / RandomBytes.Length * 100, RandomBytes.Length, encodedBytes.Length);
              Console.WriteLine();
          }
-       
      }
 
      // TODO: experiment with passing CompressionLevel to DeflateStream ctor
@@ -136,8 +149,8 @@ namespace DevOnMobile.Tests
          using (var deflateStream = new DeflateStream(outMemStream, CompressionMode.Compress))
          {
              EncodeToStdStream(RandomBytes, deflateStream);
-             byte[] output = outMemStream.GetBuffer();
-             Console.WriteLine("Deflate: {0}% ({1} bytes)", (double) output.Length / RandomBytes.Length * 100, output.Length);
+             long encodedBytesLen = outMemStream.Position;
+             Console.WriteLine("Deflate: {0:F2}% ({1} bytes)", (double) encodedBytesLen / RandomBytes.Length * 100, encodedBytesLen);
          }
      }
 
@@ -149,8 +162,8 @@ namespace DevOnMobile.Tests
          using (var zipStream = new GZipStream(outMemStream, CompressionMode.Compress))
          {
              EncodeToStdStream(RandomBytes, zipStream);
-             byte[] output = outMemStream.GetBuffer();
-             Console.WriteLine("GZip: {0}% ({1} bytes)", (double) output.Length / RandomBytes.Length * 100, output.Length);
+             long encodedBytesLen = outMemStream.Position;
+             Console.WriteLine("GZip: {0:F2}% ({1} bytes)", (double) encodedBytesLen / RandomBytes.Length * 100, encodedBytesLen);
          }
      }
 
@@ -159,14 +172,14 @@ namespace DevOnMobile.Tests
      public void LargeData_Huffman()
      {
          byte[] encodedBytes = CodecTestUtils.CheckStreamCodecWithBinaryData(new HuffmanCodec(), RandomBytes, null, false);
-         Console.WriteLine("Huffman: {0}% ({1} bytes)", (double) encodedBytes.Length / RandomBytes.Length * 100, encodedBytes.Length);
+         Console.WriteLine("Huffman: {0:F2}% ({1} bytes)", (double) encodedBytes.Length / RandomBytes.Length * 100, encodedBytes.Length);
      }
 
      [TestMethod, Timeout(10000)]
      public void LargeData_LempelZiv78()
      {
          byte[] encodedBytes = CodecTestUtils.CheckStreamCodecWithBinaryData(new LempelZiv78Codec(), RandomBytes, null, false);
-         Console.WriteLine("LZ78: {0}% ({1} bytes)", (double) encodedBytes.Length / RandomBytes.Length * 100, encodedBytes.Length);
+         Console.WriteLine("LZ78: {0:F2}% ({1} bytes)", (double) encodedBytes.Length / RandomBytes.Length * 100, encodedBytes.Length);
      }
     
      [TestMethod, Timeout(100)]
@@ -283,7 +296,7 @@ namespace DevOnMobile.Tests
    }
 
    Console.WriteLine();
-   Console.WriteLine("*** Compression ratio: {0}% (encoded size vs original size) ***", (double)totalEncodedSize / totalDecodedSize * 100);
+   Console.WriteLine("*** Compression ratio: {0:F2}% (encoded size vs original size) ***", (double)totalEncodedSize / totalDecodedSize * 100);
   }
 
   [TestMethod, Timeout(100)]
@@ -313,7 +326,7 @@ namespace DevOnMobile.Tests
    }
 
    Console.WriteLine();
-   Console.WriteLine("*** Compression ratio: {0}% (encoded size vs original size) ***", (double)totalEncodedSize / totalDecodedSize * 100);
+   Console.WriteLine("*** Compression ratio: {0:F2}% (encoded size vs original size) ***", (double)totalEncodedSize / totalDecodedSize * 100);
   }
 
      [TestMethod, Timeout(500)]
@@ -347,8 +360,8 @@ namespace DevOnMobile.Tests
          }
 
          Console.WriteLine("Encoded size vs original size, in bits:");
-         Console.WriteLine("*** Char   Compression ratio: {0}%", (double) totalEncodedSizeChar / totalDecodedSize * 100);
-         Console.WriteLine("*** Binary Compression ratio: {0}%", (double) totalEncodedSizeBinary / totalDecodedSize * 100);
+         Console.WriteLine("*** Char   Compression ratio: {0:F2}%", (double) totalEncodedSizeChar / totalDecodedSize * 100);
+         Console.WriteLine("*** Binary Compression ratio: {0:F2}%", (double) totalEncodedSizeBinary / totalDecodedSize * 100);
      }
 
      [TestMethod, Timeout(500)]
@@ -378,7 +391,7 @@ namespace DevOnMobile.Tests
          }
 
          Console.WriteLine("Encoded size vs original size, in bits:");
-         Console.WriteLine("*** Compression ratio: {0}%", (double) totalEncodedSize / totalDecodedSize * 100);
+         Console.WriteLine("*** Compression ratio: {0:F2}%", (double) totalEncodedSize / totalDecodedSize * 100);
      }
 
      [TestMethod]
@@ -541,13 +554,13 @@ namespace DevOnMobile.Tests
    Console.WriteLine("Compression ratio on {0} random letters (encoded size vs original size):", input7.Length);
 
    string encoded = codec1.encode(input7);
-   Console.WriteLine("Char RLE: {0}%", (double)encoded.Length / input7.Length * 100);
+   Console.WriteLine("Char RLE: {0:F2}%", (double)encoded.Length / input7.Length * 100);
 
    encoded = codec3.encode(input7);
-   Console.WriteLine("Huffman to BitChars: {0}%", encoded.Length / 8.0 / input7.Length * 100);
+   Console.WriteLine("Huffman to BitChars: {0:F2}%", encoded.Length / 8.0 / input7.Length * 100);
 
       byte[] encodedBytes = CheckStreamCodecWithText(codec3, input7, null);
-      Console.WriteLine("Huffman to Bits: {0}%", (double)encodedBytes.Length / input7.Length * 100);
+      Console.WriteLine("Huffman to Bits: {0:F2}%", (double)encodedBytes.Length / input7.Length * 100);
   }
 
      [TestMethod]
