@@ -10,6 +10,7 @@ namespace DevOnMobile
         private int low = 0;
         private int range = 1;
 
+        // TODO: need to pass in symbol probability table rather than hardcoding it
         public string decode(string data)
         {
             input = data;
