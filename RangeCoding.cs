@@ -4,6 +4,7 @@ namespace DevOnMobile
 {
     public class RangeCoding : ITextCodec
     {
+        private const char EndOfMessageChar = '\0';
         private int low;
         private int range;
         private string output;
@@ -17,16 +18,44 @@ namespace DevOnMobile
             range = 100000;
 
             //byte[] charProbability = new byte[256];
-            const int total = 10;
-            var charStart = new byte[256];
-            var charSize = new byte[256];
+            //const int total = 10;
+            var charStart = new int[256];
+            var charSize = new int[256];
+
             // TODO: derive this data based on frequencies of characters in input
-            charStart['A'] = 0;
-            charSize['A'] = 6;
-            charStart['B'] = 6;
-            charSize['B'] = 2;
-            charStart['\0'] = 8;
-            charSize['\0'] = 2;
+            int total = data.Length + 1; // count invented EOM char
+            foreach (char ch in data)
+            {
+                charSize[ch]++;
+            }
+            charSize[EndOfMessageChar]++;
+
+            // Here we make the EOM char the first char not the last char. This changes the final result from this method.
+            int pos = 0;
+            for(int ch = 0; ch < 256; ch++)
+            {
+                if (charSize[ch] > 0)
+                {
+                    charStart[ch] = pos;
+                    pos += charSize[ch];
+                }
+            }
+
+            //total = 5;
+            //charStart['A'] = 0;
+            //charSize['A'] = 3;
+            //charStart['B'] = 3;
+            //charSize['B'] = 1;
+            //charStart['\0'] = 4;
+            //charSize['\0'] = 1;
+
+            //total = 10;
+            //charStart['A'] = 0;
+            //charSize['A'] = 6;
+            //charStart['B'] = 6;
+            //charSize['B'] = 2;
+            //charStart['\0'] = 8;
+            //charSize['\0'] = 2;
 
             output = string.Empty;
 
@@ -86,7 +115,7 @@ namespace DevOnMobile
             if(string.IsNullOrEmpty(data))
                 return data;
 
-            throw new NotImplementedException();
+            return new RangeDecoder().decode(data);
         }
     }
 }

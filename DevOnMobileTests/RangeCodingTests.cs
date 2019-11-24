@@ -11,7 +11,9 @@ namespace DevOnMobile.Tests
             const string input = "AABA";
             var coder = new RangeCoding();
             string output = coder.encode(input);
-            Assert.AreEqual("251", output); // According to Wikipedia this is the correct output
+            //Assert.AreEqual("251", output); // According to Wikipedia this is the correct output
+            // We make the EOM char the first char not the last char. This changes the result.
+            Assert.AreEqual("623", output);
         }
 
         [TestMethod, Timeout(100)]
@@ -20,7 +22,7 @@ namespace DevOnMobile.Tests
             const string input = "ABAA";
             var coder = new RangeCoding();
             string output = coder.encode(input);
-            Assert.AreEqual("395", output); // We do not know if this is the correct output
+            Assert.AreEqual("719", output); // We do not know if this is the correct output
         }
 
         [TestMethod, Timeout(100)]
@@ -29,15 +31,15 @@ namespace DevOnMobile.Tests
             const string input = "AAAA";
             var coder = new RangeCoding();
             string output = coder.encode(input);
-            Assert.AreEqual("Not 11", output); // TODO: The correct output is probably not "11" since symbol probability is not yet measured
+            Assert.AreEqual("510", output); // We do not know if this is the correct output
         }
 
         [TestMethod, Timeout(100)]
-        public void TestDencodeWithShortText()
+        public void TestDecodeWithShortText()
         {
             const string input = "251";
             var coder = new RangeCoding();
-            string output = coder.decode(input); // TODO
+            string output = coder.decode(input);
             Assert.AreEqual("AABA", output); // According to Wikipedia this is the correct output
         }
     }
