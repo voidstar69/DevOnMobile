@@ -9,21 +9,21 @@ namespace DevOnMobile
         private int range;
         private string output;
 
-        public string encode(string data)
+        public string encode(string data, out RangeCodingTable table)
         {
+            table = null;
+
             if(string.IsNullOrEmpty(data))
                 return data;
 
             low = 0;
             range = 100000;
-
-            //byte[] charProbability = new byte[256];
-            //const int total = 10;
-            var charStart = new int[256];
-            var charSize = new int[256];
-
-            // TODO: derive this data based on frequencies of characters in input
             int total = data.Length + 1; // count invented EOM char
+
+            table = new RangeCodingTable {TotalRange = total};
+            int[] charStart = table.CharStart;
+            int[] charSize = table.CharSize;
+
             foreach (char ch in data)
             {
                 charSize[ch]++;
@@ -79,7 +79,7 @@ namespace DevOnMobile
 
         private void emitDigit()
         {
-            if (tooManyCallsGuard++ > 10)
+            if (tooManyCallsGuard++ > 1000)
             {
                 throw new ApplicationException();
             }

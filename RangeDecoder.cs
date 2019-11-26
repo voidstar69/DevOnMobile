@@ -4,57 +4,61 @@ namespace DevOnMobile
 {
     public class RangeDecoder
     {
+        private const char EndOfMessageChar = '\0';
         private string input;
         private string output;
         private int code = 0;
         private int low = 0;
         private int range = 1;
 
-        // TODO: need to pass in symbol probability table rather than hardcoding it
-        public string decode(string data)
+        private byte[] BuildRangePointToCharMap(RangeCodingTable table)
         {
-            input = data;
-
-            //InitializeDecoder();
-
-            int start = 0;
-            int size;
-            int total = 10;
-            AppendDigit();                    // need to get range/total >0
-            while (start < 8)                 // stop when receive EOM
+            var posToChar = new byte[table.TotalRange];
+            for(int ch = 0; ch < table.CharStart.Length; ch++)
             {
-                int v = GetValue(total);  // code is in what symbol range?
-                switch (v)                // convert value to symbol
+                int size = table.CharSize[ch];
+                if (size > 0)
                 {
-                    case 0:
-                    case 1:
-                    case 2:
-                    case 3:
-                    case 4:
-                    case 5: start=0; size=6; Console.Write("A"); output += 'A'; break;
-                    case 6:
-                    case 7: start=6; size=2; Console.Write("B"); output += 'B'; break;
-                    default: start=8; size=2; Console.WriteLine(""); break;
+                    int start = table.CharStart[ch];
+                    for (int offset = 0; offset < size; offset++)
+                    {
+                        posToChar[start + offset] = (byte)ch;
+                    }
                 }
-                Decode(start, size, total);
             }
 
-            return output;
+            return posToChar;
+        }
+
+        public string decode(string data, RangeCodingTable table)
+        {
+            input = data;
+            AppendDigit(); // need to get range/total >0
+
+            byte[] posToChar = BuildRangePointToCharMap(table);
+
+            while (true)                      
+            {
+                // code is in what symbol range?
+                int pos = GetValue(table.TotalRange);
+
+                // convert position in range into symbol
+                byte ch = posToChar[pos];
+
+                // stop when receive EOM
+                if (ch == EndOfMessageChar)
+                    return output;
+
+                output += (char) ch;
+
+                Decode(table.CharStart[ch], table.CharSize[ch], table.TotalRange);
+            }
         }
 
         private int GetValue(int total)
         {
             return (code - low) / (range / total);
         }
-
-        //private void InitializeDecoder()
-        //{
-        //    AppendDigit();  // with this example code, only 1 of these is actually needed
-        //    //AppendDigit();
-        //    //AppendDigit();
-        //    //AppendDigit();
-        //    //AppendDigit();
-        //}
 
         private int ReadNextDigit()
         {
