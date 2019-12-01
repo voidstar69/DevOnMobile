@@ -11,29 +11,11 @@ namespace DevOnMobile
         private int low = 0;
         private int range = 1;
 
-        private byte[] BuildRangePointToCharMap(RangeCodingTable table)
-        {
-            var posToChar = new byte[table.TotalRange];
-            for(int ch = 0; ch < table.CharStart.Length; ch++)
-            {
-                int size = table.CharSize[ch];
-                if (size > 0)
-                {
-                    int start = table.CharStart[ch];
-                    for (int offset = 0; offset < size; offset++)
-                    {
-                        posToChar[start + offset] = (byte)ch;
-                    }
-                }
-            }
-
-            return posToChar;
-        }
-
         public string decode(string data, RangeCodingTable table)
         {
             input = data;
             AppendDigit(); // need to get range/total >0
+            AppendDigit();
 
             byte[] posToChar = BuildRangePointToCharMap(table);
 
@@ -55,9 +37,28 @@ namespace DevOnMobile
             }
         }
 
+        private static byte[] BuildRangePointToCharMap(RangeCodingTable table)
+        {
+            var posToChar = new byte[table.TotalRange];
+            for(int ch = 0; ch < table.CharStart.Length; ch++)
+            {
+                int size = table.CharSize[ch];
+                if (size > 0)
+                {
+                    int start = table.CharStart[ch];
+                    for (int offset = 0; offset < size; offset++)
+                    {
+                        posToChar[start + offset] = (byte)ch;
+                    }
+                }
+            }
+
+            return posToChar;
+        }
+
         private int GetValue(int total)
         {
-            return (code - low) / (range / total);
+            return (code - low) * total / range;
         }
 
         private int ReadNextDigit()
@@ -83,6 +84,9 @@ namespace DevOnMobile
             range /= total;
             low += start * range;
             range *= size;
+
+            if(range < 1)
+                throw new ApplicationException("range must never be zero");
 
             // check if left-most digit is same throughout range
             while (low / 10000 == (low + range) / 10000)

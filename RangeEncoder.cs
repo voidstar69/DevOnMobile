@@ -18,7 +18,7 @@ namespace DevOnMobile
 
             low = 0;
             range = 100000;
-            int total = data.Length + 1; // count invented EOM char
+            int total = RoundToNextPowerOf10(data.Length + 1); // count including invented EOM char
 
             table = new RangeCodingTable {TotalRange = total};
             int[] charStart = table.CharStart;
@@ -29,6 +29,12 @@ namespace DevOnMobile
                 charSize[ch]++;
             }
             charSize[EndOfMessageChar]++;
+
+            // when making TotalRange a power of 10, char sizes need to be adjusted to cover this full range
+            for (int ch = 0; ch < 256; ch++)
+            {
+                charSize[ch] *= total / (data.Length + 1);
+            }
 
             // Here we make the EOM char the first char not the last char. This changes the final result from this method.
             int pos = 0;
@@ -73,6 +79,16 @@ namespace DevOnMobile
             emitDigit();
 
             return output;
+        }
+
+        private static int RoundToNextPowerOf10(int num)
+        {
+            int pow10 = 10;
+            while (pow10 < num)
+            {
+                pow10 *= 10;
+            }
+            return pow10;
         }
 
         private int tooManyCallsGuard;
