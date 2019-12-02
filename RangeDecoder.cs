@@ -14,8 +14,14 @@ namespace DevOnMobile
         public string decode(string data, RangeCodingTable table)
         {
             input = data;
-            AppendDigit(); // need to get range/total >0
-            AppendDigit();
+
+            Console.WriteLine("Decoder: data len: {0}, total: {1}, input: {2}", data.Length, table.TotalRange, data);
+
+            //AppendDigit(); // need to get range/total >0
+            while (range < table.TotalRange)
+            {
+                AppendDigit();
+            }
 
             byte[] posToChar = BuildRangePointToCharMap(table);
 
@@ -27,14 +33,21 @@ namespace DevOnMobile
                 // convert position in range into symbol
                 byte ch = posToChar[pos];
 
+                Console.WriteLine("Range: {0}-{1}, code: {2}, pos: {3}/{4}, char: {5} ({6})", low, low + range, code, pos, table.TotalRange, (char) ch, ch);
+
                 // stop when receive EOM
                 if (ch == EndOfMessageChar)
-                    return output;
+                    break;
 
                 output += (char) ch;
 
                 Decode(table.CharStart[ch], table.CharSize[ch], table.TotalRange);
             }
+
+            Console.WriteLine("Decoder output: {0}", output);
+            Console.WriteLine();
+
+            return output;
         }
 
         private static byte[] BuildRangePointToCharMap(RangeCodingTable table)
@@ -58,7 +71,8 @@ namespace DevOnMobile
 
         private int GetValue(int total)
         {
-            return (code - low) * total / range;
+            return (code - low) / (range / total);
+            //return (code - low) * total / range;
         }
 
         private int ReadNextDigit()

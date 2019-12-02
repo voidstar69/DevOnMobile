@@ -1,7 +1,11 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using System.Text;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace DevOnMobile.Tests
 {
+    // TODO: switch codec from base-10 to base-256 to encoded binary data directly
+
     [TestClass]
     public class RangeCodingTests
     {
@@ -34,7 +38,7 @@ namespace DevOnMobile.Tests
             Assert.AreEqual("510", output); // We do not know if this is the correct output
         }
 
-        [TestMethod]//, Timeout(100)]
+        [TestMethod, Timeout(100)]
         public void TestDecodeWithShortText()
         {
             const string input = "251";
@@ -66,7 +70,7 @@ namespace DevOnMobile.Tests
             Assert.AreEqual("AABA", decoded);
         }
 
-        [TestMethod]//, Timeout(1000)]
+        [TestMethod, Timeout(100)]
         public void TestEncodeThenDecodeWithShortText2()
         {
             const string input = "fghjgfjfghjfghj";
@@ -77,10 +81,31 @@ namespace DevOnMobile.Tests
             Assert.AreEqual(input, decoded);
         }
 
-        [TestMethod]//, Timeout(100)]
+        [TestMethod, Timeout(100)]
         public void TestEncodeThenDecodeWithLongText()
         {
-            const string input = "ABAfdghdfjh356756utyjfgr t56uy 56u567856 5jhthne t784567hfdhgdfgJFGHJETJE%^UE%YJDGJ^&IR^&KC";
+            const string input = "AB Afdghdfjh356756utyjfgr t56uy 56u567856 5jhthne t784567hfdhgdfgJFGHJETJE%^UE%YJDGJ^&IR^&KC";
+            var coder = new RangeCoding();
+            string encoded = coder.encode(input);
+
+            string decoded = coder.decode(encoded);
+            Assert.AreEqual(input, decoded);
+        }
+
+        [TestMethod, Timeout(100)]
+        public void TestEncodeThenDecodeWithRandomText()
+        {
+            const int size = 100; // TODO: size of 500 or 1000 sometimes breaks the compressor - range becomes zero sometimes during compression
+
+            var random = new Random();
+            var builder = new StringBuilder(size);
+            for (var i = 0; i < size; i++)
+            {
+                builder.Append((char) random.Next(1, 255)); // TODO: a zero-character in the input causes the decompressor to terminate early as this is the terminator character
+                //builder.Append((char) random.Next('A', 'z'));
+            }
+            string input = builder.ToString();
+
             var coder = new RangeCoding();
             string encoded = coder.encode(input);
 
