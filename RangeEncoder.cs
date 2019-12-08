@@ -4,6 +4,10 @@ namespace DevOnMobile
 {
     public class RangeEncoder
     {
+        private const int MaxRange = 100000;
+        private const int FirstDigitScalar = 10000;
+        private const int RangeBase = 10;
+
         private const char EndOfMessageChar = '\0';
         private int low;
         private int range;
@@ -17,11 +21,11 @@ namespace DevOnMobile
                 return data;
 
             low = 0;
-            range = 100000;
+            range = MaxRange;
             int total = RoundToNextPowerOf10(data.Length + 1); // count including invented EOM char
-            if (total > 1000)
+            if (total > FirstDigitScalar / RangeBase)
             {
-                total = 1000;
+                total = FirstDigitScalar / RangeBase;
             }
 
             table = new RangeCodingTable {TotalRange = total};
@@ -66,10 +70,10 @@ namespace DevOnMobile
             }
 
             // emit final digits - see below
-            while (range < 10000)
+            while (range < FirstDigitScalar)
                 emitDigit();
 
-            low += 10000;
+            low += FirstDigitScalar;
             emitDigit();
 
             Console.WriteLine("Encoder output: {0}", output);
@@ -97,11 +101,11 @@ namespace DevOnMobile
                 throw new ApplicationException("Too many calls to emitDigit!");
             }
 
-            Console.WriteLine("Range: {0}-{1}, digit: {2}", low, low + range, low / 10000);
-            output += low / 10000;
-            //Console.Write(low / 10000);
-            low = (low % 10000) * 10;
-            range *= 10;
+            Console.WriteLine("Range: {0}-{1}, digit: {2}", low, low + range, low / FirstDigitScalar);
+            output += low / FirstDigitScalar;
+            //Console.Write(low / FirstDigitScalar);
+            low = (low % FirstDigitScalar) * RangeBase;
+            range *= RangeBase;
         }
 
         private void encodeChar(int start, int size, int total, char ch)
@@ -119,15 +123,15 @@ namespace DevOnMobile
             range *= size;
 
             // check if left-most digit is same throughout range
-            while (low / 10000 == (low + range) / 10000)
+            while (low / FirstDigitScalar == (low + range) / FirstDigitScalar)
                 emitDigit();
 
             // readjust range - see reason for this below
-            if (range < 1000)
+            if (range < FirstDigitScalar / RangeBase)
             {
                 emitDigit();
                 emitDigit();
-                range = 100000 - low;
+                range = MaxRange - low;
 
                 Console.WriteLine("Range: {0}-{1}", low, low + range);
             }
