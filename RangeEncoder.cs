@@ -7,8 +7,8 @@ namespace DevOnMobile
         private const int MaxRange = 100000;
         private const int FirstDigitScalar = 10000;
         private const int RangeBase = 10;
-
         private const char EndOfMessageChar = '\0';
+
         private int low;
         private int range;
         private string output;

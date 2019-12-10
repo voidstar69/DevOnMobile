@@ -4,7 +4,11 @@ namespace DevOnMobile
 {
     public class RangeDecoder
     {
+        private const int MaxRange = 100000;
+        private const int FirstDigitScalar = 10000;
+        private const int RangeBase = 10;
         private const char EndOfMessageChar = '\0';
+
         private string input;
         private string output;
         private int code = 0;
@@ -87,9 +91,9 @@ namespace DevOnMobile
 
         private void AppendDigit()
         {
-            code = (code % 10000) * 10 + ReadNextDigit();
-            low = (low % 10000) * 10;
-            range *= 10;
+            code = (code % FirstDigitScalar) * RangeBase + ReadNextDigit();
+            low = (low % FirstDigitScalar) * RangeBase;
+            range *= RangeBase;
         }
 
         private void Decode(int start, int size, int total)  // Decode is same as Encode with EmitDigit replaced by AppendDigit
@@ -103,15 +107,15 @@ namespace DevOnMobile
                 throw new ApplicationException("range must never be zero");
 
             // check if left-most digit is same throughout range
-            while (low / 10000 == (low + range) / 10000)
+            while (low / FirstDigitScalar == (low + range) / FirstDigitScalar)
                 AppendDigit();
 
             // readjust range - see reason for this below
-            if (range < 1000)
+            if (range < FirstDigitScalar / RangeBase)
             {
                 AppendDigit();
                 AppendDigit();
-                range = 100000 - low;
+                range = MaxRange - low;
             }
         }
     }
