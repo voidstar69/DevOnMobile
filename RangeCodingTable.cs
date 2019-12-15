@@ -2,8 +2,8 @@
 {
     public class RangeCodingTable
     {
-        public int[] CharStart { get; } = new int[256];
-        public int[] CharSize { get; } = new int[256];
-        public int TotalRange { get; set; }
+        public ulong[] CharStart { get; } = new ulong[256];
+        public ulong[] CharSize { get; } = new ulong[256];
+        public ulong TotalRange { get; set; }
     }
 }

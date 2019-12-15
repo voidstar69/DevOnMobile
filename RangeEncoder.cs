@@ -4,13 +4,13 @@ namespace DevOnMobile
 {
     public class RangeEncoder
     {
-        private const int MaxRange = 100000;
-        private const int FirstDigitScalar = 10000;
-        private const int RangeBase = 10;
+        private const ulong MaxRange = 0x10000000;
+        private const ulong FirstDigitScalar = 0x100000;
+        private const ulong RangeBase = 0x100;
         private const char EndOfMessageChar = '\0';
 
-        private int low;
-        private int range;
+        private ulong low;
+        private ulong range;
         private string output;
 
         public string encode(string data, out RangeCodingTable table)
@@ -22,15 +22,15 @@ namespace DevOnMobile
 
             low = 0;
             range = MaxRange;
-            int total = RoundToNextPowerOf10(data.Length + 1); // count including invented EOM char
+            ulong total = RoundToNextPower((ulong)data.Length + 1, RangeBase); // count including invented EOM char
             if (total > FirstDigitScalar / RangeBase)
             {
                 total = FirstDigitScalar / RangeBase;
             }
 
             table = new RangeCodingTable {TotalRange = total};
-            int[] charStart = table.CharStart;
-            int[] charSize = table.CharSize;
+            ulong[] charStart = table.CharStart;
+            ulong[] charSize = table.CharSize;
 
             foreach (char ch in data)
             {
@@ -41,15 +41,15 @@ namespace DevOnMobile
             // when making TotalRange a power of 10, char sizes need to be adjusted to cover this full range
             for (var ch = 0; ch < 256; ch++)
             {
-                int size = charSize[ch];
+                ulong size = charSize[ch];
                 if (size > 0)
                 {
-                    charSize[ch] = Math.Max(1, size * total / (data.Length + 1));
+                    charSize[ch] = Math.Max(1, size * total / (ulong)(data.Length + 1));
                 }
             }
 
             // Here we make the EOM char the first char not the last char. This changes the final result from this method.
-            int pos = 0;
+            ulong pos = 0;
             for(int ch = 0; ch < 256; ch++)
             {
                 if (charSize[ch] > 0)
@@ -82,14 +82,14 @@ namespace DevOnMobile
             return output;
         }
 
-        private static int RoundToNextPowerOf10(int num)
+        private static ulong RoundToNextPower(ulong num, ulong numBase)
         {
-            int pow10 = 10;
-            while (pow10 < num)
+            ulong nextPower = numBase;
+            while (nextPower < num)
             {
-                pow10 *= 10;
+                nextPower *= numBase;
             }
-            return pow10;
+            return nextPower;
         }
 
         private int tooManyCallsGuard;
@@ -103,12 +103,13 @@ namespace DevOnMobile
 
             Console.WriteLine("Range: {0}-{1}, digit: {2}", low, low + range, low / FirstDigitScalar);
             output += low / FirstDigitScalar;
+            output += ',';
             //Console.Write(low / FirstDigitScalar);
             low = (low % FirstDigitScalar) * RangeBase;
-            range *= RangeBase;
+            range = range * RangeBase;
         }
 
-        private void encodeChar(int start, int size, int total, char ch)
+        private void encodeChar(ulong start, ulong size, ulong total, char ch)
         {
             Console.WriteLine("Range: {0}-{1}, start: {2}, size: {3}, total: {4}, char: {5} ({6})", low, low + range, start, size, total, ch, (int)ch);
 
