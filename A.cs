@@ -76,7 +76,7 @@ namespace DevOnMobile
             nextByte = nextNextByte;
             nextNextByte = stream.ReadByte();
 
-            if (nextNextByte == -1)
+            if (nextByte != -1 && nextNextByte == -1)
             {
                 // At end of stream. Second-to-last byte is the final data byte.
                 // Last byte is the number of valid bits in the final data byte.
