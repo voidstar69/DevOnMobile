@@ -2,8 +2,14 @@
 {
     public class RangeCodingTable
     {
-        public ulong[] CharStart { get; } = new ulong[256];
-        public ulong[] CharSize { get; } = new ulong[256];
+        public ulong[] CharStart { get; private set; } 
+        public ulong[] CharSize { get; private set; } 
         public ulong TotalRange { get; set; }
+
+        public RangeCodingTable()
+        {
+            CharStart = new ulong[256];
+            CharSize = new ulong[256];
+        }
     }
 }

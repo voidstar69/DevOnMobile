@@ -12,7 +12,7 @@ namespace DevOnMobile
         {
             if (codecBitSize < 1 || codecBitSize > 16)
             {
-                throw new ArgumentOutOfRangeException(nameof(codecBitSize), codecBitSize, "Only 1-16 bits supported");
+                throw new ArgumentOutOfRangeException("codecBitSize", codecBitSize, "Only 1-16 bits supported");
             }
 
             numIndexBits = (byte)codecBitSize;
