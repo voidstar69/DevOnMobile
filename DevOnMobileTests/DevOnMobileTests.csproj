@@ -74,6 +74,7 @@
     <Compile Include="LZ78Codec16BitTests.cs" />
     <Compile Include="PrimeTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RangeCodingTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DevOnMobile.csproj">

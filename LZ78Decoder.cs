@@ -33,7 +33,7 @@ namespace DevOnMobile
         }
 
         public ushort DictionarySizeAfterDecoding { get; private set; }
-
+      
         /// <summary>
         /// Decodes a single compression entry into a decompressed bit stream.
         /// </summary>
