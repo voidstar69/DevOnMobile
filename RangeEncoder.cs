@@ -115,7 +115,7 @@ namespace DevOnMobile
 
             if(range < total)
             {
-                throw new ApplicationException($"Range {range} less than Total {total} => range will become zero!");
+                throw new ApplicationException(string.Format("Range {0} less than Total {1} => range will become zero!", range, total));
             }
 
             // adjust the range based on the symbol interval
