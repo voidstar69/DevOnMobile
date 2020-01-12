@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 
 namespace DevOnMobile
@@ -14,7 +13,7 @@ namespace DevOnMobile
         private readonly byte numIndexBits;
 
         private ushort lastMatchingIndex = Sentinel;
-        private ushort nextAvailableIndex = 1;
+        private ushort nextAvailableIndex = Sentinel + 1;
 
         public LZ78Encoder(byte codecBitSize, ushort maxDictSize)
         {
@@ -75,7 +74,7 @@ namespace DevOnMobile
             {
                 throw new InvalidDataException("Dictionary is corrupt!");
             }
-            Console.WriteLine("LZ78Encoder.Flush: dictionary size = {0} ({1})", dict.Count, nextAvailableIndex - 1);
+            //Console.WriteLine("LZ78Encoder.Flush: dictionary size = {0} ({1})", dict.Count, nextAvailableIndex - 1);
         }
     }
 }

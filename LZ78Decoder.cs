@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 
 namespace DevOnMobile
 {
@@ -33,6 +32,8 @@ namespace DevOnMobile
             return dict;
         }
 
+        public ushort DictionarySizeAfterDecoding { get; private set; }
+      
         /// <summary>
         /// Decodes a single compression entry into a decompressed bit stream.
         /// </summary>
@@ -55,7 +56,8 @@ namespace DevOnMobile
             if (byteVal == null)
             {
                 // end of input stream
-                Console.WriteLine("LZ78Decoder.DecodeEntry: dictionary size = {0}", nextAvailableIndex - 1);
+                DictionarySizeAfterDecoding = (ushort)(nextAvailableIndex - 1);
+                //Console.WriteLine("LZ78Decoder.DecodeEntry: dictionary size = {0}", nextAvailableIndex - 1);
                 return true;
             }
             var dataByte = (byte) byteVal;

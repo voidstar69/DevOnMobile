@@ -16,6 +16,7 @@ namespace DevOnMobile
     {
         void encode(Stream inputStream, Stream outputStream);
         void decode(Stream inputStream, Stream outputStream);
+        int dictionarySize { get; } // only populated after full decoding
     }
 
     public interface IInputBitStream
@@ -389,6 +390,8 @@ namespace DevOnMobile
          }
      }
 
+     public int dictionarySize { get; private set; }
+
      // encode binary data -> binary data
      public void encode(Stream inputStream, Stream outputStream)
      {
@@ -418,6 +421,7 @@ namespace DevOnMobile
      {
          Node treeRoot;
          Dictionary<byte, Node> byteToNodeDict = BuildHuffmanTree(inputStream, out treeRoot);
+         dictionarySize = byteToNodeDict.Count;
 
          // store the Huffman coding tree in the bitstream, so the decoder can reconstruct the tree
          log.WriteLine("Serialising Huffman tree:");
