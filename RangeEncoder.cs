@@ -4,12 +4,12 @@ namespace DevOnMobile
 {
     public class RangeEncoder
     {
-        private const int MaxRange = 100000;
-        private const int FirstDigitScalar = 10000;
-        private const int RangeBase = 10;
-        //private const ulong MaxRange = 0x10000000;
-        //private const ulong FirstDigitScalar = 0x100000;
-        //private const ulong RangeBase = 0x100;
+        //private const int MaxRange = 100000;
+        //private const int FirstDigitScalar = 10000;
+        //private const int RangeBase = 10;
+        private const ulong MaxRange = 0x10000000;
+        private const ulong FirstDigitScalar = 0x100000;
+        private const ulong RangeBase = 0x100;
         private const char EndOfMessageChar = '\0';
 
         private ulong low;
