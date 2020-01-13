@@ -101,7 +101,7 @@ namespace DevOnMobile
                 bits = (byte)data;
             }
 
-            checked
+            unchecked
             {
                 int bit = bits & 0x1;
                 bits = (byte)(bits >> 1);
@@ -160,7 +160,7 @@ namespace DevOnMobile
             if (bit != 0 && bit != 1)
                 throw new ArgumentOutOfRangeException("bit", bit, "bit must be 0 or 1");
 
-            checked
+            unchecked
             {
                 bits = (byte)(bits + (bit << numBits));
                 numBits++;
@@ -349,13 +349,13 @@ namespace DevOnMobile
          {
              if (IsLeaf())
              {
-                 log.WriteLine("Leaf node {0} (0x{0:X})", byteValue);
+                 //log.WriteLine("Leaf node {0} (0x{0:X})", byteValue);
                  stream.WriteBit(1);
                  stream.WriteByte(byteValue);
              }
              else
              {
-                 log.WriteLine("Internal node");
+                 //log.WriteLine("Internal node");
                  stream.WriteBit(0);
                  leftChild.Serialise(stream);
                  rightChild.Serialise(stream);
@@ -377,11 +377,11 @@ namespace DevOnMobile
                  if (byteOrNull == null)
                      throw new ArgumentNullException("stream.ReadByte", "Unexpected end-of-stream");
                  byteValue = byteOrNull.Value;
-                 log.WriteLine("Leaf node {0} (0x{0:X})", byteValue);
+                 //log.WriteLine("Leaf node {0} (0x{0:X})", byteValue);
              }
              else
              {
-                 log.WriteLine("Internal node");
+                 //log.WriteLine("Internal node");
                  leftChild = new Node();
                  leftChild.Deserialise(stream);
                  rightChild = new Node();
@@ -419,6 +419,7 @@ namespace DevOnMobile
 
      private void EncodeInternal(Stream inputStream, IOutputBitStream outputBitStream)
      {
+         // TODO: convert Dictionary<byte, Node> to Node[256]. Set entry to null if missing from dictionary.
          Node treeRoot;
          Dictionary<byte, Node> byteToNodeDict = BuildHuffmanTree(inputStream, out treeRoot);
          dictionarySize = byteToNodeDict.Count;
@@ -440,24 +441,27 @@ namespace DevOnMobile
          {
              byte num = (byte) byteOrFlag;
 
-             // use a stack to write the bits in reverse order
-             var stack = new Stack<int>(8); // TODO: reverse bits more efficiently?
-             log.Write("{0}=", num);
-             for (var node = byteToNodeDict[num]; node.parent != null; node = node.parent)
+             // write bits in reverse order
+             //log.Write("{0}=", num);
+             uint bits = 0;
+             byte numBits = 0;
+             for (Node node = byteToNodeDict[num]; node.parent != null; node = node.parent)
              {
-                 int bit = (node == node.parent.leftChild ? 0 : 1);
-                 stack.Push(bit);
-                 log.Write(bit);
+                 bits <<= 1;
+                 if (node != node.parent.leftChild)
+                     bits |= 1;
+                 numBits++;
+
+                //uint bit = (node == node.parent.leftChild ? 0u : 1u);
+                //bits = (bits << 1) | bit;
+                //log.Write(bit);
              }
 
-             log.Write('/');
-             foreach (int bit in stack)
-             {
-                 outputBitStream.WriteBit(bit);
-                 log.Write(bit);
-             }
+             //log.Write('/');
 
-             log.WriteLine();
+             outputBitStream.WriteBits(bits, numBits);
+
+             //log.WriteLine();
          }
      }
 
@@ -572,12 +576,12 @@ namespace DevOnMobile
         {
             int bit = bitOrNull.Value;
             node = (bit == 0 ? node.leftChild : node.rightChild);
-            log.Write(bit);
+            //log.Write(bit);
 
             if (node.IsLeaf())
             {
                 outputStream.WriteByte(node.byteValue);
-                log.WriteLine("={0}", node.byteValue);
+                //log.WriteLine("={0}", node.byteValue);
                 node = treeRoot; // reset to root of tree
             }
         }
