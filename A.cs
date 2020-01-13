@@ -271,12 +271,26 @@ namespace DevOnMobile
 
   public uint? ReadBits(byte numBits)
   {
-    throw new NotImplementedException();
+      uint value = 0;
+      uint bitMask = 1;
+      for (var bitPos = 1; bitPos <= numBits; bitPos++)
+      {
+          int? bit = ReadBit();
+          if (bit == null)
+              return null;
+          value |= (uint)(bit * bitMask);
+          bitMask <<= 1;
+      }
+      return value;
   }
 
   public void WriteBits(uint value, byte numBits)
   {
-    throw new NotImplementedException();
+      for(var bitPos = 1; bitPos <= numBits; bitPos++)
+      {
+          WriteBit((byte)(value & 1));
+          value >>= 1;
+      }
   }
 
   public byte? ReadByte()
