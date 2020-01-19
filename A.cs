@@ -433,10 +433,9 @@ namespace DevOnMobile
 
      private void EncodeInternal(Stream inputStream, IOutputBitStream outputBitStream)
      {
-         // TODO: convert Dictionary<byte, Node> to Node[256]. Set entry to null if missing from dictionary.
          Node treeRoot;
-         Dictionary<byte, Node> byteToNodeDict = BuildHuffmanTree(inputStream, out treeRoot);
-         dictionarySize = byteToNodeDict.Count;
+         Node[] byteToNodeDict = BuildHuffmanTree(inputStream, out treeRoot);
+         dictionarySize = byteToNodeDict.Count(x => x != null);
 
          // store the Huffman coding tree in the bitstream, so the decoder can reconstruct the tree
          log.WriteLine("Serialising Huffman tree:");
@@ -479,9 +478,9 @@ namespace DevOnMobile
          }
      }
 
-     static Dictionary<byte, Node> BuildHuffmanTree(Stream inputStream, out Node treeRoot)
+     static Node[] BuildHuffmanTree(Stream inputStream, out Node treeRoot)
      {
-         var byteToNodeDict = new Dictionary<byte, Node>(byte.MaxValue);
+         var byteToNodeDict = new Node[byte.MaxValue + 1];
          var freqtoTreeDict = new SortedList<int, IList<Node>>((int) inputStream.Length); // TODO: guess number of internal 'tree' nodes?
          var frequency = new int[byte.MaxValue + 1];
 
@@ -501,7 +500,7 @@ namespace DevOnMobile
              if (freq > 0)
              {
                  var node = new Node {byteValue = byteValue, frequency = freq};
-                 byteToNodeDict.Add(byteValue, node);
+                 byteToNodeDict[byteValue] = node;
                  if (!freqtoTreeDict.ContainsKey(freq)) freqtoTreeDict[freq] = new List<Node>();
                  freqtoTreeDict[freq].Add(node);
              }
