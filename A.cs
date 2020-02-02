@@ -101,7 +101,7 @@ namespace DevOnMobile
                 bits = (byte)data;
             }
 
-            checked
+            unchecked
             {
                 int bit = bits & 0x1;
                 bits = (byte)(bits >> 1);
@@ -160,7 +160,7 @@ namespace DevOnMobile
             if (bit != 0 && bit != 1)
                 throw new ArgumentOutOfRangeException("bit", bit, "bit must be 0 or 1");
 
-            checked
+            unchecked
             {
                 bits = (byte)(bits + (bit << numBits));
                 numBits++;
@@ -271,12 +271,26 @@ namespace DevOnMobile
 
   public uint? ReadBits(byte numBits)
   {
-    throw new NotImplementedException();
+      uint value = 0;
+      uint bitMask = 1;
+      for (var bitPos = 1; bitPos <= numBits; bitPos++)
+      {
+          int? bit = ReadBit();
+          if (bit == null)
+              return null;
+          value |= (uint)(bit * bitMask);
+          bitMask <<= 1;
+      }
+      return value;
   }
 
   public void WriteBits(uint value, byte numBits)
   {
-    throw new NotImplementedException();
+      for(var bitPos = 1; bitPos <= numBits; bitPos++)
+      {
+          WriteBit((byte)(value & 1));
+          value >>= 1;
+      }
   }
 
   public byte? ReadByte()
@@ -349,13 +363,13 @@ namespace DevOnMobile
          {
              if (IsLeaf())
              {
-                 log.WriteLine("Leaf node {0} (0x{0:X})", byteValue);
+                 //log.WriteLine("Leaf node {0} (0x{0:X})", byteValue);
                  stream.WriteBit(1);
                  stream.WriteByte(byteValue);
              }
              else
              {
-                 log.WriteLine("Internal node");
+                 //log.WriteLine("Internal node");
                  stream.WriteBit(0);
                  leftChild.Serialise(stream);
                  rightChild.Serialise(stream);
@@ -377,11 +391,11 @@ namespace DevOnMobile
                  if (byteOrNull == null)
                      throw new ArgumentNullException("stream.ReadByte", "Unexpected end-of-stream");
                  byteValue = byteOrNull.Value;
-                 log.WriteLine("Leaf node {0} (0x{0:X})", byteValue);
+                 //log.WriteLine("Leaf node {0} (0x{0:X})", byteValue);
              }
              else
              {
-                 log.WriteLine("Internal node");
+                 //log.WriteLine("Internal node");
                  leftChild = new Node();
                  leftChild.Deserialise(stream);
                  rightChild = new Node();
@@ -420,8 +434,8 @@ namespace DevOnMobile
      private void EncodeInternal(Stream inputStream, IOutputBitStream outputBitStream)
      {
          Node treeRoot;
-         Dictionary<byte, Node> byteToNodeDict = BuildHuffmanTree(inputStream, out treeRoot);
-         dictionarySize = byteToNodeDict.Count;
+         Node[] byteToNodeDict = BuildHuffmanTree(inputStream, out treeRoot);
+         dictionarySize = byteToNodeDict.Count(x => x != null);
 
          // store the Huffman coding tree in the bitstream, so the decoder can reconstruct the tree
          log.WriteLine("Serialising Huffman tree:");
@@ -440,30 +454,33 @@ namespace DevOnMobile
          {
              byte num = (byte) byteOrFlag;
 
-             // use a stack to write the bits in reverse order
-             var stack = new Stack<int>(8); // TODO: reverse bits more efficiently?
-             log.Write("{0}=", num);
-             for (var node = byteToNodeDict[num]; node.parent != null; node = node.parent)
+             // write bits in reverse order
+             //log.Write("{0}=", num);
+             uint bits = 0;
+             byte numBits = 0;
+             for (Node node = byteToNodeDict[num]; node.parent != null; node = node.parent)
              {
-                 int bit = (node == node.parent.leftChild ? 0 : 1);
-                 stack.Push(bit);
-                 log.Write(bit);
+                 bits <<= 1;
+                 if (node != node.parent.leftChild)
+                     bits |= 1;
+                 numBits++;
+
+                //uint bit = (node == node.parent.leftChild ? 0u : 1u);
+                //bits = (bits << 1) | bit;
+                //log.Write(bit);
              }
 
-             log.Write('/');
-             foreach (int bit in stack)
-             {
-                 outputBitStream.WriteBit(bit);
-                 log.Write(bit);
-             }
+             //log.Write('/');
 
-             log.WriteLine();
+             outputBitStream.WriteBits(bits, numBits);
+
+             //log.WriteLine();
          }
      }
 
-     static Dictionary<byte, Node> BuildHuffmanTree(Stream inputStream, out Node treeRoot)
+     static Node[] BuildHuffmanTree(Stream inputStream, out Node treeRoot)
      {
-         var byteToNodeDict = new Dictionary<byte, Node>(byte.MaxValue);
+         var byteToNodeDict = new Node[byte.MaxValue + 1];
          var freqtoTreeDict = new SortedList<int, IList<Node>>((int) inputStream.Length); // TODO: guess number of internal 'tree' nodes?
          var frequency = new int[byte.MaxValue + 1];
 
@@ -483,7 +500,7 @@ namespace DevOnMobile
              if (freq > 0)
              {
                  var node = new Node {byteValue = byteValue, frequency = freq};
-                 byteToNodeDict.Add(byteValue, node);
+                 byteToNodeDict[byteValue] = node;
                  if (!freqtoTreeDict.ContainsKey(freq)) freqtoTreeDict[freq] = new List<Node>();
                  freqtoTreeDict[freq].Add(node);
              }
@@ -572,12 +589,12 @@ namespace DevOnMobile
         {
             int bit = bitOrNull.Value;
             node = (bit == 0 ? node.leftChild : node.rightChild);
-            log.Write(bit);
+            //log.Write(bit);
 
             if (node.IsLeaf())
             {
                 outputStream.WriteByte(node.byteValue);
-                log.WriteLine("={0}", node.byteValue);
+                //log.WriteLine("={0}", node.byteValue);
                 node = treeRoot; // reset to root of tree
             }
         }
