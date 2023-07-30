@@ -431,6 +431,8 @@ namespace DevOnMobile
          }
      }
 
+     // TODO: Profiling shows that about 60% of the time in this method is spent in method WriteBits.
+     // BuildHuffmanTree only takes up a little over 10% of the time in this method.
      private void EncodeInternal(Stream inputStream, IOutputBitStream outputBitStream)
      {
          Node treeRoot;
@@ -575,6 +577,7 @@ namespace DevOnMobile
          DecodeInternal(inputBitStream, outputStream);
      }
 
+     // TODO: Profiling shows that a third of time in this method is spent in method ReadBit.
     private void DecodeInternal(IInputBitStream inputBitStream, Stream outputStream)
     {
         // reconstruct the Huffman coding tree from the bitstream
