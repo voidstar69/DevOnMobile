@@ -1,0 +1,33 @@
+Debug mode:
+
+
+Huffman: Encode time: 2740ms, Decode time: 1625ms, Total time 4365ms. Dictionary size: 256.
+Ratio: 100.03% (1048576->1048897 bytes)
+
+Huffman: Encode time: 503ms, Decode time: 433ms, Total time 936ms. Dictionary size: 256.
+Ratio: 100.03% (1048576->1048897 bytes)
+
+
+
+Release mode:
+
+Encode time: 382ms, Decode time: 133ms, Total time 515ms. Dictionary size: 256.
+Huffman: 100.03% (1048897 bytes)
+
+(Bit twiddling instead of Stack)
+Encode time: 195ms, Decode time: 146ms, Total time 341ms. Dictionary size: 256.
+Huffman: 100.03% (1048897 bytes)
+
+(Faster bit twiddling)
+Encode time: 169ms, Decode time: 152ms, Total time 321ms. Dictionary size: 256.
+Huffman: 100.03% (1048897 bytes)
+
+Huffman: Encode time: 150ms, Decode time: 127ms, Total time 277ms. Dictionary size: 256.
+Ratio: 100.03% (1048576->1048897 bytes)
+
+(Replaced Node dictionary with Node array)
+Encode time: 155ms, Decode time: 160ms, Total time 315ms. Dictionary size: 256.
+Huffman: 100.03% (1048897 bytes)
+
+Huffman: Encode time: 123ms, Decode time: 120ms, Total time 243ms. Dictionary size: 256.
+Ratio: 100.03% (1048576->1048897 bytes)
